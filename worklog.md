@@ -156,3 +156,30 @@ Stage Summary:
 - Система кулдаунов: нажал "Начать этап" → запустился таймер на прописанные часы (24/48/96) → по истечении кнопка "Завершить этап" → следующий этап
 - Очки за этапы начисляются навыку категории; 1000 очков = 1 уровень навыка
 - Весь флоу проверен end-to-end в браузере
+
+---
+Task ID: 10
+Agent: main
+Task: Кнопка премиум-подписки в настройках + кнопка скипа 12ч + кулдаун 7 дней для non-premium после завершения миссии
+
+Work Log:
+- Схема: добавил `premium Boolean @default(false)` на User; добавил `nextAvailableAt DateTime?` на UserMission (когда следующая миссия категории становится доступна). db push --accept-data-loss.
+- API /api/settings (GET/PATCH): чтение и переключение флага premium.
+- API /api/missions GET: free-слот теперь вычисляет кулдаун — последняя завершённая UserMission в категории имеет nextAvailableAt; если оно в будущем И пользователь non-premium → state.cooldownActive=true, cooldownUntil=ISO. Премиум-пользователи обходят кулдаун.
+- API /api/missions POST: новый action "skip-12h" — вычитает 12ч из stageStartedAt каждой in-progress миссии (таймеры сдвигаются на 12ч ближе к завершению).
+- API /api/missions POST complete-stage: при завершении миссии (этап 3) nextAvailableAt = now для премиум, now+7д для non-premium. Возвращает nextAvailableAt + premium.
+- UI SettingsSheet (shadcn Sheet, side=right): секция "Премиум-подписка" со Switch (тогл) + описание; секция "Пропустить 12 часов" с циан-кнопкой; info-секция "Как работают миссии". Toast-уведомления.
+- UI TopBar: кнопка gear открывает SettingsSheet; onChanged → dispatch window event "neon-refresh".
+- useApi: подписан на "neon-refresh" → все экраны рефрешатся после тогла/скипа.
+- UI MissionCard: новый CooldownBanner — при state.cooldownActive показывает "След. миссия через Nд HH:MM:SS" с lock_clock иконкой вместо кнопки "Начать этап". Live-таймер через useCountdown.
+- Seed: discipline-0 stage 1 ready; mental-0 завершена 8д назад (кулдаун истёк); physical-0 завершена 1ч назад (кулдаун 7д активен → physical-1 "Водный баланс" залочена).
+- ESLint: 0 ошибок. Dev-сервер без runtime-ошибок.
+- Agent Browser E2E: тогл премиум ON/OFF ✓; physical кулдаун снимается при премиум ✓; skip-12h сдвигает таймер 48ч→36ч ✓; завершение миссии non-premium → следующая залочена 7д ✓; завершение миссии premium → следующая мгновенно без кулдауна ✓.
+
+Stage Summary:
+- Кнопка настроек (gear) в top-bar открывает панель настроек
+- Тогл "Премиум-подписка" включает/выключает подписку (PATCH /api/settings)
+- Кнопка "Пропустить 12ч" ускоряет все активные таймеры этапов на 12ч (POST /api/missions action=skip-12h)
+- После завершения миссии: premium → следующая миссия в категории появляется мгновенно; non-premium → появляется через 7 дней (кулдаун с live-обратным отсчётом "След. миссия через Nд HH:MM:SS")
+- Премиум-пользователи видят все кулдауны снятыми
+- Весь флоу проверен end-to-end

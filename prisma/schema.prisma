@@ -17,6 +17,7 @@ model User {
   rankTitle    String   @default("Endeavorer")
   level        Int      @default(42) // derived from total skill points (floor(total/1000))
   avatarUrl    String?
+  premium      Boolean  @default(false) // premium subscription toggle
   streakDays   Int      @default(42)
   completionRate Int    @default(84)
   topPercent   Int      @default(5)
@@ -80,6 +81,9 @@ model UserMission {
   currentStage  Int       @default(0) // 0 = not started, 1/2/3 = stage in progress
   stageStartedAt DateTime? // when the current stage timer started
   completedAt   DateTime?
+  // When the NEXT mission in this category becomes available.
+  // For premium users = completedAt (instant). For non-premium = completedAt + 7 days.
+  nextAvailableAt DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 

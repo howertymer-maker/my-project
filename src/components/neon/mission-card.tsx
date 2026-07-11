@@ -21,6 +21,8 @@ type MissionState = {
   stageReady: boolean;
   completedAt: string | null;
   pointsEarned: number;
+  cooldownUntil: string | null;
+  cooldownActive: boolean;
 };
 
 type Props = {
@@ -186,6 +188,11 @@ export function MissionCard({ template, state, index, premium, onChanged }: Prop
           <MaterialIcon name="task_alt" size={16} fill />
           Миссия завершена · +{template.totalPoints} очк
         </div>
+      ) : state.cooldownActive && state.cooldownUntil ? (
+        <CooldownBanner
+          until={state.cooldownUntil}
+          color={cat.color}
+        />
       ) : !state.started ? (
         <button
           onClick={startMission}
@@ -306,6 +313,36 @@ function StageRow({
           {title}
         </p>
       </div>
+    </div>
+  );
+}
+
+/** Shows a live 7-day countdown while the next mission is on cooldown (non-premium). */
+function CooldownBanner({
+  until,
+  color,
+}: {
+  until: string;
+  color: string;
+}) {
+  const deadline = new Date(until).getTime();
+  const r = useCountdown(deadline);
+  return (
+    <div
+      className="mt-1 w-full py-2.5 rounded-lg flex items-center justify-between px-3 border font-display text-[12px] font-bold uppercase tracking-wider"
+      style={{
+        background: `${color}12`,
+        borderColor: `${color}40`,
+        color,
+      }}
+    >
+      <span className="flex items-center gap-2">
+        <MaterialIcon name="lock_clock" size={16} fill />
+        След. миссия через
+      </span>
+      <span className="font-mono text-[14px] tracking-wider">
+        {formatRemaining(r)}
+      </span>
     </div>
   );
 }

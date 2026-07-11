@@ -29,6 +29,13 @@ export function useApi<T>(url: string | null): State<T> {
 
   const refetch = useCallback(() => setTick((t) => t + 1), []);
 
+  // Listen for global refresh broadcasts (e.g. after skip-12h / premium toggle)
+  useEffect(() => {
+    const handler = () => setTick((t) => t + 1);
+    window.addEventListener("neon-refresh", handler);
+    return () => window.removeEventListener("neon-refresh", handler);
+  }, []);
+
   useEffect(() => {
     if (!url) {
       return;

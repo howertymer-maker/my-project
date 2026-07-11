@@ -72,13 +72,15 @@ async function main() {
   }
 
   // ===== User mission instances (stages + timers) =====
-  // Templates are static (src/lib/mission-templates.ts). Here we seed a couple
-  // of UserMission rows so the screen has variety on first load:
-  //  - discipline-0 "Первый шаг к порядку": stage 1 started 25h ago → timer expired, ready to complete
-  //  - mental-0 "Пробуждение разума": fully completed → free slot advances to mental-1 "Инфо-диета"
+  // Templates are static (src/lib/mission-templates.ts). Seed variety:
+  //  - discipline-0 "Первый шаг к порядку": stage 1 started 25h ago → ready to complete
+  //  - mental-0 "Пробуждение разума": completed 8 days ago → 7-day cooldown expired → mental-1 available
+  //  - physical-0 "Пробуждение тела": completed 1 hour ago → 7-day cooldown ACTIVE → physical-1 locked
   const now = new Date();
   const ago25h = new Date(now.getTime() - 25 * 60 * 60 * 1000);
-  const ago200h = new Date(now.getTime() - 200 * 60 * 60 * 1000);
+  const ago8d = new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000);
+  const ago1h = new Date(now.getTime() - 1 * 60 * 60 * 1000);
+  const in7d = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
   await db.userMission.create({
     data: {
@@ -96,8 +98,21 @@ async function main() {
       templateId: "mental-0",
       category: "mental",
       currentStage: 3,
-      stageStartedAt: ago200h,
-      completedAt: new Date(now.getTime() - 1 * 60 * 60 * 1000),
+      stageStartedAt: new Date(ago8d.getTime() - 96 * 60 * 60 * 1000),
+      completedAt: ago8d,
+      nextAvailableAt: ago8d, // premium-style instant (cooldown long expired either way)
+    },
+  });
+
+  await db.userMission.create({
+    data: {
+      userId: user.id,
+      templateId: "physical-0",
+      category: "physical",
+      currentStage: 3,
+      stageStartedAt: new Date(ago1h.getTime() - 96 * 60 * 60 * 1000),
+      completedAt: ago1h,
+      nextAvailableAt: in7d, // 7-day cooldown active → physical-1 locked
     },
   });
 

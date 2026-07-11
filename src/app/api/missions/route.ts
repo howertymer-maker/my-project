@@ -20,6 +20,9 @@ type MissionState = {
   stageReady: boolean;
   completedAt: string | null;
   pointsEarned: number; // points earned so far on this mission
+  // 7-day cooldown for the NEXT mission (non-premium users after completing a mission)
+  cooldownUntil: string | null; // ISO; if in the future, next mission is locked
+  cooldownActive: boolean;
 };
 
 type MissionView = {
@@ -45,6 +48,8 @@ function buildState(
       stageReady: false,
       completedAt: null,
       pointsEarned: 0,
+      cooldownUntil: null,
+      cooldownActive: false,
     };
   }
   if (um.completedAt) {
@@ -56,6 +61,8 @@ function buildState(
       stageReady: true,
       completedAt: um.completedAt.toISOString(),
       pointsEarned: template.totalPoints,
+      cooldownUntil: null,
+      cooldownActive: false,
     };
   }
   // in progress
@@ -75,6 +82,8 @@ function buildState(
     stageReady: ready,
     completedAt: null,
     pointsEarned: earned,
+    cooldownUntil: null,
+    cooldownActive: false,
   };
 }
 
@@ -91,6 +100,17 @@ export async function GET() {
   const completedTemplateIds = new Set(
     userMissions.filter((um) => um.completedAt).map((um) => um.templateId)
   );
+
+  // For each category, find the most recently completed UserMission (to read its nextAvailableAt cooldown)
+  function latestCompletedInCategory(cat: string) {
+    const done = userMissions.filter(
+      (um) => um.category === cat && um.completedAt && um.nextAvailableAt
+    );
+    if (done.length === 0) return null;
+    return done.sort(
+      (a, b) => b.completedAt!.getTime() - a.completedAt!.getTime()
+    )[0];
+  }
 
   // ===== 6 free missions: one per category, auto-advancing =====
   // The free template for a category is ALWAYS the first non-completed template
@@ -121,6 +141,8 @@ export async function GET() {
           stageReady: false,
           completedAt: "all-done",
           pointsEarned: allDone.totalPoints,
+          cooldownUntil: null,
+          cooldownActive: false,
         },
       });
       freeTemplateIds.add(allDone.id);
@@ -132,7 +154,22 @@ export async function GET() {
     const um =
       userMissions.find((u) => u.templateId === template.id && !u.completedAt) ??
       null;
-    free.push({ template, state: buildState(um, template) });
+    const state = buildState(um, template);
+
+    // cooldown: if the latest completed mission in this category has nextAvailableAt in the future,
+    // the next free template is locked until that time. Premium users bypass the cooldown entirely.
+    if (!user.premium) {
+      const latest = latestCompletedInCategory(cat);
+      if (latest && latest.nextAvailableAt) {
+        const until = latest.nextAvailableAt.getTime();
+        if (until > Date.now()) {
+          state.cooldownUntil = latest.nextAvailableAt.toISOString();
+          state.cooldownActive = true;
+        }
+      }
+    }
+
+    free.push({ template, state });
   }
 
   // ===== Premium: all templates not in free-6 and not completed =====
@@ -156,11 +193,11 @@ export async function GET() {
   });
 }
 
-// ===== Actions: start mission / complete current stage =====
+// ===== Actions: start mission / complete current stage / skip-12h =====
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { action } = body as {
-    action: "start" | "complete-stage";
+    action: "start" | "complete-stage" | "skip-12h";
     templateId?: string;
     userMissionId?: string;
   };
@@ -168,6 +205,26 @@ export async function POST(req: NextRequest) {
   const user = await db.user.findFirst();
   if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
+  }
+
+  if (action === "skip-12h") {
+    // Subtract 12h from stageStartedAt of every in-progress mission stage,
+    // so each stage deadline moves 12h closer (timer skips forward 12h).
+    const inProgress = await db.userMission.findMany({
+      where: { userId: user.id, completedAt: null, stageStartedAt: { not: null } },
+    });
+    const skipMs = 12 * 60 * 60 * 1000;
+    let updated = 0;
+    for (const um of inProgress) {
+      if (!um.stageStartedAt) continue;
+      const newStart = new Date(um.stageStartedAt.getTime() - skipMs);
+      await db.userMission.update({
+        where: { id: um.id },
+        data: { stageStartedAt: newStart },
+      });
+      updated++;
+    }
+    return NextResponse.json({ skipped: true, affected: updated });
   }
 
   if (action === "start") {
@@ -235,9 +292,14 @@ export async function POST(req: NextRequest) {
 
     if (um.currentStage >= 3) {
       // mission fully complete
+      // nextAvailableAt: premium → instant (now), non-premium → now + 7 days
+      const now = new Date();
+      const nextAvailableAt = user.premium
+        ? now
+        : new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
       const completed = await db.userMission.update({
         where: { id: um.id },
-        data: { completedAt: new Date() },
+        data: { completedAt: now, nextAvailableAt },
       });
       // determine next free template for this category
       const allCat = MISSION_TEMPLATES.filter(
@@ -251,14 +313,15 @@ export async function POST(req: NextRequest) {
           })
         ).map((x) => x.templateId)
       );
-      const next =
-        allCat.find((t) => !doneIds.has(t.id)) ?? null;
+      const next = allCat.find((t) => !doneIds.has(t.id)) ?? null;
       return NextResponse.json({
         completed: true,
         pointsAwarded: pts,
         skillKey: um.category,
         nextTemplateId: next?.id ?? null,
         completedAt: completed.completedAt?.toISOString(),
+        nextAvailableAt: nextAvailableAt.toISOString(),
+        premium: user.premium,
       });
     } else {
       // advance to next stage, start its timer

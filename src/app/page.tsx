@@ -8,6 +8,13 @@ import { HabitsScreen } from "@/components/neon/screens/habits-screen";
 import { MissionsScreen } from "@/components/neon/screens/missions-screen";
 import { CommunityScreen } from "@/components/neon/screens/community-screen";
 
+/** Broadcast a refresh request to all data-driven screens (after skip-12h / premium toggle). */
+export function refreshAll() {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("neon-refresh"));
+  }
+}
+
 export default function Home() {
   const [tab, setTab] = useState<TabKey>("profile");
 
@@ -33,7 +40,7 @@ export default function Home() {
         }}
       />
 
-      <TopBar />
+      <TopBar onMissionsChanged={refreshAll} />
 
       <main className="relative z-10 flex-1 pt-[76px] pb-[110px] w-full max-w-[640px] mx-auto px-5">
         {tab === "profile" && <ProfileScreen />}
