@@ -15,6 +15,9 @@ type MissionState = {
   stageReady: boolean;
   completedAt: string | null;
   pointsEarned: number;
+  cooldownUntil: string | null;
+  cooldownActive: boolean;
+  premiumLocked: boolean;
 };
 
 type MissionView = {
@@ -25,6 +28,7 @@ type MissionView = {
 type MissionsData = {
   free: MissionView[];
   premium: MissionView[];
+  premiumUser: boolean;
   stats: { completed: number; total: number; inProgress: number };
 };
 
@@ -134,15 +138,31 @@ export function MissionsScreen() {
           <div
             className="rounded-xl p-3 flex items-center gap-2.5 border"
             style={{
-              background: "linear-gradient(135deg, rgba(251,191,36,0.08), rgba(22,22,24,0.5))",
-              borderColor: "rgba(251,191,36,0.25)",
+              background: data.premiumUser
+                ? "linear-gradient(135deg, rgba(251,191,36,0.14), rgba(22,22,24,0.5))"
+                : "linear-gradient(135deg, rgba(251,191,36,0.08), rgba(22,22,24,0.5))",
+              borderColor: data.premiumUser
+                ? "rgba(251,191,36,0.40)"
+                : "rgba(251,191,36,0.25)",
             }}
           >
             <MaterialIcon name="diamond" size={18} className="text-amber-400" fill />
-            <p className="font-mono text-[11px] text-on-surface-variant leading-relaxed">
-              Премиум-доступ открывает все {data.stats.total} миссий. Выполняй
-              любые — очки начисляются навыку категории.
+            <p className="font-mono text-[11px] text-on-surface-variant leading-relaxed flex-1">
+              {data.premiumUser
+                ? `Премиум активен — доступны все ${data.stats.total} миссий. Выполняй любые, очки идут навыку категории.`
+                : `Без премиум-подписки миссии заблокированы. Оформи подписку в настройках, чтобы выполнять любые из ${data.stats.total} миссий.`}
             </p>
+            {!data.premiumUser && (
+              <button
+                onClick={() =>
+                  window.dispatchEvent(new CustomEvent("neon-open-settings"))
+                }
+                className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-amber-400/20 border border-amber-400/40 text-amber-300 font-display text-[11px] font-bold uppercase tracking-wider active:scale-95 transition-transform"
+              >
+                <MaterialIcon name="diamond" size={12} fill />
+                Оформить
+              </button>
+            )}
           </div>
         )}
 

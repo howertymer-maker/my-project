@@ -21,6 +21,13 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
     };
   }, []);
 
+  // Allow other components (e.g. premium-lock banner) to open the settings sheet
+  useEffect(() => {
+    const handler = () => setSettingsOpen(true);
+    window.addEventListener("neon-open-settings", handler);
+    return () => window.removeEventListener("neon-open-settings", handler);
+  }, []);
+
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[#0A0A0B]/80 border-b border-primary-container/20 shadow-[0_0_15px_rgba(0,242,255,0.08)]">

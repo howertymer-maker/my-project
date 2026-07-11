@@ -23,6 +23,7 @@ type MissionState = {
   pointsEarned: number;
   cooldownUntil: string | null;
   cooldownActive: boolean;
+  premiumLocked: boolean;
 };
 
 type Props = {
@@ -51,10 +52,18 @@ export function MissionCard({ template, state, index, premium, onChanged }: Prop
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "start", templateId: template.id }),
       });
-      if (!res.ok) throw new Error("Не удалось начать");
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        if (j?.premiumRequired) {
+          setError("Требуется премиум-подписка");
+        } else {
+          throw new Error(j?.error || "Не удалось начать");
+        }
+        return;
+      }
       onChanged();
-    } catch {
-      setError("Ошибка старта");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Ошибка старта");
     } finally {
       setBusy(false);
     }
@@ -193,6 +202,8 @@ export function MissionCard({ template, state, index, premium, onChanged }: Prop
           until={state.cooldownUntil}
           color={cat.color}
         />
+      ) : state.premiumLocked ? (
+        <PremiumLockBanner onActivate={onChanged} />
       ) : !state.started ? (
         <button
           onClick={startMission}
@@ -313,6 +324,36 @@ function StageRow({
           {title}
         </p>
       </div>
+    </div>
+  );
+}
+
+/** Premium-mission lock banner: shown for non-premium users on premium missions. */
+function PremiumLockBanner({ onActivate }: { onActivate: () => void }) {
+  const openSettings = () => {
+    window.dispatchEvent(new CustomEvent("neon-open-settings"));
+    onActivate();
+  };
+  return (
+    <div
+      className="mt-1 w-full rounded-lg flex items-center justify-between px-3 py-2.5 border font-display text-[12px] font-bold uppercase tracking-wider gap-2"
+      style={{
+        background: "rgba(251,191,36,0.10)",
+        borderColor: "rgba(251,191,36,0.35)",
+        color: "#fbbf24",
+      }}
+    >
+      <span className="flex items-center gap-2 min-w-0">
+        <MaterialIcon name="lock" size={16} fill />
+        Только для премиум
+      </span>
+      <button
+        onClick={openSettings}
+        className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-400/20 border border-amber-400/40 text-amber-300 font-display text-[11px] font-bold uppercase tracking-wider active:scale-95 transition-transform"
+      >
+        <MaterialIcon name="diamond" size={12} fill />
+        Открыть
+      </button>
     </div>
   );
 }

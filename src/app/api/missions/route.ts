@@ -23,6 +23,8 @@ type MissionState = {
   // 7-day cooldown for the NEXT mission (non-premium users after completing a mission)
   cooldownUntil: string | null; // ISO; if in the future, next mission is locked
   cooldownActive: boolean;
+  // Premium missions are locked for non-premium users (can be viewed but not started)
+  premiumLocked: boolean;
 };
 
 type MissionView = {
@@ -50,6 +52,7 @@ function buildState(
       pointsEarned: 0,
       cooldownUntil: null,
       cooldownActive: false,
+      premiumLocked: false,
     };
   }
   if (um.completedAt) {
@@ -63,6 +66,7 @@ function buildState(
       pointsEarned: template.totalPoints,
       cooldownUntil: null,
       cooldownActive: false,
+      premiumLocked: false,
     };
   }
   // in progress
@@ -84,6 +88,7 @@ function buildState(
     pointsEarned: earned,
     cooldownUntil: null,
     cooldownActive: false,
+    premiumLocked: false,
   };
 }
 
@@ -143,6 +148,7 @@ export async function GET() {
           pointsEarned: allDone.totalPoints,
           cooldownUntil: null,
           cooldownActive: false,
+          premiumLocked: false,
         },
       });
       freeTemplateIds.add(allDone.id);
@@ -173,11 +179,19 @@ export async function GET() {
   }
 
   // ===== Premium: all templates not in free-6 and not completed =====
+  // For non-premium users these are shown but LOCKED (premiumLocked=true) unless
+  // the user has already started one (an in-progress premium mission is allowed
+  // to continue to completion).
   const premium: MissionView[] = MISSION_TEMPLATES.filter(
     (t) => !freeTemplateIds.has(t.id) && !completedTemplateIds.has(t.id)
   ).map((t) => {
     const um = userMissions.find((u) => u.templateId === t.id && !u.completedAt) ?? null;
-    return { template: t, state: buildState(um, t) };
+    const state = buildState(um, t);
+    // Lock premium missions for non-premium users (unless already started)
+    if (!user.premium && !state.started) {
+      state.premiumLocked = true;
+    }
+    return { template: t, state };
   });
 
   const completedCount = completedTemplateIds.size;
@@ -185,6 +199,7 @@ export async function GET() {
   return NextResponse.json({
     free,
     premium,
+    premiumUser: user.premium,
     stats: {
       completed: completedCount,
       total: MISSION_TEMPLATES.length,
@@ -231,6 +246,28 @@ export async function POST(req: NextRequest) {
     const template = getTemplate(body.templateId || "");
     if (!template) {
       return NextResponse.json({ error: "Template not found" }, { status: 404 });
+    }
+    // A premium mission (one not in the free-6) can only be started by premium users.
+    // Determine if this template is a "free" template (the first non-completed in its category).
+    const catTemplates = MISSION_TEMPLATES.filter(
+      (t) => t.category === template.category
+    ).sort((a, b) => a.sortOrder - b.sortOrder);
+    const doneIds = new Set(
+      (
+        await db.userMission.findMany({
+          where: { userId: user.id, completedAt: { not: null } },
+          select: { templateId: true },
+        })
+      ).map((x) => x.templateId)
+    );
+    const freeTemplateForCategory = catTemplates.find((t) => !doneIds.has(t.id));
+    const isPremiumMission = freeTemplateForCategory?.id !== template.id;
+
+    if (isPremiumMission && !user.premium) {
+      return NextResponse.json(
+        { error: "Требуется премиум-подписка", premiumRequired: true },
+        { status: 403 }
+      );
     }
     // upsert: start stage 1
     const existing = await db.userMission.findUnique({
