@@ -1,8 +1,24 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { MaterialIcon } from "@/components/material-icon";
 
 export function TopBar() {
+  const [level, setLevel] = useState<number>(42);
+
+  useEffect(() => {
+    let active = true;
+    fetch("/api/profile", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (active && typeof d?.user?.level === "number") setLevel(d.user.level);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-[#0A0A0B]/80 border-b border-primary-container/20 shadow-[0_0_15px_rgba(0,242,255,0.08)]">
       <div className="max-w-[640px] mx-auto flex justify-between items-center px-5 py-3">
@@ -16,7 +32,7 @@ export function TopBar() {
               NEON PROTOCOL
             </span>
             <span className="font-mono text-[10px] text-primary-fixed-dim tracking-widest mt-0.5">
-              LVL 42 // ENDEAVORER
+              {"LVL "}{level}{" // ENDEAVORER"}
             </span>
           </div>
         </div>

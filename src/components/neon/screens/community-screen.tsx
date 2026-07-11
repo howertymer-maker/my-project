@@ -225,7 +225,7 @@ function PostCard({ post, index }: { post: Post; index: number }) {
                 {post.categoryLabel}
               </span>
               <span className="font-display text-[11px] font-bold text-primary-fixed ml-1">
-                +{post.xpReward} XP
+                +{post.xpReward} очк
               </span>
             </span>
           )}

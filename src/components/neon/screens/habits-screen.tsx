@@ -5,15 +5,6 @@ import { useApi } from "@/hooks/use-api";
 import { MaterialIcon } from "@/components/material-icon";
 import { cn } from "@/lib/utils";
 
-type Rewards = {
-  discipline: number;
-  social: number;
-  mental: number;
-  physical: number;
-  financial: number;
-  appearance: number;
-};
-
 type Habit = {
   id: string;
   title: string;
@@ -23,7 +14,7 @@ type Habit = {
   completed: boolean;
   streak: number;
   weekStart: string;
-  rewards: Rewards;
+  rewardPoints: number;
   subtasksTotal: number;
   subtasksDone: number;
 };
@@ -31,31 +22,18 @@ type Habit = {
 type HabitsData = {
   habits: Habit[];
   streakDays: number;
+  consistencyPoints: number;
 };
-
-const CATEGORY_LABEL: Record<string, string> = {
-  physical: "Физические",
-  mental: "Ментальные",
-  social: "Социальные",
-  financial: "Финансовые",
-  discipline: "Дисциплина",
-  appearance: "Внешность",
-};
-
-const REWARD_META: { key: keyof Rewards; color: string }[] = [
-  { key: "discipline", color: "#f97316" },
-  { key: "social", color: "#eab308" },
-  { key: "mental", color: "#22c55e" },
-  { key: "physical", color: "#3b82f6" },
-  { key: "financial", color: "#a855f7" },
-  { key: "appearance", color: "#ec4899" },
-];
 
 const WEEKDAYS = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
+const CONSISTENCY_COLOR = "#fbbf24";
+const POINTS_PER_LEVEL = 1000;
 
 export function HabitsScreen() {
   const { data, loading } = useApi<HabitsData>("/api/habits");
   const [filter, setFilter] = useState<"all" | "physical">("all");
+  // live consistency points (updated on toggle)
+  const [livePoints, setLivePoints] = useState<number | null>(null);
 
   if (loading || !data) {
     return <HabitsSkeleton />;
@@ -65,7 +43,11 @@ export function HabitsScreen() {
   const habits = data.habits.filter(
     (h) => filter === "all" || h.category === "physical"
   );
-  const completedCount = habits.filter((h) => h.completed).length;
+  const completedCount = data.habits.filter((h) => h.completed).length;
+  const consistencyPoints = livePoints ?? data.consistencyPoints;
+  const skillLevel = Math.floor(consistencyPoints / POINTS_PER_LEVEL);
+  const pointsInLevel = consistencyPoints % POINTS_PER_LEVEL;
+  const levelPercent = Math.round((pointsInLevel / POINTS_PER_LEVEL) * 100);
 
   return (
     <div className="flex flex-col gap-5 pt-4">
@@ -81,6 +63,66 @@ export function HabitsScreen() {
           <span className="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest mt-1">
             Персонально для вас
           </span>
+        </div>
+      </section>
+
+      {/* 7th skill live tracker — Постоянство */}
+      <section
+        className="rounded-xl p-4 flex items-center gap-4 relative overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(251,191,36,0.10), rgba(22,22,24,0.6))",
+          backdropFilter: "blur(20px)",
+          border: "1px solid rgba(251,191,36,0.30)",
+        }}
+      >
+        <div
+          aria-hidden
+          className="absolute -top-10 -right-10 w-32 h-32 rounded-full opacity-25 blur-3xl"
+          style={{ background: CONSISTENCY_COLOR }}
+        />
+        <div
+          className="shrink-0 w-12 h-12 rounded-lg grid place-items-center border relative"
+          style={{
+            background: `${CONSISTENCY_COLOR}1a`,
+            borderColor: `${CONSISTENCY_COLOR}66`,
+            color: CONSISTENCY_COLOR,
+          }}
+        >
+          <MaterialIcon name="autorenew" size={26} fill />
+        </div>
+        <div className="flex-1 flex flex-col gap-1.5 relative min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-col min-w-0">
+              <span className="font-display text-base font-bold text-on-surface leading-none">
+                Постоянство
+              </span>
+              <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest mt-1">
+                навык · ур. {skillLevel}
+              </span>
+            </div>
+            <div className="flex items-baseline gap-1 shrink-0">
+              <span
+                className="font-display text-lg font-extrabold leading-none"
+                style={{ color: CONSISTENCY_COLOR }}
+              >
+                {consistencyPoints.toLocaleString("ru-RU")}
+              </span>
+              <span className="font-mono text-[9px] text-on-surface-variant">
+                очк
+              </span>
+            </div>
+          </div>
+          <div className="relative w-full h-2 bg-surface-container-highest rounded-full overflow-hidden">
+            <div
+              className="absolute inset-y-0 left-0 rounded-full progress-bar-fill transition-all duration-500"
+              style={{
+                width: `${levelPercent}%`,
+                background: CONSISTENCY_COLOR,
+                color: CONSISTENCY_COLOR,
+              }}
+            />
+          </div>
         </div>
       </section>
 
@@ -135,7 +177,12 @@ export function HabitsScreen() {
       {/* Habit cards */}
       <section className="flex flex-col gap-3">
         {habits.map((h, i) => (
-          <HabitCard key={h.id} habit={h} index={i} />
+          <HabitCard
+            key={h.id}
+            habit={h}
+            index={i}
+            onPointsChange={(pts) => setLivePoints(pts)}
+          />
         ))}
         {habits.length === 0 && (
           <div className="glass-panel rounded-xl p-8 text-center text-on-surface-variant font-mono text-sm">
@@ -154,7 +201,7 @@ export function HabitsScreen() {
             </h3>
           </div>
           <span className="font-mono text-[10px] text-on-surface-variant uppercase tracking-wider">
-            {completedCount}/{habits.length} сегодня
+            {completedCount}/{data.habits.length} сегодня
           </span>
         </div>
         <div className="flex justify-between gap-1.5">
@@ -208,7 +255,15 @@ export function HabitsScreen() {
   );
 }
 
-function HabitCard({ habit, index }: { habit: Habit; index: number }) {
+function HabitCard({
+  habit,
+  index,
+  onPointsChange,
+}: {
+  habit: Habit;
+  index: number;
+  onPointsChange: (pts: number) => void;
+}) {
   const [completed, setCompleted] = useState(habit.completed);
   const [holding, setHolding] = useState(false);
 
@@ -216,17 +271,19 @@ function HabitCard({ habit, index }: { habit: Habit; index: number }) {
     const next = !completed;
     setCompleted(next);
     try {
-      await fetch("/api/habits", {
+      const res = await fetch("/api/habits", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: habit.id, completed: next }),
       });
+      const json = await res.json();
+      if (typeof json?.consistencyPoints === "number") {
+        onPointsChange(json.consistencyPoints);
+      }
     } catch {
       setCompleted(!next);
     }
   };
-
-  const rewards = REWARD_META.filter((r) => habit.rewards[r.key] > 0);
 
   return (
     <div
@@ -237,7 +294,6 @@ function HabitCard({ habit, index }: { habit: Habit; index: number }) {
         borderColor: `${habit.color}33`,
       }}
     >
-      {/* accent left border */}
       <div
         className="absolute left-0 top-0 bottom-0 w-1"
         style={{ background: habit.color, boxShadow: `0 0 12px ${habit.color}` }}
@@ -285,20 +341,19 @@ function HabitCard({ habit, index }: { habit: Habit; index: number }) {
         </button>
       </div>
 
-      {/* rewards */}
-      {rewards.length > 0 && (
-        <div className="flex items-center gap-2 flex-wrap">
-          {rewards.map((r) => (
-            <span
-              key={r.key}
-              className="font-mono text-[11px] font-medium px-1.5 py-0.5 rounded"
-              style={{ color: r.color, background: `${r.color}1a` }}
-            >
-              +{habit.rewards[r.key].toFixed(2)}
-            </span>
-          ))}
-        </div>
-      )}
+      {/* reward → points to Постоянство (7th skill) */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <span
+          className="flex items-center gap-1 font-mono text-[11px] font-medium px-1.5 py-0.5 rounded"
+          style={{ color: CONSISTENCY_COLOR, background: `${CONSISTENCY_COLOR}1a` }}
+        >
+          <MaterialIcon name="autorenew" size={12} fill />
+          +{habit.rewardPoints} очк
+        </span>
+        <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider">
+          → Постоянство
+        </span>
+      </div>
 
       {/* footer: streak + date range */}
       <div className="flex items-center justify-between pt-2 border-t border-outline-variant/20">
@@ -336,15 +391,6 @@ function formatWeekRange(weekStart: string): string {
   const start = new Date(weekStart);
   const end = new Date(start);
   end.setDate(start.getDate() + 6);
-  const months = [
-    "jan", "feb", "mar", "apr", "may", "jun",
-    "jul", "aug", "sep", "oct", "nov", "dec",
-  ];
-  const ruMonths = [
-    "фев", "мар", "апр", "май", "июн",
-  ];
-  void months;
-  void ruMonths;
   const monthsRu = [
     "янв", "фев", "мар", "апр", "май", "июн",
     "июл", "авг", "сен", "окт", "ноя", "дек",
@@ -356,6 +402,7 @@ function HabitsSkeleton() {
   return (
     <div className="flex flex-col gap-5 pt-4 animate-pulse">
       <div className="h-8 w-48 rounded bg-surface-container-high" />
+      <div className="h-20 rounded-xl bg-surface-container-high/60" />
       <div className="h-12 rounded-xl bg-surface-container-high/60" />
       <div className="h-10 rounded-lg bg-surface-container-high/60" />
       {Array.from({ length: 3 }).map((_, i) => (

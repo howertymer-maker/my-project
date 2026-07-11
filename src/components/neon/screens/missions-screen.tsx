@@ -43,6 +43,16 @@ const DIFFICULTY: Record<
   },
 };
 
+// mission category → skill label that the mission levels up
+const CATEGORY_SKILL: Record<string, string> = {
+  discipline: "Дисциплина",
+  social: "Социальность",
+  mental: "Ментал",
+  physical: "Физика",
+  financial: "Финансы",
+  appearance: "Внешность",
+};
+
 export function MissionsScreen() {
   const { data, loading } = useApi<MissionsData>("/api/missions");
   const [cat, setCat] = useState<string>("all");
@@ -75,12 +85,12 @@ export function MissionsScreen() {
           </h1>
         </div>
         <p className="font-mono text-[12px] text-on-surface-variant leading-relaxed relative">
-          Выполняйте задания для получения опыта и повышения уровня развития.
+          Выполняйте задания — очки начисляются соответствующему навыку.
         </p>
         <div className="flex items-center gap-4 mt-2 relative">
           <Metric icon="workspace_premium" value={`${completed}/${data.missions.length}`} label="Завершено" color="#e9b3ff" />
           <div className="w-px h-8 bg-outline-variant/40" />
-          <Metric icon="bolt" value={`${totalXp.toLocaleString("ru-RU")}`} label="XP награда" color="#00f2ff" />
+          <Metric icon="bolt" value={`${totalXp.toLocaleString("ru-RU")}`} label="Очков навыков" color="#00f2ff" />
         </div>
       </section>
 
@@ -198,7 +208,10 @@ function MissionCard({ mission, index }: { mission: Mission; index: number }) {
             +{mission.xp}
           </span>
           <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider mt-0.5">
-            XP
+            очк
+          </span>
+          <span className="font-mono text-[8px] text-on-surface-variant mt-0.5">
+            → {CATEGORY_SKILL[mission.category] ?? "Навык"}
           </span>
         </div>
       </div>

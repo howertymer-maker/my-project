@@ -3,6 +3,8 @@ import { db } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
+const POINTS_PER_LEVEL = 1000;
+
 export async function GET() {
   const user = await db.user.findFirst({
     include: {
@@ -14,12 +16,40 @@ export async function GET() {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  // Build 6-month progress chart data
+  const totalPoints = user.attributes.reduce((s, a) => s + a.points, 0);
+  const totalLevel = Math.floor(totalPoints / POINTS_PER_LEVEL);
+
+  const skills = user.attributes.map((a) => {
+    const skillLevel = Math.floor(a.points / POINTS_PER_LEVEL);
+    const pointsInLevel = a.points % POINTS_PER_LEVEL;
+    const levelPercent = Math.round((pointsInLevel / POINTS_PER_LEVEL) * 100);
+    const barValue = Math.min(10, skillLevel); // visual bar caps at 10
+    const barPercent = Math.min(100, Math.round((a.points / (POINTS_PER_LEVEL * 10)) * 100));
+    return {
+      id: a.id,
+      key: a.key,
+      label: a.label,
+      icon: a.icon,
+      color: a.color,
+      source: a.source, // "missions" | "habits"
+      points: a.points,
+      skillLevel,
+      pointsInLevel,
+      nextLevelAt: (skillLevel + 1) * POINTS_PER_LEVEL,
+      levelPercent,
+      barValue,
+      barPercent,
+    };
+  });
+
+  const consistency = skills.find((s) => s.key === "consistency") ?? null;
+  const missionSkills = skills.filter((s) => s.source === "missions");
+
+  // Build 6-month progress chart based on total skill points trajectory
   const months = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн"];
-  const base = user.xpCurrent;
   const chartData = months.map((m, i) => ({
     month: m,
-    xp: Math.round(base * (0.45 + i * 0.11)),
+    points: Math.round(totalPoints * (0.4 + i * 0.12)),
   }));
 
   return NextResponse.json({
@@ -27,22 +57,16 @@ export async function GET() {
       id: user.id,
       displayName: user.displayName,
       rankTitle: user.rankTitle,
-      level: user.level,
-      xpCurrent: user.xpCurrent,
-      xpTotal: user.xpTotal,
+      level: totalLevel,
+      totalPoints,
       streakDays: user.streakDays,
       completionRate: user.completionRate,
       topPercent: user.topPercent,
     },
-    attributes: user.attributes.map((a) => ({
-      id: a.id,
-      key: a.key,
-      label: a.label,
-      icon: a.icon,
-      value: a.value,
-      color: a.color,
-      percent: Math.round(a.value * 10),
-    })),
+    consistency,
+    missionSkills,
+    allSkills: skills,
     chart: chartData,
+    pointsPerLevel: POINTS_PER_LEVEL,
   });
 }

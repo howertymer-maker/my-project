@@ -25,18 +25,49 @@ export async function GET() {
   });
 }
 
+// Advancing a mission awards proportional points to the matching skill.
+// category == skill key (physical | mental | social | financial | discipline | appearance)
 export async function PATCH(req: NextRequest) {
   const { id, progress } = await req.json();
-  const completed = progress >= 100;
 
-  const mission = await db.mission.update({
+  const mission = await db.mission.findUnique({ where: { id } });
+  if (!mission) {
+    return NextResponse.json({ error: "Mission not found" }, { status: 404 });
+  }
+
+  const oldProgress = mission.progress;
+  const clamped = Math.max(0, Math.min(100, progress));
+  const delta = clamped - oldProgress;
+  const completed = clamped >= 100;
+
+  // points awarded for this delta = (delta / 100) * mission.xp
+  const pointsToAdd = Math.round((delta / 100) * mission.xp);
+
+  const updated = await db.mission.update({
     where: { id },
-    data: { progress, completed },
+    data: { progress: clamped, completed },
+  });
+
+  if (pointsToAdd !== 0) {
+    const user = await db.user.findFirst();
+    if (user) {
+      await db.attribute.updateMany({
+        where: { userId: user.id, key: mission.category },
+        data: { points: { increment: pointsToAdd } },
+      });
+    }
+  }
+
+  const skill = await db.attribute.findFirst({
+    where: { key: mission.category },
   });
 
   return NextResponse.json({
-    id: mission.id,
-    progress: mission.progress,
-    completed: mission.completed,
+    id: updated.id,
+    progress: updated.progress,
+    completed: updated.completed,
+    pointsAwarded: pointsToAdd,
+    skillKey: mission.category,
+    skillPoints: skill?.points ?? 0,
   });
 }

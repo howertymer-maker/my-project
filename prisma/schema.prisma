@@ -15,9 +15,7 @@ model User {
   id           String   @id @default(cuid())
   displayName  String
   rankTitle    String   @default("Endeavorer")
-  level        Int      @default(42)
-  xpCurrent    Int      @default(84520)
-  xpTotal      Int      @default(100000)
+  level        Int      @default(42) // derived from total skill points (floor(total/1000))
   avatarUrl    String?
   streakDays   Int      @default(42)
   completionRate Int    @default(84)
@@ -33,15 +31,16 @@ model User {
   postLikes    PostLike[]
 }
 
-// ===== Attributes (6 skill bars on profile) =====
+// ===== Skills (6 mission-driven + 1 habit-driven "Постоянство") =====
 model Attribute {
   id        String @id @default(cuid())
   userId    String
-  key       String // discipline | social | mental | physical | financial | appearance
+  key       String // discipline | social | mental | physical | financial | appearance | consistency
   label     String
   icon      String // material symbol name
-  value     Float  // 0..10
   color     String // hex color
+  source    String @default("missions") // "missions" | "habits"
+  points    Int    @default(0) // accumulated skill points
   sortOrder Int
 
   user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -50,6 +49,7 @@ model Attribute {
 }
 
 // ===== Habits =====
+// Habits give points ONLY to the 7th skill (consistency / "Постоянство")
 model Habit {
   id          String   @id @default(cuid())
   userId      String
@@ -60,13 +60,7 @@ model Habit {
   completed   Boolean  @default(false)
   streak      Int      @default(0)
   weekStart   String   // ISO date of week start "YYYY-MM-DD"
-  // reward deltas applied to attributes when completed
-  rewardDiscipline Float @default(0)
-  rewardSocial     Float @default(0)
-  rewardMental     Float @default(0)
-  rewardPhysical   Float @default(0)
-  rewardFinancial  Float @default(0)
-  rewardAppearance Float @default(0)
+  rewardPoints Int     @default(0) // points awarded to the consistency skill
   subtasksTotal Int @default(0)
   subtasksDone  Int @default(0)
   createdAt   DateTime @default(now())
@@ -76,13 +70,14 @@ model Habit {
 }
 
 // ===== Missions =====
+// Missions give points to one of the 6 mission-driven skills (by category)
 model Mission {
   id          String @id @default(cuid())
   title       String
   description String
   category    String // physical | social | mental | financial | discipline | appearance
   difficulty  String // recruit | elite | legendary
-  xp          Int
+  xp          Int    // skill points awarded to the category skill on completion
   duration    String // e.g. "30 ДНЕЙ"
   progress    Int    @default(0)  // 0..100
   completed   Boolean @default(false)
