@@ -17,6 +17,9 @@ const SKILLS = [
 
 async function main() {
   // Clean
+  await db.cooldownCheckin.deleteMany();
+  await db.weeklyChallenge.deleteMany();
+  await db.dailyChallenge.deleteMany();
   await db.postLike.deleteMany();
   await db.comment.deleteMany();
   await db.post.deleteMany();
@@ -52,12 +55,14 @@ async function main() {
   const weekStartStr = weekStart.toISOString().slice(0, 10);
 
   const habits = [
-    { title: "Тяжелая атлетика", category: "physical", color: "#00f2ff", target: "мин. 2д/н", completed: true, streak: 7, rewardPoints: 120 },
-    { title: "Сон", category: "physical", color: "#22c55e", target: "мин. 7.5ч", completed: true, streak: 7, rewardPoints: 90 },
-    { title: "Ставить цели с вечера", category: "mental", color: "#a855f7", target: "", completed: false, streak: 7, rewardPoints: 60, subtasksTotal: 7, subtasksDone: 1 },
-    { title: "Медитация 10 минут", category: "mental", color: "#e9b3ff", target: "ежедневно", completed: true, streak: 14, rewardPoints: 75 },
-    { title: "Чтение 30 страниц", category: "mental", color: "#22c55e", target: "каждый день", completed: false, streak: 5, rewardPoints: 80 },
-    { title: "Прогулка на свежем воздухе", category: "physical", color: "#00f2ff", target: "мин. 8000 шагов", completed: true, streak: 3, rewardPoints: 65 },
+    // Habit base rewards reduced by 40% (Proposal 4) — streak multiplier (Proposal 2) compensates.
+    // streak bonus formula: base × (1 + min(streak,14)/14), cap ×2 at 14 days.
+    { title: "Тяжелая атлетика", category: "physical", color: "#00f2ff", target: "мин. 2д/н", completed: true, streak: 7, rewardPoints: 75 },
+    { title: "Сон", category: "physical", color: "#22c55e", target: "мин. 7.5ч", completed: true, streak: 7, rewardPoints: 55 },
+    { title: "Ставить цели с вечера", category: "mental", color: "#a855f7", target: "", completed: false, streak: 7, rewardPoints: 40, subtasksTotal: 7, subtasksDone: 1 },
+    { title: "Медитация 10 минут", category: "mental", color: "#e9b3ff", target: "ежедневно", completed: true, streak: 14, rewardPoints: 45 },
+    { title: "Чтение 30 страниц", category: "mental", color: "#22c55e", target: "каждый день", completed: false, streak: 5, rewardPoints: 50 },
+    { title: "Прогулка на свежем воздухе", category: "physical", color: "#00f2ff", target: "мин. 8000 шагов", completed: true, streak: 3, rewardPoints: 40 },
   ];
   for (const h of habits) {
     await db.habit.create({
@@ -113,6 +118,34 @@ async function main() {
       stageStartedAt: new Date(ago1h.getTime() - 96 * 60 * 60 * 1000),
       completedAt: ago1h,
       nextAvailableAt: in7d, // 7-day cooldown active → physical-1 locked
+    },
+  });
+
+  // ===== Daily & Weekly Challenges (Proposal 8) =====
+  const todayStr = now.toISOString().slice(0, 10);
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+  const weekStartStr2 = monday.toISOString().slice(0, 10);
+
+  await db.dailyChallenge.create({
+    data: {
+      userId: user.id,
+      date: todayStr,
+      category: "social",
+      title: "Напиши старому другу сегодня",
+      points: 50,
+      completed: false,
+    },
+  });
+
+  await db.weeklyChallenge.create({
+    data: {
+      userId: user.id,
+      weekStart: weekStartStr2,
+      category: "discipline",
+      title: "3 дня глубокого фокуса без отвлечений",
+      points: 300,
+      completed: false,
     },
   });
 

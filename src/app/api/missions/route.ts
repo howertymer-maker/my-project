@@ -25,6 +25,8 @@ type MissionState = {
   cooldownActive: boolean;
   // Premium missions are locked for non-premium users (can be viewed but not started)
   premiumLocked: boolean;
+  // Proposal 5: can the user do a daily check-in (+20 pts) while on cooldown?
+  canCheckinToday: boolean;
 };
 
 type MissionView = {
@@ -53,6 +55,7 @@ function buildState(
       cooldownUntil: null,
       cooldownActive: false,
       premiumLocked: false,
+      canCheckinToday: false,
     };
   }
   if (um.completedAt) {
@@ -67,6 +70,7 @@ function buildState(
       cooldownUntil: null,
       cooldownActive: false,
       premiumLocked: false,
+      canCheckinToday: false,
     };
   }
   // in progress
@@ -89,6 +93,7 @@ function buildState(
     cooldownUntil: null,
     cooldownActive: false,
     premiumLocked: false,
+      canCheckinToday: false,
   };
 }
 
@@ -100,6 +105,12 @@ export async function GET() {
 
   const userMissions = await db.userMission.findMany({
     where: { userId: user.id },
+  });
+
+  // today's cooldown check-ins (Proposal 5)
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const cooldownCheckins = await db.cooldownCheckin.findMany({
+    where: { userId: user.id, date: todayStr },
   });
 
   const completedTemplateIds = new Set(
@@ -149,6 +160,7 @@ export async function GET() {
           cooldownUntil: null,
           cooldownActive: false,
           premiumLocked: false,
+      canCheckinToday: false,
         },
       });
       freeTemplateIds.add(allDone.id);
@@ -171,6 +183,12 @@ export async function GET() {
         if (until > Date.now()) {
           state.cooldownUntil = latest.nextAvailableAt.toISOString();
           state.cooldownActive = true;
+          // Proposal 5: can check in today if no check-in exists for this category today
+          const today = new Date().toISOString().slice(0, 10);
+          const alreadyCheckedIn = cooldownCheckins.some(
+            (c) => c.category === cat && c.date === today
+          );
+          state.canCheckinToday = !alreadyCheckedIn;
         }
       }
     }
@@ -212,9 +230,11 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const body = await req.json();
   const { action } = body as {
-    action: "start" | "complete-stage" | "skip-12h";
+    action: "start" | "complete-stage" | "skip-12h" | "cooldown-checkin";
     templateId?: string;
     userMissionId?: string;
+    overachieved?: boolean;
+    category?: string;
   };
 
   const user = await db.user.findFirst();
@@ -321,7 +341,10 @@ export async function POST(req: NextRequest) {
     }
 
     // award points for the completed stage to the category skill
-    const pts = stagePoints(template, um.currentStage);
+    // Proposal 7: +20% bonus if the user marked the stage as overachieved
+    const basePts = stagePoints(template, um.currentStage);
+    const overBonus = body.overachieved ? Math.round(basePts * 0.2) : 0;
+    const pts = basePts + overBonus;
     await db.attribute.updateMany({
       where: { userId: user.id, key: um.category },
       data: { points: { increment: pts } },
@@ -359,6 +382,7 @@ export async function POST(req: NextRequest) {
         completedAt: completed.completedAt?.toISOString(),
         nextAvailableAt: nextAvailableAt.toISOString(),
         premium: user.premium,
+        overachievedBonus: overBonus,
       });
     } else {
       // advance to next stage, start its timer
@@ -375,8 +399,42 @@ export async function POST(req: NextRequest) {
         skillKey: um.category,
         currentStage: updated.currentStage,
         stageStartedAt: updated.stageStartedAt?.toISOString() ?? null,
+        overachievedBonus: overBonus,
       });
     }
+  }
+
+  // Proposal 5: daily check-in while a category is on 7-day cooldown (+20 pts)
+  if (action === "cooldown-checkin") {
+    const cat = body.category;
+    if (!cat) {
+      return NextResponse.json({ error: "category required" }, { status: 400 });
+    }
+    const today = new Date().toISOString().slice(0, 10);
+    // one check-in per day per category
+    const existing = await db.cooldownCheckin.findUnique({
+      where: { userId_category_date: { userId: user.id, category: cat, date: today } },
+    });
+    if (existing) {
+      return NextResponse.json({ error: "Уже отмечено сегодня", already: true }, { status: 400 });
+    }
+    // verify the category is actually on cooldown
+    const latestDone = await db.userMission.findFirst({
+      where: { userId: user.id, category: cat, completedAt: { not: null } },
+      orderBy: { completedAt: "desc" },
+    });
+    if (!latestDone || !latestDone.nextAvailableAt || new Date(latestDone.nextAvailableAt).getTime() <= Date.now()) {
+      return NextResponse.json({ error: "Категория не на кулдауне" }, { status: 400 });
+    }
+    const pts = 20;
+    await db.attribute.updateMany({
+      where: { userId: user.id, key: cat },
+      data: { points: { increment: pts } },
+    });
+    await db.cooldownCheckin.create({
+      data: { userId: user.id, category: cat, date: today, points: pts },
+    });
+    return NextResponse.json({ checkedIn: true, pointsAwarded: pts, skillKey: cat });
   }
 
   return NextResponse.json({ error: "Unknown action" }, { status: 400 });

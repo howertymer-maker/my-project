@@ -21,6 +21,8 @@ model User {
   streakDays   Int      @default(42)
   completionRate Int    @default(84)
   topPercent   Int      @default(5)
+  // timestamp of the last "all habits done today" bonus (Proposal 3)
+  lastAllHabitsBonusAt DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -30,6 +32,9 @@ model User {
   posts        Post[]
   comments     Comment[]
   postLikes    PostLike[]
+  dailyChallenges  DailyChallenge[]
+  weeklyChallenges WeeklyChallenge[]
+  cooldownCheckins CooldownCheckin[]
 }
 
 // ===== Skills (6 mission-driven + 1 habit-driven "Постоянство") =====
@@ -90,6 +95,58 @@ model UserMission {
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, templateId])
+}
+
+// ===== Daily Challenge (Proposal 8) =====
+// One per day, awards +50 points to a random skill.
+model DailyChallenge {
+  id          String   @id @default(cuid())
+  userId      String
+  date        String   // "YYYY-MM-DD"
+  category    String   // skill key to award
+  title       String
+  points      Int      @default(50)
+  completed   Boolean  @default(false)
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+}
+
+// ===== Weekly Challenge (Proposal 8) =====
+// One per ISO week (Mon-Sun), awards +300 points to a category skill.
+model WeeklyChallenge {
+  id          String   @id @default(cuid())
+  userId      String
+  weekStart   String   // "YYYY-MM-DD" (Monday)
+  category    String   // skill key to award
+  title       String
+  points      Int      @default(300)
+  completed   Boolean  @default(false)
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, weekStart])
+}
+
+// ===== Cooldown check-in (Proposal 5) =====
+// While a category is on 7-day cooldown (non-premium), the user can do a
+// daily check-in for +20 points to that category skill.
+model CooldownCheckin {
+  id          String   @id @default(cuid())
+  userId      String
+  category    String
+  date        String   // "YYYY-MM-DD" — one check-in per day per category
+  points      Int      @default(20)
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, category, date])
 }
 
 // ===== Community =====

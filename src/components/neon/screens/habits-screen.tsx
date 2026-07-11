@@ -15,6 +15,8 @@ type Habit = {
   streak: number;
   weekStart: string;
   rewardPoints: number;
+  effectiveReward: number; // base × streak multiplier
+  streakMult: number;
   subtasksTotal: number;
   subtasksDone: number;
 };
@@ -23,6 +25,9 @@ type HabitsData = {
   habits: Habit[];
   streakDays: number;
   consistencyPoints: number;
+  allHabitsDone: boolean;
+  allHabitsBonusClaimed: boolean;
+  allHabitsBonus: number;
 };
 
 const WEEKDAYS = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
@@ -125,6 +130,15 @@ export function HabitsScreen() {
           </div>
         </div>
       </section>
+
+      {/* All-habits bonus banner (Proposal 3) */}
+      <AllHabitsBonusBanner
+        done={data.allHabitsDone}
+        claimed={data.allHabitsBonusClaimed}
+        bonus={data.allHabitsBonus}
+        completedCount={data.habits.filter((h) => h.completed).length}
+        total={data.habits.length}
+      />
 
       {/* Date nav */}
       <section className="flex items-center justify-between bg-surface-container/60 backdrop-blur-md rounded-xl px-3 py-2.5 border border-outline-variant/30">
@@ -341,15 +355,24 @@ function HabitCard({
         </button>
       </div>
 
-      {/* reward → points to Постоянство (7th skill) */}
+      {/* reward → points to Постоянство (7th skill), with streak multiplier */}
       <div className="flex items-center gap-2 flex-wrap">
         <span
           className="flex items-center gap-1 font-mono text-[11px] font-medium px-1.5 py-0.5 rounded"
           style={{ color: CONSISTENCY_COLOR, background: `${CONSISTENCY_COLOR}1a` }}
         >
           <MaterialIcon name="autorenew" size={12} fill />
-          +{habit.rewardPoints} очк
+          +{habit.effectiveReward} очк
         </span>
+        {habit.streakMult > 1 && (
+          <span
+            className="flex items-center gap-0.5 font-mono text-[10px] font-medium px-1.5 py-0.5 rounded"
+            style={{ color: "#fbbf24", background: "rgba(251,191,36,0.12)" }}
+          >
+            <MaterialIcon name="local_fire_department" size={11} fill />
+            ×{habit.streakMult.toFixed(2)}
+          </span>
+        )}
         <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider">
           → Постоянство
         </span>
@@ -408,6 +431,59 @@ function HabitsSkeleton() {
       {Array.from({ length: 3 }).map((_, i) => (
         <div key={i} className="h-32 rounded-xl bg-surface-container-high/60" />
       ))}
+    </div>
+  );
+}
+
+/** Proposal 3: bonus banner for completing all habits in a day. */
+function AllHabitsBonusBanner({
+  done,
+  claimed,
+  bonus,
+  completedCount,
+  total,
+}: {
+  done: boolean;
+  claimed: boolean;
+  bonus: number;
+  completedCount: number;
+  total: number;
+}) {
+  if (claimed) {
+    return (
+      <div className="rounded-xl p-3 flex items-center gap-2.5 border bg-secondary-fixed/10 border-secondary-fixed/40">
+        <MaterialIcon name="verified" size={20} className="text-secondary-fixed" fill />
+        <p className="font-mono text-[11px] text-secondary-fixed leading-relaxed flex-1">
+          Бонус +{bonus} очк получен! Все привычки выполнены сегодня.
+        </p>
+      </div>
+    );
+  }
+  if (done) {
+    return (
+      <div
+        className="rounded-xl p-3 flex items-center gap-2.5 border animate-neon-breath"
+        style={{
+          background: "linear-gradient(135deg, rgba(182,247,0,0.18), rgba(22,22,24,0.6))",
+          borderColor: "rgba(182,247,0,0.5)",
+        }}
+      >
+        <MaterialIcon name="celebration" size={20} className="text-secondary-fixed" fill />
+        <p className="font-mono text-[11px] text-secondary-fixed leading-relaxed flex-1">
+          Все {total} привычек выполнены! Бонус +{bonus} очк → Постоянство.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="rounded-xl p-3 flex items-center gap-2.5 border border-outline-variant/30 bg-surface-container/40">
+      <MaterialIcon name="emoji_events" size={20} className="text-on-surface-variant" fill />
+      <p className="font-mono text-[11px] text-on-surface-variant leading-relaxed flex-1">
+        Выполни все {total} привычек — бонус +{bonus} очк к Постоянству.
+      </p>
+      <span className="font-mono text-[10px] text-on-surface-variant uppercase tracking-wider shrink-0">
+        {completedCount}/{total}
+      </span>
     </div>
   );
 }

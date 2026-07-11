@@ -6,6 +6,7 @@ import { MaterialIcon } from "@/components/material-icon";
 import { cn } from "@/lib/utils";
 import type { MissionTemplate } from "@/lib/mission-templates";
 import { MissionCard } from "@/components/neon/mission-card";
+import { ChallengesWidget } from "@/components/neon/challenges-widget";
 
 type MissionState = {
   userMissionId: string | null;
@@ -18,6 +19,7 @@ type MissionState = {
   cooldownUntil: string | null;
   cooldownActive: boolean;
   premiumLocked: boolean;
+  canCheckinToday: boolean;
 };
 
 type MissionView = {
@@ -131,6 +133,9 @@ export function MissionsScreen() {
           </span>
         </button>
       </section>
+
+      {/* Daily & Weekly challenges (Proposal 8) — only on active tab */}
+      {tab === "active" && <ChallengesWidget />}
 
       {/* Mission list */}
       <section className="flex flex-col gap-3">

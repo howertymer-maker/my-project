@@ -24,6 +24,7 @@ type MissionState = {
   cooldownUntil: string | null;
   cooldownActive: boolean;
   premiumLocked: boolean;
+  canCheckinToday: boolean;
 };
 
 type Props = {
@@ -69,7 +70,7 @@ export function MissionCard({ template, state, index, premium, onChanged }: Prop
     }
   };
 
-  const completeStage = async () => {
+  const completeStage = async (overachieved = false) => {
     if (!state.userMissionId) return;
     setBusy(true);
     setError(null);
@@ -80,11 +81,33 @@ export function MissionCard({ template, state, index, premium, onChanged }: Prop
         body: JSON.stringify({
           action: "complete-stage",
           userMissionId: state.userMissionId,
+          overachieved,
         }),
       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
         throw new Error(j?.error || "Этап ещё выполняется");
+      }
+      onChanged();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Ошибка");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const cooldownCheckin = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/missions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "cooldown-checkin", category: template.category }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j?.error || "Не удалось отметить");
       }
       onChanged();
     } catch (e) {
@@ -201,6 +224,9 @@ export function MissionCard({ template, state, index, premium, onChanged }: Prop
         <CooldownBanner
           until={state.cooldownUntil}
           color={cat.color}
+          canCheckinToday={state.canCheckinToday}
+          onCheckin={cooldownCheckin}
+          busy={busy}
         />
       ) : state.premiumLocked ? (
         <PremiumLockBanner onActivate={onChanged} />
@@ -214,27 +240,38 @@ export function MissionCard({ template, state, index, premium, onChanged }: Prop
           {busy ? "Запуск..." : `Начать этап 1 · ${stageHours(template, 1)}ч`}
         </button>
       ) : state.stageReady ? (
-        <button
-          onClick={completeStage}
-          disabled={busy}
-          className="mt-1 w-full py-2.5 rounded-lg font-display text-[12px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]"
-          style={{
-            background: cat.color,
-            color: "#0A0A0B",
-            boxShadow: `0 0 20px ${cat.color}66`,
-          }}
-        >
-          <MaterialIcon
-            name={state.currentStage >= 3 ? "emoji_events" : "check_circle"}
-            size={16}
-            fill
-          />
-          {busy
-            ? "Завершение..."
-            : state.currentStage >= 3
-              ? `Завершить миссию · +${stagePoints(template, 3)} очк`
-              : `Завершить этап ${state.currentStage} · +${stagePoints(template, state.currentStage)} очк`}
-        </button>
+        <div className="mt-1 flex flex-col gap-2">
+          <button
+            onClick={() => completeStage(false)}
+            disabled={busy}
+            className="w-full py-2.5 rounded-lg font-display text-[12px] font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 disabled:opacity-50 active:scale-[0.98]"
+            style={{
+              background: cat.color,
+              color: "#0A0A0B",
+              boxShadow: `0 0 20px ${cat.color}66`,
+            }}
+          >
+            <MaterialIcon
+              name={state.currentStage >= 3 ? "emoji_events" : "check_circle"}
+              size={16}
+              fill
+            />
+            {busy
+              ? "Завершение..."
+              : state.currentStage >= 3
+                ? `Завершить миссию · +${stagePoints(template, 3)} очк`
+                : `Завершить этап ${state.currentStage} · +${stagePoints(template, state.currentStage)} очк`}
+          </button>
+          {/* Proposal 7: overachievement — +20% bonus */}
+          <button
+            onClick={() => completeStage(true)}
+            disabled={busy}
+            className="w-full py-2 rounded-lg font-display text-[11px] font-bold uppercase tracking-wider bg-surface-container/60 text-amber-300 border border-amber-400/40 hover:border-amber-400/70 transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+          >
+            <MaterialIcon name="trending_up" size={14} fill />
+            Перевыполнил · +{Math.round(stagePoints(template, state.currentStage) * 0.2)} очк бонус
+          </button>
+        </div>
       ) : (
         <StageTimerBanner
           template={template}
@@ -358,32 +395,56 @@ function PremiumLockBanner({ onActivate }: { onActivate: () => void }) {
   );
 }
 
-/** Shows a live 7-day countdown while the next mission is on cooldown (non-premium). */
+/** Shows a live 7-day countdown while the next mission is on cooldown (non-premium).
+ *  Includes a daily check-in button (Proposal 5): +20 pts to the category skill. */
 function CooldownBanner({
   until,
   color,
+  canCheckinToday,
+  onCheckin,
+  busy,
 }: {
   until: string;
   color: string;
+  canCheckinToday: boolean;
+  onCheckin: () => void;
+  busy: boolean;
 }) {
   const deadline = new Date(until).getTime();
   const r = useCountdown(deadline);
   return (
-    <div
-      className="mt-1 w-full py-2.5 rounded-lg flex items-center justify-between px-3 border font-display text-[12px] font-bold uppercase tracking-wider"
-      style={{
-        background: `${color}12`,
-        borderColor: `${color}40`,
-        color,
-      }}
-    >
-      <span className="flex items-center gap-2">
-        <MaterialIcon name="lock_clock" size={16} fill />
-        След. миссия через
-      </span>
-      <span className="font-mono text-[14px] tracking-wider">
-        {formatRemaining(r)}
-      </span>
+    <div className="mt-1 flex flex-col gap-2">
+      <div
+        className="w-full py-2.5 rounded-lg flex items-center justify-between px-3 border font-display text-[12px] font-bold uppercase tracking-wider"
+        style={{
+          background: `${color}12`,
+          borderColor: `${color}40`,
+          color,
+        }}
+      >
+        <span className="flex items-center gap-2">
+          <MaterialIcon name="lock_clock" size={16} fill />
+          След. миссия через
+        </span>
+        <span className="font-mono text-[14px] tracking-wider">
+          {formatRemaining(r)}
+        </span>
+      </div>
+      {canCheckinToday ? (
+        <button
+          onClick={onCheckin}
+          disabled={busy}
+          className="w-full py-2 rounded-lg font-display text-[11px] font-bold uppercase tracking-wider bg-surface-container/60 border border-outline-variant/40 hover:border-primary-container/50 text-primary-fixed transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
+        >
+          <MaterialIcon name="check_circle_outline" size={14} fill />
+          Ежедневный чек-ин · +20 очк к навыку
+        </button>
+      ) : (
+        <div className="w-full py-2 rounded-lg font-display text-[11px] font-bold uppercase tracking-wider bg-surface-container/30 border border-outline-variant/20 text-on-surface-variant flex items-center justify-center gap-1.5">
+          <MaterialIcon name="check_circle" size={14} fill />
+          Чек-ин выполнен сегодня
+        </div>
+      )}
     </div>
   );
 }

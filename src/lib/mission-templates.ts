@@ -47,8 +47,8 @@ export const DIFFICULTY_META: Record<
   { label: string; color: string; bg: string; mult: number }
 > = {
   recruit: { label: "Новобранец", color: "#b9cacb", bg: "rgba(185,202,203,0.12)", mult: 1 },
-  elite: { label: "Элитная", color: "#00f2ff", bg: "rgba(0,242,255,0.12)", mult: 1.5 },
-  legendary: { label: "Легендарная", color: "#f3cfff", bg: "rgba(243,207,255,0.14)", mult: 2 },
+  elite: { label: "Элитная", color: "#00f2ff", bg: "rgba(0,242,255,0.12)", mult: 2 },
+  legendary: { label: "Легендарная", color: "#f3cfff", bg: "rgba(243,207,255,0.14)", mult: 4 },
 };
 
 function difficultyFor(sortOrder: number): Difficulty {
@@ -131,13 +131,18 @@ const RAW: Record<CategoryKey, Block[]> = {
 
 function buildTemplates(): MissionTemplate[] {
   const out: MissionTemplate[] = [];
+  // Non-linear stage rewards (Proposal 1): 240 / 600 / 1500 (endurance bonus)
+  // base per-stage points for recruit difficulty; scaled by difficulty mult (×1/×2/×4)
+  const BASE_S1 = 240;
+  const BASE_S2 = 600; // +25% over linear
+  const BASE_S3 = 1500; // +56% over linear
   (Object.keys(RAW) as CategoryKey[]).forEach((cat) => {
     RAW[cat].forEach((block, i) => {
       const difficulty = difficultyFor(i);
       const mult = DIFFICULTY_META[difficulty].mult;
-      const s1 = Math.round(24 * 10 * mult);
-      const s2 = Math.round(48 * 10 * mult);
-      const s3 = Math.round(96 * 10 * mult);
+      const s1 = Math.round(BASE_S1 * mult);
+      const s2 = Math.round(BASE_S2 * mult);
+      const s3 = Math.round(BASE_S3 * mult);
       out.push({
         id: `${cat}-${i}`,
         category: cat,
