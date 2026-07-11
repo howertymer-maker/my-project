@@ -25,7 +25,7 @@ model User {
 
   attributes   Attribute[]
   habits       Habit[]
-  missions     MissionLog[]
+  userMissions UserMission[]
   posts        Post[]
   comments     Comment[]
   postLikes    PostLike[]
@@ -69,32 +69,23 @@ model Habit {
   user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// ===== Missions =====
-// Missions give points to one of the 6 mission-driven skills (by category)
-model Mission {
-  id          String @id @default(cuid())
-  title       String
-  description String
-  category    String // physical | social | mental | financial | discipline | appearance
-  difficulty  String // recruit | elite | legendary
-  xp          Int    // skill points awarded to the category skill on completion
-  duration    String // e.g. "30 ДНЕЙ"
-  progress    Int    @default(0)  // 0..100
-  completed   Boolean @default(false)
-  accentColor String  // hex accent for category
-  icon        String  // material symbol name
-  sortOrder   Int
-  createdAt   DateTime @default(now())
-}
+// ===== User mission instances (stages + timers) =====
+// Mission templates are static (see src/lib/mission-templates.ts).
+// A UserMission tracks a user's progress through a template's 3 stages.
+model UserMission {
+  id            String    @id @default(cuid())
+  userId        String
+  templateId    String
+  category      String
+  currentStage  Int       @default(0) // 0 = not started, 1/2/3 = stage in progress
+  stageStartedAt DateTime? // when the current stage timer started
+  completedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-model MissionLog {
-  id         String @id @default(cuid())
-  userId     String
-  missionId  String
-  completed  Boolean @default(false)
-  createdAt  DateTime @default(now())
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, templateId])
 }
 
 // ===== Community =====

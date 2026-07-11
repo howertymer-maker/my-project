@@ -20,8 +20,7 @@ async function main() {
   await db.postLike.deleteMany();
   await db.comment.deleteMany();
   await db.post.deleteMany();
-  await db.missionLog.deleteMany();
-  await db.mission.deleteMany();
+  await db.userMission.deleteMany();
   await db.habit.deleteMany();
   await db.attribute.deleteMany();
   await db.user.deleteMany();
@@ -72,48 +71,35 @@ async function main() {
     });
   }
 
-  // ===== Missions =====
-  // Missions award points to one of the 6 mission-driven skills (by category)
-  const missions = [
-    {
-      title: "Пробежать 50 км за месяц",
-      description: "Накопительный километраж бега. Прокачивает выносливость и физический атрибут.",
-      category: "physical", difficulty: "elite", xp: 1200, duration: "30 ДНЕЙ", progress: 64, completed: false, accentColor: "#3b82f6", icon: "directions_run", sortOrder: 0,
+  // ===== User mission instances (stages + timers) =====
+  // Templates are static (src/lib/mission-templates.ts). Here we seed a couple
+  // of UserMission rows so the screen has variety on first load:
+  //  - discipline-0 "Первый шаг к порядку": stage 1 started 25h ago → timer expired, ready to complete
+  //  - mental-0 "Пробуждение разума": fully completed → free slot advances to mental-1 "Инфо-диета"
+  const now = new Date();
+  const ago25h = new Date(now.getTime() - 25 * 60 * 60 * 1000);
+  const ago200h = new Date(now.getTime() - 200 * 60 * 60 * 1000);
+
+  await db.userMission.create({
+    data: {
+      userId: user.id,
+      templateId: "discipline-0",
+      category: "discipline",
+      currentStage: 1,
+      stageStartedAt: ago25h,
     },
-    {
-      title: "50 часов глубокого фокуса",
-      description: "Глубокая работа без отвлечений. Развивает ментальный атрибут и дисциплину.",
-      category: "mental", difficulty: "legendary", xp: 2400, duration: "30 ДНЕЙ", progress: 38, completed: false, accentColor: "#22c55e", icon: "psychology", sortOrder: 1,
+  });
+
+  await db.userMission.create({
+    data: {
+      userId: user.id,
+      templateId: "mental-0",
+      category: "mental",
+      currentStage: 3,
+      stageStartedAt: ago200h,
+      completedAt: new Date(now.getTime() - 1 * 60 * 60 * 1000),
     },
-    {
-      title: "10 новых знакомств",
-      description: "Расширь социальный круг. Каждая осмысленная беседа засчитывается.",
-      category: "social", difficulty: "recruit", xp: 600, duration: "14 ДНЕЙ", progress: 70, completed: false, accentColor: "#eab308", icon: "forum", sortOrder: 2,
-    },
-    {
-      title: "Накопить резерв 100k",
-      description: "Сформируй финансовую подушку. Прокачивает финансовый атрибут.",
-      category: "financial", difficulty: "elite", xp: 1800, duration: "90 ДНЕЙ", progress: 52, completed: false, accentColor: "#a855f7", icon: "payments", sortOrder: 3,
-    },
-    {
-      title: "45 дней без сахара",
-      description: "Челлендж дисциплины. Усиливает контроль и физическое здоровье.",
-      category: "discipline", difficulty: "legendary", xp: 3000, duration: "45 ДНЕЙ", progress: 27, completed: false, accentColor: "#f97316", icon: "fitness_center", sortOrder: 4,
-    },
-    {
-      title: "Утренняя рутина 21 день",
-      description: "Стабильный подъём в 6:00 с ритуалом. Закрепляет дисциплину.",
-      category: "discipline", difficulty: "recruit", xp: 800, duration: "21 ДЕНЬ", progress: 100, completed: true, accentColor: "#b6f700", icon: "wb_sunny", sortOrder: 5,
-    },
-    {
-      title: "Сертификация по специальности",
-      description: "Пройди онлайн-курс и получи сертификат. Прокачивает ментал и финансы.",
-      category: "mental", difficulty: "elite", xp: 2000, duration: "60 ДНЕЙ", progress: 15, completed: false, accentColor: "#e9b3ff", icon: "school", sortOrder: 6,
-    },
-  ];
-  for (const m of missions) {
-    await db.mission.create({ data: m });
-  }
+  });
 
   // ===== Community Posts =====
   const posts = [
