@@ -95,7 +95,7 @@ export function ProfileScreen() {
             {user.level}
           </span>
           <span className="font-mono text-[10px] text-on-surface-variant">
-            · {user.totalPoints.toLocaleString("ru-RU")} очк
+            · ещё {(user.level + 1) * 1000 - user.totalPoints} очк до ур. {user.level + 1}
           </span>
         </div>
       </section>
@@ -216,10 +216,10 @@ function ConsistencyCard({ skill }: { skill: Skill }) {
             className="font-display text-2xl font-extrabold leading-none"
             style={{ color: skill.color }}
           >
-            {skill.points.toLocaleString("ru-RU")}
+            {(1000 - skill.pointsInLevel).toLocaleString("ru-RU")}
           </span>
           <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider mt-1">
-            очков
+            очк до ур. {skill.skillLevel + 1}
           </span>
         </div>
       </div>
@@ -246,7 +246,7 @@ function ConsistencyCard({ skill }: { skill: Skill }) {
         </div>
         <div className="flex justify-end">
           <span className="font-mono text-[10px] text-on-surface-variant">
-            {skill.levelPercent}% до ур. {skill.skillLevel + 1}
+            ещё {1000 - skill.pointsInLevel} очк до ур. {skill.skillLevel + 1}
           </span>
         </div>
       </div>
@@ -269,19 +269,18 @@ function SkillRow({ skill }: { skill: Skill }) {
         </div>
         <div className="flex items-baseline gap-1.5">
           <span
+            className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider"
+          >
+            до ур.{skill.skillLevel + 1}:
+          </span>
+          <span
             className="font-display text-sm font-bold"
             style={{ color: skill.color }}
           >
-            {skill.points.toLocaleString("ru-RU")}
+            {(1000 - skill.pointsInLevel).toLocaleString("ru-RU")}
           </span>
           <span className="font-mono text-[9px] text-on-surface-variant">
             очк
-          </span>
-          <span
-            className="font-mono text-[9px] px-1 rounded uppercase tracking-wider"
-            style={{ color: skill.color, background: `${skill.color}1a` }}
-          >
-            ур.{skill.skillLevel}
           </span>
         </div>
       </div>

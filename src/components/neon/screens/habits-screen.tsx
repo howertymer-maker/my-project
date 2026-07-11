@@ -106,10 +106,10 @@ export function HabitsScreen() {
                 className="font-display text-lg font-extrabold leading-none"
                 style={{ color: CONSISTENCY_COLOR }}
               >
-                {consistencyPoints.toLocaleString("ru-RU")}
+                {(POINTS_PER_LEVEL - pointsInLevel).toLocaleString("ru-RU")}
               </span>
               <span className="font-mono text-[9px] text-on-surface-variant">
-                очк
+                очк до ур. {skillLevel + 1}
               </span>
             </div>
           </div>
