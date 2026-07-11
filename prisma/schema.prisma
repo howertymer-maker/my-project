@@ -1,0 +1,148 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ===== User & Profile =====
+model User {
+  id           String   @id @default(cuid())
+  displayName  String
+  rankTitle    String   @default("Endeavorer")
+  level        Int      @default(42)
+  xpCurrent    Int      @default(84520)
+  xpTotal      Int      @default(100000)
+  avatarUrl    String?
+  streakDays   Int      @default(42)
+  completionRate Int    @default(84)
+  topPercent   Int      @default(5)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  attributes   Attribute[]
+  habits       Habit[]
+  missions     MissionLog[]
+  posts        Post[]
+  comments     Comment[]
+  postLikes    PostLike[]
+}
+
+// ===== Attributes (6 skill bars on profile) =====
+model Attribute {
+  id        String @id @default(cuid())
+  userId    String
+  key       String // discipline | social | mental | physical | financial | appearance
+  label     String
+  icon      String // material symbol name
+  value     Float  // 0..10
+  color     String // hex color
+  sortOrder Int
+
+  user      User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, key])
+}
+
+// ===== Habits =====
+model Habit {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  category    String   // physical | mental | social | financial | discipline | appearance
+  color       String   // hex accent
+  target      String   // e.g. "мин. 2д/н", "мин. 7.5ч"
+  completed   Boolean  @default(false)
+  streak      Int      @default(0)
+  weekStart   String   // ISO date of week start "YYYY-MM-DD"
+  // reward deltas applied to attributes when completed
+  rewardDiscipline Float @default(0)
+  rewardSocial     Float @default(0)
+  rewardMental     Float @default(0)
+  rewardPhysical   Float @default(0)
+  rewardFinancial  Float @default(0)
+  rewardAppearance Float @default(0)
+  subtasksTotal Int @default(0)
+  subtasksDone  Int @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ===== Missions =====
+model Mission {
+  id          String @id @default(cuid())
+  title       String
+  description String
+  category    String // physical | social | mental | financial | discipline | appearance
+  difficulty  String // recruit | elite | legendary
+  xp          Int
+  duration    String // e.g. "30 ДНЕЙ"
+  progress    Int    @default(0)  // 0..100
+  completed   Boolean @default(false)
+  accentColor String  // hex accent for category
+  icon        String  // material symbol name
+  sortOrder   Int
+  createdAt   DateTime @default(now())
+}
+
+model MissionLog {
+  id         String @id @default(cuid())
+  userId     String
+  missionId  String
+  completed  Boolean @default(false)
+  createdAt  DateTime @default(now())
+
+  user       User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ===== Community =====
+model Post {
+  id          String   @id @default(cuid())
+  authorId    String
+  authorName  String
+  authorAvatarUrl String?
+  authorBadge String   // e.g. "Подписатель II", "Новичок I"
+  category    String   // physical | mental | social | advice | ...
+  categoryLabel String // "ФИЗИЧЕСКОЕ РАЗВИТИЕ"
+  xpReward    Int      @default(0)
+  title       String
+  body        String
+  likes       Int      @default(0)
+  commentsCount Int    @default(0)
+  isAdvice    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments    Comment[]
+  likesRel    PostLike[]
+}
+
+model Comment {
+  id        String @id @default(cuid())
+  postId    String
+  authorId  String?
+  authorName String
+  body      String
+  createdAt DateTime @default(now())
+
+  post      Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User? @relation(fields: [authorId], references: [id])
+}
+
+model PostLike {
+  id     String @id @default(cuid())
+  postId String
+  userId String
+
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+}

@@ -1,0 +1,502 @@
+     1→   800→            transform: scale(1.1);
+     2→   801→            box-shadow: 0 0 20px rgba(0, 242, 255, 0.4);
+     3→   802→        }
+     4→   803→
+     5→   804→        .nav-item-active {
+     6→   805→            animation: springScale 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+     7→   806→        }
+     8→   807→
+     9→   808→        @keyframes springScale {
+    10→   809→            0% { transform: scale(0.8); }
+    11→   810→            70% { transform: scale(1.15); }
+    12→   811→            100% { transform: scale(1.1); }
+    13→   812→        }
+    14→   813→
+    15→   814→        @media (prefers-reduced-motion: reduce) {
+    16→   815→            .mission-card, .neon-accent, .shimmer-effect::after, .nav-item-active, .btn-check-active {
+    17→   816→                animation: none !important;
+    18→   817→                transition: none !important;
+    19→   818→                opacity: 1 !important;
+    20→   819→                transform: none !important;
+    21→   820→            }
+    22→   821→        }
+    23→   822→    </style>
+    24→   823→</head>
+    25→   824→<body class="antialiased min-h-screen flex flex-col font-body-md overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container pb-24 md:pb-0">
+    26→   825→<canvas id="bg-canvas"></canvas>
+    27→   826→<header class="flex justify-between items-center px-container-margin py-4 w-full sticky top-0 z-50 bg-background/60 backdrop-blur-md border-b border-primary-container/10">
+    28→   827→<div class="flex items-center gap-3">
+    29→   828→<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden border border-primary-container/30">
+    30→   829→<img alt="User Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAr2gOmvcDsqVbQdbqxcZAYrqErV-CxHv4RMRxpU-RRcmwPg3xFAJk82WYYxaRTNDwPBhtt_vI5B-LJXXQZjc3JPA_74h6s_4vSe1FqrpTCL7wurxMzL3nMUj377bZWiGja5TJsDZ7y3flyhviKxnCuDopeWJxvwfhUtEmMCmd5unJa9949K-LEjkr2F3lbMkZQ8YKsYOZBFZspMbSitK0uxhYNmHJWG0j1e7U67p9k3y5KkUhdHgDN23WTzbCXKfFGtzt6JToAjpk"/>
+    31→   830→</div>
+    32→   831→</div>
+    33→   832→<div class="flex items-center gap-4">
+    34→   833→<button class="text-on-surface-variant hover:text-primary-fixed transition-colors">
+    35→   834→<span class="material-symbols-outlined">notifications</span>
+    36→   835→</button>
+    37→   836→<button class="text-on-surface-variant hover:text-primary-fixed transition-colors">
+    38→   837→<span class="material-symbols-outlined">settings</span>
+    39→   838→</button>
+    40→   839→</div>
+    41→   840→</header>
+    42→   841→<main class="flex-grow w-full max-w-[600px] mx-auto px-container-margin pt-6 flex flex-col gap-stack-gap">
+    43→   842→<div class="flex flex-col items-center justify-center py-4 mb-2">
+    44→   843→<div class="flex items-center gap-2 mb-1">
+    45→   844→<span class="material-symbols-outlined text-tertiary-fixed-dim text-[28px]" style="font-variation-settings: 'FILL' 1;">shield</span>
+    46→   845→<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background uppercase tracking-wider">Миссии</h2>
+    47→   846→</div>
+    48→   847→<p class="font-body-md text-body-md text-on-surface-variant text-center max-w-[80%]">Выполняйте задания для получения опыта и повышения уровня развития.</p>
+    49→   848→</div>
+    50→   849→<div class="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+    51→   850→<button class="shrink-0 px-4 py-2 rounded-full bg-primary-container/20 border border-primary-container text-primary-fixed font-label-md text-label-md uppercase tracking-wider shadow-[0_0_10px_rgba(0,242,255,0.2)]">
+    52→   851→<span class="material-symbols-outlined text-[14px] align-middle mr-1">grid_view</span> Все
+    53→   852→        </button>
+    54→   853→<button class="shrink-0 px-4 py-2 rounded-full bg-surface-container border border-outline-variant text-on-surface-variant font-label-md text-label-md uppercase tracking-wider hover:bg-surface-variant transition-colors">
+    55→   854→<span class="material-symbols-outlined text-[14px] align-middle mr-1">fitness_center</span> Физическое развитие
+    56→   855→        </button>
+    57→   856→<button class="shrink-0 px-4 py-2 rounded-full bg-surface-container border border-outline-variant text-on-surface-variant font-label-md text-label-md uppercase tracking-wider hover:bg-surface-variant transition-colors">
+    58→   857→<span class="material-symbols-outlined text-[14px] align-middle mr-1">forum</span> Социальное развитие
+    59→   858→        </button>
+    60→   859→</div>
+    61→   860→<div class="flex flex-col gap-4">
+    62→   861→<!-- Card 1 -->
+    63→   862→<div class="mission-card shimmer-effect glass-panel rounded-xl p-card-padding neon-border-primary flex flex-col" style="animation-delay: 0.1s;">
+    64→   863→<div class="absolute top-0 left-0 w-1 h-full bg-primary-container neon-accent shadow-[0_0_15px_rgba(0,242,255,0.8)]"></div>
+    65→   864→<div class="flex justify-between items-start mb-3 pl-2">
+    66→   865→<div>
+    67→   866→<h3 class="font-headline-md text-headline-md text-on-surface">Дыхание носом</h3>
+    68→   867→<div class="flex gap-2 mt-1">
+    69→   868→<span class="inline-flex items-center gap-1 bg-primary-container/10 text-primary-fixed font-label-md text-[10px] px-2 py-0.5 rounded border border-primary-container/30 uppercase tracking-widest">
+    70→   869→<span class="material-symbols-outlined text-[12px]">fitness_center</span> Физическое развитие
+    71→   870→                        </span>
+    72→   871→</div>
+    73→   872→</div>
+    74→   873→<button class="text-on-surface-variant hover:text-primary-fixed transition-colors">
+    75→   874→<span class="material-symbols-outlined">push_pin</span>
+    76→   875→</button>
+    77→   876→</div>
+    78→   877→<div class="flex justify-between items-end pl-2 mt-2">
+    79→   878→<div class="flex gap-3">
+    80→   879→<div class="flex items-center gap-1 text-tertiary-fixed-dim">
+    81→   880→<span class="material-symbols-outlined text-[16px]">arrow_upward</span>
+    82→   881→<span class="font-label-md text-label-md">+0.28</span>
+    83→   882→</div>
+    84→   883→<div class="flex items-center gap-1 text-secondary-fixed">
+    85→   884→<span class="material-symbols-outlined text-[16px]">favorite</span>
+    86→   885→<span class="font-label-md text-label-md">+0.13</span>
+    87→   886→</div>
+    88→   887→</div>
+    89→   888→<button class="btn-check-active relative w-12 h-12 rounded-full bg-surface-variant border border-primary-container/30 flex items-center justify-center transition-all">
+    90→   889→<span class="material-symbols-outlined text-primary-fixed">done</span>
+    91→   890→</button>
+    92→   891→</div>
+    93→   892→</div>
+    94→   893→<!-- Card 2 -->
+    95→   894→<div class="mission-card shimmer-effect glass-panel rounded-xl p-card-padding border-2 border-secondary-container/40 flex flex-col shadow-[0_0_15px_rgba(182,247,0,0.1)]" style="animation-delay: 0.2s;">
+    96→   895→<div class="absolute top-0 left-0 w-1 h-full bg-secondary-container neon-accent shadow-[0_0_15px_rgba(182,247,0,1)]"></div>
+    97→   896→<div class="flex justify-between items-start mb-3 pl-2">
+    98→   897→<div>
+    99→   898→<h3 class="font-headline-md text-headline-md text-on-surface">Процент жира в теле 4 <span class="text-body-md text-on-surface-variant block mt-1">(15-20%)</span></h3>
+   100→   899→<div class="flex gap-2 mt-2">
+   101→   900→<span class="inline-flex items-center gap-1 bg-secondary-container/10 text-secondary-fixed font-label-md text-[10px] px-2 py-0.5 rounded border border-secondary-container/30 uppercase tracking-widest">
+   102→   901→<span class="material-symbols-outlined text-[12px]">fitness_center</span> Физическое развитие
+   103→   902→                        </span>
+   104→   903→</div>
+   105→   904→</div>
+   106→   905→<button class="text-secondary-fixed">
+   107→   906→<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">push_pin</span>
+   108→   907→</button>
+   109→   908→</div>
+   110→   909→<div class="flex justify-between items-end pl-2 mt-2">
+   111→   910→<div class="flex gap-3">
+   112→   911→<div class="flex items-center gap-1 text-tertiary-fixed-dim"><span class="material-symbols-outlined text-[16px]">arrow_upward</span><span class="font-label-md text-label-md">+0.26</span></div>
+   113→   912→<div class="flex items-center gap-1 text-secondary-fixed"><span class="material-symbols-outlined text-[16px]">favorite</span><span class="font-label-md text-label-md">+0.17</span></div>
+   114→   913→</div>
+   115→   914→<button class="btn-check-active relative w-12 h-12 rounded-full bg-surface-variant border border-secondary-container/50 flex items-center justify-center transition-all">
+   116→   915→<span class="material-symbols-outlined text-secondary-fixed">done</span>
+   117→   916→</button>
+   118→   917→</div>
+   119→   918→</div>
+   120→   919→<!-- Card 3 -->
+   121→   920→<div class="mission-card shimmer-effect glass-panel rounded-xl p-card-padding neon-border-tertiary flex flex-col" style="animation-delay: 0.3s;">
+   122→   921→<div class="absolute top-0 left-0 w-1 h-full bg-tertiary-fixed-dim neon-accent shadow-[0_0_15px_rgba(233,179,255,0.8)]"></div>
+   123→   922→<div class="flex justify-between items-start mb-3 pl-2">
+   124→   923→<div>
+   125→   924→<h3 class="font-headline-md text-headline-md text-on-surface">Изысканный стиль</h3>
+   126→   925→<div class="flex gap-2 mt-1">
+   127→   926→<span class="inline-flex items-center gap-1 bg-tertiary-fixed-dim/10 text-tertiary-fixed-dim font-label-md text-[10px] px-2 py-0.5 rounded border border-tertiary-fixed-dim/30 uppercase tracking-widest">
+   128→   927→<span class="material-symbols-outlined text-[12px]">forum</span> Социальное развитие
+   129→   928→                        </span>
+   130→   929→</div>
+   131→   930→</div>
+   132→   931→<button class="text-on-surface-variant hover:text-tertiary-fixed-dim transition-colors">
+   133→   932→<span class="material-symbols-outlined">push_pin</span>
+   134→   933→</button>
+   135→   934→</div>
+   136→   935→<div class="flex justify-between items-end pl-2 mt-2">
+   137→   936→<div class="flex gap-3">
+   138→   937→<div class="flex items-center gap-1 text-tertiary-fixed-dim"><span class="material-symbols-outlined text-[16px]">arrow_upward</span><span class="font-label-md text-label-md">+0.58</span></div>
+   139→   938→</div>
+   140→   939→<button class="btn-check-active relative w-12 h-12 rounded-full bg-surface-variant border border-tertiary-fixed-dim/30 flex items-center justify-center transition-all">
+   141→   940→<span class="material-symbols-outlined text-tertiary-fixed-dim">done</span>
+   142→   941→</button>
+   143→   942→</div>
+   144→   943→</div>
+   145→   944→</div>
+   146→   945→</main>
+   147→   946→<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-surface-container-lowest/80 backdrop-blur-xl rounded-t-xl border-t border-outline-variant/20 shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+   148→   947→<button class="flex flex-col items-center justify-center text-on-surface-variant opacity-60 hover:text-secondary-fixed-dim transition-all">
+   149→   948→<span class="material-symbols-outlined mb-1">person</span>
+   150→   949→<span class="font-label-lg text-label-lg">Профиль</span>
+   151→   950→</button>
+   152→   951→<button class="flex flex-col items-center justify-center text-on-surface-variant opacity-60 hover:text-secondary-fixed-dim transition-all">
+   153→   952→<span class="material-symbols-outlined mb-1">check_circle</span>
+   154→   953→<span class="font-label-lg text-label-lg">Привычки</span>
+   155→   954→</button>
+   156→   955→<button class="nav-item-active flex flex-col items-center justify-center text-secondary-fixed scale-110 drop-shadow-[0_0_12px_rgba(182,247,0,0.6)]">
+   157→   956→<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">rocket_launch</span>
+   158→   957→<span class="font-label-lg text-label-lg">Миссии</span>
+   159→   958→</button>
+   160→   959→<button class="flex flex-col items-center justify-center text-on-surface-variant opacity-60 hover:text-secondary-fixed-dim transition-all">
+   161→   960→<span class="material-symbols-outlined mb-1">group</span>
+   162→   961→<span class="font-label-lg text-label-lg">Сообщество</span>
+   163→   962→</button>
+   164→   963→</nav>
+   165→   964→<script>
+   166→   965→    const canvas = document.getElementById('bg-canvas');
+   167→   966→    const gl = canvas.getContext('webgl');
+   168→   967→
+   169→   968→    if (gl) {
+   170→   969→        const vertexShaderSource = `
+   171→   970→            attribute vec2 position;
+   172→   971→            varying vec2 v_texCoord;
+   173→   972→            void main() {
+   174→   973→                v_texCoord = (position + 1.0) / 2.0;
+   175→   974→                gl_Position = vec4(position, 0.0, 1.0);
+   176→   975→            }
+   177→   976→        `;
+   178→   977→
+   179→   978→        const fragmentShaderSource = `
+   180→   979→            precision highp float;
+   181→   980→            varying vec2 v_texCoord;
+   182→   981→            uniform float u_time;
+   183→   982→            uniform vec2 u_resolution;
+   184→   983→
+   185→   984→            float noise(vec2 p) {
+   186→   985→                return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+   187→   986→            }
+   188→   987→
+   189→   988→            void main() {
+   190→   989→                vec2 uv = v_texCoord;
+   191→   990→                vec3 color = vec3(0.05, 0.05, 0.06);
+   192→   991→                float glow = sin(uv.x * 1.5 + u_time * 0.4) * cos(uv.y * 1.5 - u_time * 0.2) * 0.5 + 0.5;
+   193→   992→                color += vec3(0.0, 0.95, 1.0) * glow * 0.02;
+   194→   993→                vec2 particle_uv = uv * 12.0;
+   195→   994→                vec2 id = floor(particle_uv);
+   196→   995→                vec2 gv = fract(particle_uv) - 0.5;
+   197→   996→                float n = noise(id);
+   198→   997→                float t = u_time * 0.3 + n * 6.28;
+   199→   998→                vec2 offset = vec2(sin(t), cos(t)) * 0.4;
+   200→   999→                float dist = length(gv - offset);
+   201→  1000→                float p = smoothstep(0.06, 0.0, dist);
+   202→  1001→                p *= (sin(u_time * 2.5 + n * 10.0) * 0.5 + 0.5);
+   203→  1002→                color += vec3(0.0, 0.95, 1.0) * p * 0.25;
+   204→  1003→                gl_FragColor = vec4(color, 1.0);
+   205→  1004→            }
+   206→  1005→        `;
+   207→  1006→
+   208→  1007→        function createShader(gl, type, source) {
+   209→  1008→            const shader = gl.createShader(type);
+   210→  1009→            gl.shaderSource(shader, source);
+   211→  1010→            gl.compileShader(shader);
+   212→  1011→            return shader;
+   213→  1012→        }
+   214→  1013→
+   215→  1014→        const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+   216→  1015→        const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+   217→  1016→
+   218→  1017→        const program = gl.createProgram();
+   219→  1018→        gl.attachShader(program, vertexShader);
+   220→  1019→        gl.attachShader(program, fragmentShader);
+   221→  1020→        gl.linkProgram(program);
+   222→  1021→        gl.useProgram(program);
+   223→  1022→
+   224→  1023→        const positionBuffer = gl.createBuffer();
+   225→  1024→        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+   226→  1025→        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]), gl.STATIC_DRAW);
+   227→  1026→
+   228→  1027→        const positionLocation = gl.getAttribLocation(program, 'position');
+   229→  1028→        gl.enableVertexAttribArray(positionLocation);
+   230→  1029→        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+   231→  1030→
+   232→  1031→        const timeLocation = gl.getUniformLocation(program, 'u_time');
+   233→  1032→        const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
+   234→  1033→
+   235→  1034→        function render(time) {
+   236→  1035→            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+   237→  1036→                // Static version for reduced motion
+   238→  1037→                gl.uniform1f(timeLocation, 100.0); 
+   239→  1038→            } else {
+   240→  1039→                gl.uniform1f(timeLocation, time * 0.001);
+   241→  1040→            }
+   242→  1041→            
+   243→  1042→            canvas.width = window.innerWidth;
+   244→  1043→            canvas.height = window.innerHeight;
+   245→  1044→            gl.viewport(0, 0, canvas.width, canvas.height);
+   246→  1045→            gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+   247→  1046→            gl.drawArrays(gl.TRIANGLES, 0, 6);
+   248→  1047→            requestAnimationFrame(render);
+   249→  1048→        }
+   250→  1049→        requestAnimationFrame(render);
+   251→  1050→    }
+   252→  1051→</script>
+   253→  1052→</body></html>
+   254→  1053→
+   255→  1054→
+   256→  1055→# Example 3 Code
+   257→  1056→
+   258→  1057→<!DOCTYPE html><html class="dark" lang="ru"><head>
+   259→  1058→<meta charset="utf-8">
+   260→  1059→<meta content="width=device-width, initial-scale=1.0" name="viewport">
+   261→  1060→<title>Привычки - УРОВЕНЬ 42</title>
+   262→  1061→<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+   263→  1062→<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+   264→  1063→<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&amp;family=Sora:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+   265→  1064→<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+   266→  1065→<script id="tailwind-config">
+   267→  1066→        tailwind.config = {
+   268→  1067→            darkMode: "class",
+   269→  1068→            theme: {
+   270→  1069→                extend: {
+   271→  1070→                    "colors": {
+   272→  1071→                        "surface-variant": "#353436",
+   273→  1072→                        "secondary-container": "#b6f700",
+   274→  1073→                        "background": "#131314",
+   275→  1074→                        "primary-fixed": "#74f5ff",
+   276→  1075→                        "on-surface-variant": "#b9cacb",
+   277→  1076→                        "on-background": "#e5e2e3",
+   278→  1077→                        "tertiary-fixed-dim": "#e9b3ff",
+   279→  1078→                        "on-secondary-container": "#4f6e00",
+   280→  1079→                        "primary-container": "#00f2ff",
+   281→  1080→                        "tertiary-fixed": "#f6d9ff",
+   282→  1081→                        "surface-tint": "#00dbe7",
+   283→  1082→                        "on-error": "#690005",
+   284→  1083→                        "outline-variant": "#3a494b",
+   285→  1084→                        "on-tertiary-fixed": "#310048",
+   286→  1085→                        "on-secondary-fixed-variant": "#374e00",
+   287→  1086→                        "secondary-fixed": "#b6f700",
+   288→  1087→                        "on-tertiary-fixed-variant": "#7200a3",
+   289→  1088→                        "error": "#ffb4ab",
+   290→  1089→                        "tertiary": "#fff5fd",
+   291→  1090→                        "on-primary-container": "#006a71",
+   292→  1091→                        "error-container": "#93000a",
+   293→  1092→                        "primary-fixed-dim": "#00dbe7",
+   294→  1093→                        "on-surface": "#e5e2e3",
+   295→  1094→                        "on-secondary": "#253600",
+   296→  1095→                        "on-secondary-fixed": "#141f00",
+   297→  1096→                        "surface-container-lowest": "#0e0e0f",
+   298→  1097→                        "surface-container-low": "#1c1b1c",
+   299→  1098→                        "on-error-container": "#ffdad6",
+   300→  1099→                        "surface-container-highest": "#353436",
+   301→  1100→                        "surface-container": "#201f20",
+   302→  1101→                        "primary": "#e1fdff",
+   303→  1102→                        "inverse-surface": "#e5e2e3",
+   304→  1103→                        "surface-dim": "#131314",
+   305→  1104→                        "surface": "#131314",
+   306→  1105→                        "inverse-on-surface": "#313031",
+   307→  1106→                        "on-primary": "#00363a",
+   308→  1107→                        "surface-bright": "#3a393a",
+   309→  1108→                        "on-tertiary-container": "#9128c5",
+   310→  1109→                        "outline": "#849495",
+   311→  1110→                        "inverse-primary": "#00696f",
+   312→  1111→                        "tertiary-container": "#f3cfff",
+   313→  1112→                        "on-primary-fixed-variant": "#004f54",
+   314→  1113→                        "secondary-fixed-dim": "#9fd800",
+   315→  1114→                        "secondary": "#ffffff",
+   316→  1115→                        "on-tertiary": "#510074",
+   317→  1116→                        "on-primary-fixed": "#002022",
+   318→  1117→                        "surface-container-high": "#2a2a2b"
+   319→  1118→                    },
+   320→  1119→                    "borderRadius": {
+   321→  1120→                        "DEFAULT": "0.25rem",
+   322→  1121→                        "lg": "0.5rem",
+   323→  1122→                        "xl": "0.75rem",
+   324→  1123→                        "full": "9999px"
+   325→  1124→                    },
+   326→  1125→                    "spacing": {
+   327→  1126→                        "section-spacing": "32px",
+   328→  1127→                        "inline-gap": "12px",
+   329→  1128→                        "stack-gap": "16px",
+   330→  1129→                        "card-padding": "16px",
+   331→  1130→                        "container-margin": "20px"
+   332→  1131→                    },
+   333→  1132→                    "fontFamily": {
+   334→  1133→                        "display-lg": ["Sora"],
+   335→  1134→                        "display-lg-mobile": ["Sora"],
+   336→  1135→                        "headline-lg": ["Sora"],
+   337→  1136→                        "label-md": ["JetBrains Mono"],
+   338→  1137→                        "body-lg": ["JetBrains Mono"],
+   339→  1138→                        "headline-lg-mobile": ["Sora"],
+   340→  1139→                        "headline-md": ["Sora"],
+   341→  1140→                        "body-md": ["JetBrains Mono"],
+   342→  1141→                        "label-lg": ["Sora"]
+   343→  1142→                    },
+   344→  1143→                    "fontSize": {
+   345→  1144→                        "display-lg": ["40px", { "lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+   346→  1145→                        "display-lg-mobile": ["32px", { "lineHeight": "38px", "fontWeight": "800" }],
+   347→  1146→                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+   348→  1147→                        "label-md": ["10px", { "lineHeight": "14px", "fontWeight": "500" }],
+   349→  1148→                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+   350→  1149→                        "headline-lg-mobile": ["24px", { "lineHeight": "30px", "fontWeight": "700" }],
+   351→  1150→                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+   352→  1151→                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+   353→  1152→                        "label-lg": ["12px", { "lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "700" }]
+   354→  1153→                    }
+   355→  1154→                }
+   356→  1155→            }
+   357→  1156→        }
+   358→  1157→    </script>
+   359→  1158→<style>
+   360→  1159→        body {
+   361→  1160→            background-color: #0A0A0B; /* Deepest black background */
+   362→  1161→        }
+   363→  1162→        
+   364→  1163→        /* Custom scrollbar for webkit */
+   365→  1164→        ::-webkit-scrollbar {
+   366→  1165→            width: 6px;
+   367→  1166→        }
+   368→  1167→        ::-webkit-scrollbar-track {
+   369→  1168→            background: transparent;
+   370→  1169→        }
+   371→  1170→        ::-webkit-scrollbar-thumb {
+   372→  1171→            background-color: #3a494b;
+   373→  1172→            border-radius: 10px;
+   374→  1173→        }
+   375→  1174→        
+   376→  1175→        /* Glow effects */
+   377→  1176→        .glow-physical { box-shadow: 0 0 15px rgba(0, 242, 255, 0.15); border-color: rgba(0, 242, 255, 0.2); }
+   378→  1177→        .glow-mental { box-shadow: 0 0 15px rgba(182, 247, 0, 0.15); border-color: rgba(182, 247, 0, 0.2); }
+   379→  1178→        .glow-social { box-shadow: 0 0 15px rgba(233, 179, 255, 0.15); border-color: rgba(233, 179, 255, 0.2); }
+   380→  1179→        
+   381→  1180→        /* Checkmark interaction */
+   382→  1181→        .check-btn-physical:active { transform: scale(0.95); box-shadow: 0 0 20px rgba(0, 242, 255, 0.4); }
+   383→  1182→        .check-btn-mental:active { transform: scale(0.95); box-shadow: 0 0 20px rgba(182, 247, 0, 0.4); }
+   384→  1183→        .check-btn-social:active { transform: scale(0.95); box-shadow: 0 0 20px rgba(233, 179, 255, 0.4); }
+   385→  1184→
+   386→  1185→        .progress-bar-glow-physical { box-shadow: 0 0 10px rgba(0, 242, 255, 0.5); }
+   387→  1186→        .progress-bar-glow-mental { box-shadow: 0 0 10px rgba(182, 247, 0, 0.5); }
+   388→  1187→        .progress-bar-glow-social { box-shadow: 0 0 10px rgba(233, 179, 255, 0.5); }
+   389→  1188→    </style>
+   390→  1189→<style>
+   391→  1190→    body {
+   392→  1191→      min-height: max(884px, 100dvh);
+   393→  1192→    }
+   394→  1193→  </style>
+   395→  1194→</head>
+   396→  1195→<body class="text-on-background font-body-md min-h-screen pb-[100px] flex flex-col md:flex-row relative overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+   397→  1196→<!-- Ambient Background Glow -->
+   398→  1197→<div class="fixed inset-0 pointer-events-none z-0">
+   399→  1198→<div class="absolute top-1/4 left-0 w-96 h-96 bg-primary-container/5 rounded-full blur-[100px]"></div>
+   400→  1199→<div class="absolute bottom-1/4 right-0 w-96 h-96 bg-secondary-fixed/5 rounded-full blur-[100px]"></div>
+   401→  1200→</div>
+   402→  1201→<!-- TopAppBar (Hidden on MD, visible on Mobile for consistency if needed, but nav goes to bottom) -->
+   403→  1202→<header class="bg-background/80 dark:bg-background/80 backdrop-blur-md text-primary-container dark:text-primary-fixed docked full-width top-0 bg-surface-container-low dark:bg-surface-container-low shadow-[0_0_15px_rgba(0,242,255,0.1)] flex justify-between items-center px-container-margin py-4 w-full fixed top-0 z-50 md:hidden">
+   404→  1203→<div class="flex items-center gap-inline-gap">
+   405→  1204→<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+   406→  1205→<img alt="User Pilot Avatar" class="w-full h-full object-cover" data-alt="A futuristic cyberpunk avatar portrait, neon lighting, dark background, highly detailed digital art style. Profile picture of a gamer or sci-fi character." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBpCiGqCcazLvPiC9PBstsx9hyveu5H48kJnuBVowhlyZLltXRc9HfJYCePdBKa9Ww0imeGEI9-HrQvD_qU5UigR975qg3LM_-mO5D9xtsuFXN6dosVzXXUo43CCTceiHgIPhI11Pyk4j486kPuK95yPi6JILwaGEt8eVVc5HRSRj3z4LRUqUe5HQCtNIeK05jHPPJCKDBW39CTUUoY4YYQXgs_PIykw1JKSqU2pXeK7Vs2vJ2xbxwBkT73lWjJXv-ihg_OGbJOgT0">
+   407→  1206→</div>
+   408→  1207→</div>
+   409→  1208→<div><div class="flex items-center gap-4">
+   410→  1209→<button class="text-on-surface-variant hover:text-primary-fixed transition-colors">
+   411→  1210→<span class="material-symbols-outlined">notifications</span>
+   412→  1211→</button>
+   413→  1212→<button class="text-on-surface-variant hover:text-primary-fixed transition-colors">
+   414→  1213→<span class="material-symbols-outlined">settings</span>
+   415→  1214→</button>
+   416→  1215→</div></div>
+   417→  1216→</header>
+   418→  1217→<!-- Top Padding for Mobile Header -->
+   419→  1218→<div class="h-[72px] md:hidden w-full shrink-0"></div>
+   420→  1219→<!-- SideNav for Web (Hidden on Mobile) -->
+   421→  1220→<nav class="hidden md:flex flex-col w-64 h-screen fixed left-0 top-0 border-r border-outline-variant/30 bg-surface-container-lowest/90 backdrop-blur-xl z-50 px-4 py-8 overflow-y-auto">
+   422→  1221→<div class="mb-12 px-2 flex items-center justify-between">
+   423→  1222→<span class="font-display-lg-mobile text-display-lg-mobile tracking-tighter text-primary-container font-bold">УРОВЕНЬ 42</span>
+   424→  1223→</div>
+   425→  1224→<div class="flex flex-col gap-2">
+   426→  1225→<!-- Nav Item: Profile -->
+   427→  1226→<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant transition-colors group" href="#">
+   428→  1227→<span class="material-symbols-outlined group-hover:text-primary-fixed transition-colors">person</span>
+   429→  1228→<span class="font-label-lg text-label-lg">Профиль</span>
+   430→  1229→</a>
+   431→  1230→<!-- Nav Item: Habits (ACTIVE) -->
+   432→  1231→<a class="flex items-center gap-4 px-4 py-3 rounded-lg bg-surface-variant text-primary-container font-bold shadow-[0_0_15px_rgba(0,242,255,0.1)] transition-transform scale-95 relative overflow-hidden" href="#">
+   433→  1232→<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary-container shadow-[0_0_10px_#00f2ff]"></div>
+   434→  1233→<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+   435→  1234→<span class="font-label-lg text-label-lg">Привычки</span>
+   436→  1235→</a>
+   437→  1236→<!-- Nav Item: Missions -->
+   438→  1237→<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant transition-colors group" href="#">
+   439→  1238→<span class="material-symbols-outlined group-hover:text-primary-fixed transition-colors">rocket_launch</span>
+   440→  1239→<span class="font-label-lg text-label-lg">Миссии</span>
+   441→  1240→</a>
+   442→  1241→<!-- Nav Item: Community -->
+   443→  1242→<a class="flex items-center gap-4 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-variant transition-colors group" href="#">
+   444→  1243→<span class="material-symbols-outlined group-hover:text-primary-fixed transition-colors">group</span>
+   445→  1244→<span class="font-label-lg text-label-lg">Сообщество</span>
+   446→  1245→</a>
+   447→  1246→</div>
+   448→  1247→<div class="mt-auto pt-8 border-t border-outline-variant/30 flex items-center gap-4 px-2">
+   449→  1248→<div class="w-10 h-10 rounded-full overflow-hidden border border-primary-container/50 shadow-[0_0_10px_rgba(0,242,255,0.2)]">
+   450→  1249→<img alt="User Avatar" class="w-full h-full object-cover" data-alt="A futuristic cyberpunk avatar portrait, neon lighting, dark background, highly detailed digital art style. Profile picture of a gamer or sci-fi character." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2Xiu9UHQueBp1kh1QGzyjm6fukrVt8CMbhLgZEjks-Y5iWvrRdzwz5Yxsz3iq7YI7VsL-pqMpAnlg_rLcUdoGM3RAmMgGBdSyeIFf0NX0PAk6TGPqaPMOt9NwJYWC0A3OK5-vbNy7ytt3lHYJ_k_a9Ui6T1oAIseGejkpocsGaxaGTsKb2VFhTqpc6Ssd4P_faIx7CqxlQxKc4yBPwPF59B6LiSZwzIu7ckTE33wxySWRFDRhG5Ce16XFX_zt035ZCQKsVm4eUxc">
+   451→  1250→</div>
+   452→  1251→<div class="flex flex-col">
+   453→  1252→<span class="font-label-md text-label-md text-on-background">Pilot-74</span>
+   454→  1253→<span class="font-label-md text-label-md text-secondary-fixed">1,250 CR</span>
+   455→  1254→</div>
+   456→  1255→</div>
+   457→  1256→</nav>
+   458→  1257→<!-- Main Content Canvas -->
+   459→  1258→<main class="flex-1 w-full max-w-lg mx-auto md:ml-64 md:max-w-3xl px-container-margin py-section-spacing z-10 flex flex-col gap-stack-gap">
+   460→  1259→<!-- Header / Date Selector -->
+   461→  1260→<div class="flex flex-col items-center justify-center mb-4">
+   462→  1261→<h1 class="font-headline-lg-mobile text-headline-lg-mobile text-on-background flex items-center gap-2">
+   463→  1262→<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+   464→  1263→                Привычки
+   465→  1264→            </h1>
+   466→  1265→<p class="font-label-md text-label-md text-outline mt-1 uppercase tracking-widest">Персонально для вас</p>
+   467→  1266→<div class="flex items-center gap-4 mt-6 bg-[#161618] border border-outline-variant/30 rounded-full px-4 py-1.5">
+   468→  1267→<button class="text-on-surface-variant hover:text-primary-fixed transition-colors"><span class="material-symbols-outlined text-sm">chevron_left</span></button>
+   469→  1268→<span class="font-label-md text-label-md text-on-surface">29 февраля 2024</span>
+   470→  1269→<button class="text-on-surface-variant hover:text-primary-fixed transition-colors"><span class="material-symbols-outlined text-sm">chevron_right</span></button>
+   471→  1270→</div>
+   472→  1271→</div>
+   473→  1272→<!-- Filter / Stats Row -->
+   474→  1273→<div class="flex justify-between items-center mb-2">
+   475→  1274→<div class="flex gap-2">
+   476→  1275→<span class="font-label-md text-label-md bg-surface-variant text-on-surface px-3 py-1 rounded-full border border-outline-variant/50">Все</span>
+   477→  1276→<span class="font-label-md text-label-md text-on-surface-variant px-3 py-1 hover:text-on-surface transition-colors cursor-pointer">Физические</span>
+   478→  1277→</div>
+   479→  1278→<div class="flex items-center gap-1 text-secondary-fixed">
+   480→  1279→<span class="material-symbols-outlined text-sm">local_fire_department</span>
+   481→  1280→<span class="font-label-md text-label-md font-bold">Серия: 14 дней</span>
+   482→  1281→</div>
+   483→  1282→</div>
+   484→  1283→<!-- Habit List -->
+   485→  1284→<div class="flex flex-col gap-4">
+   486→  1285→<!-- Habit Card 1: Weightlifting (Completed) -->
+   487→  1286→<div class="bg-[#161618] border border-primary-container/20 rounded-xl p-card-padding flex flex-col gap-3 relative overflow-hidden glow-physical group">
+   488→  1287→<div class="absolute inset-0 bg-primary-container/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+   489→  1288→<div class="flex justify-between items-start z-10">
+   490→  1289→<div class="flex flex-col gap-1">
+   491→  1290→<h3 class="font-headline-md text-headline-md text-primary-container">Тяжелая атлетика мин. 2д/н</h3>
+   492→  1291→<div class="flex items-center gap-3 font-label-md text-label-md text-on-surface-variant">
+   493→  1292→<span class="flex items-center gap-1 text-secondary-fixed"><span class="material-symbols-outlined text-[10px]" style="font-variation-settings: 'FILL' 1;">person</span>+0.50</span>
+   494→  1293→<span class="flex items-center gap-1 text-error"><span class="material-symbols-outlined text-[10px]" style="font-variation-settings: 'FILL' 1;">favorite</span>+0.50</span>
+   495→  1294→<span class="flex items-center gap-1 text-tertiary-fixed-dim"><span class="material-symbols-outlined text-[10px]" style="font-variation-settings: 'FILL' 1;">bolt</span>+0.27</span>
+   496→  1295→</div>
+   497→  1296→</div>
+   498→  1297→<!-- Check Button -->
+   499→  1298→<button class="w-12 h-12 rounded-full bg-primary-container/10 border border-primary-container text-primary-container flex items-center justify-center check-btn-physical transition-all duration-200">
+   500→  1299→<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check</span>
+
+[showing lines 1-500 of 502; use offset=501 with limit to continue reading]
