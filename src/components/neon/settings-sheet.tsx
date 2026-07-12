@@ -113,6 +113,8 @@ export function SettingsSheet({ open, onOpenChange, onChanged }: Props) {
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto scrollbar-thin px-5 py-3 flex flex-col gap-4">
+          {/* Avatar upload */}
+          <AvatarSection onChanged={onChanged} />
           <SettingsTab
             premium={premium}
             loading={loading}
@@ -341,5 +343,56 @@ function Row({
       </div>
       <div className="shrink-0">{control}</div>
     </div>
+  );
+}
+
+/** Avatar upload section — lets the user upload a profile picture. */
+function AvatarSection({ onChanged }: { onChanged: () => void }) {
+  const { toast } = useToast();
+  const [uploading, setUploading] = useState(false);
+
+  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/avatar", { method: "POST", body: fd });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j.error || "Ошибка загрузки");
+      }
+      toast({ title: "Аватар обновлён" });
+      onChanged();
+    } catch (err) {
+      toast({
+        title: "Ошибка",
+        description: err instanceof Error ? err.message : "Не удалось",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <Section title="Аватар" icon="account_circle" accent="#00f2ff">
+      <div className="p-3 flex items-center gap-3">
+        <MaterialIcon name="person" size={18} className="text-on-surface-variant shrink-0" />
+        <div className="flex-1 min-w-0">
+          <div className="font-display text-[13px] font-bold text-on-surface">
+            Загрузить фото профиля
+          </div>
+          <div className="font-mono text-[10px] text-on-surface-variant mt-0.5">
+            PNG/JPG, максимум 2 МБ
+          </div>
+        </div>
+        <label className="shrink-0 cursor-pointer font-display text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-md bg-primary-container text-on-primary neon-glow-primary active:scale-95 transition-transform">
+          {uploading ? "..." : "Загрузить"}
+          <input type="file" accept="image/*" onChange={onFile} className="hidden" disabled={uploading} />
+        </label>
+      </div>
+    </Section>
   );
 }

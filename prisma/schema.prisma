@@ -35,6 +35,7 @@ model User {
   weeklyChallenges WeeklyChallenge[]
   cooldownCheckins CooldownCheckin[]
   notifications    Notification[]
+  pushSubscriptions PushSubscription[]
 }
 
 // ===== Skills (6 mission-driven + 1 habit-driven "Постоянство") =====
@@ -166,6 +167,17 @@ model Notification {
   user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
+}
+
+// ===== Push Subscriptions (browser push notifications) =====
+model PushSubscription {
+  id        String @id @default(cuid())
+  userId    String
+  endpoint  String @unique
+  keys      String // JSON: { p256dh, auth }
+  createdAt DateTime @default(now())
+
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // ===== Community =====

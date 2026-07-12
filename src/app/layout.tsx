@@ -1,8 +1,10 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Sora, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import { Providers } from "@/components/providers";
+import { ServiceWorkerRegister } from "@/components/sw-register";
+import { GoogleAnalytics } from "@/components/analytics";
 
 const sora = Sora({
   variable: "--font-sora",
@@ -30,8 +32,16 @@ export const metadata: Metadata = {
     "геймификация",
   ],
   authors: [{ name: "Nevergiveup" }],
+  manifest: "/manifest.json",
+  themeColor: "#00f2ff",
+  openGraph: {
+    title: "Nevergiveup — Система развития",
+    description: "Геймифицированная система саморазвития",
+    type: "website",
+  },
   icons: {
-    icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+    icon: "/icon-192.png",
+    apple: "/icon-192.png",
   },
 };
 
@@ -54,6 +64,8 @@ export default function RootLayout({
         <Providers>
           {children}
           <Toaster />
+          <ServiceWorkerRegister />
+          <GoogleAnalytics />
         </Providers>
       </body>
     </html>
