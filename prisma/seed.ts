@@ -1,5 +1,6 @@
 import { db } from "../src/lib/db";
 import bcrypt from "bcryptjs";
+import { DEFAULT_HABITS, DEMO_HABIT_STATE } from "../src/lib/default-habits";
 
 // Seed demo accounts + community posts so the feed isn't empty for new users.
 // Each new real user gets their own skills/habits via the register API onboarding.
@@ -79,20 +80,19 @@ async function main() {
   const weekStart = new Date();
   weekStart.setDate(weekStart.getDate() - weekStart.getDay());
   const weekStartStr = weekStart.toISOString().slice(0, 10);
-  const HABITS = [
-    { title: "Тяжелая атлетика", category: "physical", color: "#00f2ff", target: "мин. 2д/н", completed: true, streak: 7, rewardPoints: 75 },
-    { title: "Сон", category: "physical", color: "#22c55e", target: "мин. 7.5ч", completed: true, streak: 7, rewardPoints: 55 },
-    { title: "Ставить цели с вечера", category: "mental", color: "#a855f7", target: "", completed: false, streak: 7, rewardPoints: 40, subtasksTotal: 7, subtasksDone: 1 },
-    { title: "Медитация 10 минут", category: "mental", color: "#e9b3ff", target: "ежедневно", completed: true, streak: 14, rewardPoints: 45 },
-    { title: "Чтение 30 страниц", category: "mental", color: "#22c55e", target: "каждый день", completed: false, streak: 5, rewardPoints: 50 },
-    { title: "Прогулка на свежем воздухе", category: "physical", color: "#00f2ff", target: "мин. 8000 шагов", completed: true, streak: 3, rewardPoints: 40 },
-  ];
-  for (const h of HABITS) {
+  for (const h of DEFAULT_HABITS) {
+    const st = DEMO_HABIT_STATE[h.title] ?? { completed: false, streak: 0 };
     await db.habit.create({
       data: {
-        ...h,
-        subtasksTotal: h.subtasksTotal ?? 0,
-        subtasksDone: h.subtasksDone ?? 0,
+        title: h.title,
+        category: h.category,
+        color: h.color,
+        target: h.target,
+        rewardPoints: h.rewardPoints,
+        completed: st.completed,
+        streak: st.streak,
+        subtasksTotal: 0,
+        subtasksDone: 0,
         weekStart: weekStartStr,
         userId: adrian.id,
       },

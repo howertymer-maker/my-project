@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
+import { DEFAULT_HABITS } from "@/lib/default-habits";
 
 export const dynamic = "force-dynamic";
 
@@ -15,13 +16,7 @@ const DEFAULT_SKILLS = [
   { key: "consistency", label: "Постоянство", icon: "autorenew", color: "#fbbf24", source: "habits", points: 0, sortOrder: 6 },
 ];
 
-// A small starter set of habits (rewards use the new lowered base values)
-const DEFAULT_HABITS = [
-  { title: "Сон", category: "physical", color: "#22c55e", target: "мин. 7.5ч", rewardPoints: 55 },
-  { title: "Медитация 10 минут", category: "mental", color: "#e9b3ff", target: "ежедневно", rewardPoints: 45 },
-  { title: "Чтение 30 страниц", category: "mental", color: "#22c55e", target: "каждый день", rewardPoints: 50 },
-  { title: "Прогулка на свежем воздухе", category: "physical", color: "#00f2ff", target: "мин. 8000 шагов", rewardPoints: 40 },
-];
+// 20 default habits are imported at the top of this file (DEFAULT_HABITS).
 
 export async function POST(req: NextRequest) {
   const { email, password, displayName } = await req.json();
