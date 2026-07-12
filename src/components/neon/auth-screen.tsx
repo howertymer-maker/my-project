@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { MaterialIcon } from "@/components/material-icon";
 import { useToast } from "@/hooks/use-toast";
 
@@ -29,18 +29,39 @@ export function AuthScreen({ mode }: { mode: Mode }) {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Ошибка регистрации");
       }
+
+      // Sign in with redirect:false so we can show a toast and verify the session
       const result = await signIn("credentials", {
         email,
         password,
         redirect: false,
       });
-      if (!result || result.error) {
+      if (!result || result.error || !result.ok) {
         throw new Error("Неверный email или пароль");
       }
+
       toast({ title: mode === "register" ? "Аккаунт создан" : "Вход выполнен" });
-      // Wait for the session to be fully established before navigating,
-      // otherwise the homepage may briefly show the unauthenticated state.
-      await new Promise((r) => setTimeout(r, 300));
+
+      // Wait for the session cookie to be fully established before navigating.
+      // Polling getSession() guarantees the cookie is readable by the browser,
+      // otherwise the homepage may briefly render the unauthenticated state.
+      let sessionOk = false;
+      for (let i = 0; i < 20; i++) {
+        const session = await getSession();
+        if (session) {
+          sessionOk = true;
+          break;
+        }
+        await new Promise((r) => setTimeout(r, 150));
+      }
+
+      if (!sessionOk) {
+        // fallback: still navigate, the homepage will re-check
+        window.location.href = "/";
+        return;
+      }
+
+      // Session confirmed — navigate to the app.
       window.location.href = "/";
     } catch (err) {
       toast({
