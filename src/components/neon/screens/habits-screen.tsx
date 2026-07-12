@@ -313,18 +313,18 @@ function HabitCard({
         style={{ background: habit.color, boxShadow: `0 0 12px ${habit.color}` }}
       />
       <div className="flex items-start justify-between gap-3">
-        <div className="flex flex-col gap-1 min-w-0">
+        <div className="flex flex-col gap-1 min-w-0 flex-1">
           <h3
-            className="font-display text-base font-bold leading-tight truncate"
+            className="font-display text-base font-bold leading-tight break-words"
             style={{ color: completed ? habit.color : "#e5e2e3" }}
           >
             {habit.title}
-            {habit.target && (
-              <span className="font-mono text-[12px] text-on-surface-variant font-normal ml-1.5">
-                {habit.target}
-              </span>
-            )}
           </h3>
+          {habit.target && (
+            <span className="font-mono text-[11px] text-on-surface-variant font-normal leading-snug">
+              {habit.target}
+            </span>
+          )}
           {habit.subtasksTotal > 0 && (
             <div className="flex items-center gap-2">
               <span className="font-mono text-[10px] text-on-surface-variant">
