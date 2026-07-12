@@ -61,6 +61,83 @@ async function main() {
   }
   const [adrian, max, samir, lena] = created;
 
+  // ===== Give the primary demo user (adrian) a full set of skills, habits and
+  // a completed mission so the app looks alive when browsed without auth (bypass).
+  const SKILLS = [
+    { key: "discipline", label: "Дисциплина", icon: "fitness_center", color: "#f97316", source: "missions", points: 6800, sortOrder: 0 },
+    { key: "social", label: "Социальность", icon: "forum", color: "#eab308", source: "missions", points: 7400, sortOrder: 1 },
+    { key: "mental", label: "Ментал", icon: "psychology", color: "#22c55e", source: "missions", points: 7700, sortOrder: 2 },
+    { key: "physical", label: "Физика", icon: "directions_run", color: "#3b82f6", source: "missions", points: 4600, sortOrder: 3 },
+    { key: "financial", label: "Финансы", icon: "payments", color: "#a855f7", source: "missions", points: 7200, sortOrder: 4 },
+    { key: "appearance", label: "Внешность", icon: "face", color: "#ec4899", source: "missions", points: 5800, sortOrder: 5 },
+    { key: "consistency", label: "Постоянство", icon: "autorenew", color: "#fbbf24", source: "habits", points: 4200, sortOrder: 6 },
+  ];
+  for (const s of SKILLS) {
+    await db.attribute.create({ data: { ...s, userId: adrian.id } });
+  }
+
+  const weekStart = new Date();
+  weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+  const weekStartStr = weekStart.toISOString().slice(0, 10);
+  const HABITS = [
+    { title: "Тяжелая атлетика", category: "physical", color: "#00f2ff", target: "мин. 2д/н", completed: true, streak: 7, rewardPoints: 75 },
+    { title: "Сон", category: "physical", color: "#22c55e", target: "мин. 7.5ч", completed: true, streak: 7, rewardPoints: 55 },
+    { title: "Ставить цели с вечера", category: "mental", color: "#a855f7", target: "", completed: false, streak: 7, rewardPoints: 40, subtasksTotal: 7, subtasksDone: 1 },
+    { title: "Медитация 10 минут", category: "mental", color: "#e9b3ff", target: "ежедневно", completed: true, streak: 14, rewardPoints: 45 },
+    { title: "Чтение 30 страниц", category: "mental", color: "#22c55e", target: "каждый день", completed: false, streak: 5, rewardPoints: 50 },
+    { title: "Прогулка на свежем воздухе", category: "physical", color: "#00f2ff", target: "мин. 8000 шагов", completed: true, streak: 3, rewardPoints: 40 },
+  ];
+  for (const h of HABITS) {
+    await db.habit.create({
+      data: {
+        ...h,
+        subtasksTotal: h.subtasksTotal ?? 0,
+        subtasksDone: h.subtasksDone ?? 0,
+        weekStart: weekStartStr,
+        userId: adrian.id,
+      },
+    });
+  }
+
+  // one completed mission in discipline (cooldown expired) + one in physical (cooldown active)
+  const now = new Date();
+  const ago8d = new Date(now.getTime() - 8 * 24 * 60 * 60 * 1000);
+  const ago1h = new Date(now.getTime() - 1 * 60 * 60 * 1000);
+  const in7d = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  await db.userMission.create({
+    data: {
+      userId: adrian.id,
+      templateId: "discipline-0",
+      category: "discipline",
+      currentStage: 3,
+      stageStartedAt: new Date(ago8d.getTime() - 96 * 60 * 60 * 1000),
+      completedAt: ago8d,
+      nextAvailableAt: ago8d,
+    },
+  });
+  await db.userMission.create({
+    data: {
+      userId: adrian.id,
+      templateId: "physical-0",
+      category: "physical",
+      currentStage: 3,
+      stageStartedAt: new Date(ago1h.getTime() - 96 * 60 * 60 * 1000),
+      completedAt: ago1h,
+      nextAvailableAt: in7d,
+    },
+  });
+  // one in-progress mission (discipline-1, stage 1 ready)
+  const ago25h = new Date(now.getTime() - 25 * 60 * 60 * 1000);
+  await db.userMission.create({
+    data: {
+      userId: adrian.id,
+      templateId: "discipline-1",
+      category: "discipline",
+      currentStage: 1,
+      stageStartedAt: ago25h,
+    },
+  });
+
   // demo community posts (owned by the demo authors)
   const posts = [
     {
