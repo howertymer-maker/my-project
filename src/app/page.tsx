@@ -18,23 +18,28 @@ export function refreshAll() {
   }
 }
 
+// TEMPORARY: bypass auth in the preview so the app is browsable without login.
+const AUTH_BYPASS = process.env.NEXT_PUBLIC_AUTH_BYPASS !== "false";
+
 export default function Home() {
   const { data: session, status } = useSession();
   const [tab, setTab] = useState<TabKey>("profile");
   const [showIntro, setShowIntro] = useState(false);
 
+  const authenticated = AUTH_BYPASS || (status === "authenticated" && !!session);
+
   // Show intro video once the user is authenticated, on first entry this browser session
   useEffect(() => {
-    if (status === "authenticated" && session) {
+    if (authenticated) {
       // defer to microtask to avoid set-state-in-effect cascading render
       Promise.resolve().then(() => {
         if (shouldShowIntro()) setShowIntro(true);
       });
     }
-  }, [status, session]);
+  }, [authenticated]);
 
-  // Loading state while session is being checked
-  if (status === "loading") {
+  // Loading state while session is being checked (only when auth is required)
+  if (!AUTH_BYPASS && status === "loading") {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#0A0A0B] gap-4">
         <div className="w-12 h-12 rounded-full border-2 border-primary-container/30 border-t-primary-container animate-spin-med" />
@@ -45,8 +50,8 @@ export default function Home() {
     );
   }
 
-  // Not authenticated → show login prompt
-  if (status === "unauthenticated" || !session) {
+  // Not authenticated → show login prompt (only when auth is required)
+  if (!authenticated) {
     return <LoginPrompt />;
   }
 
