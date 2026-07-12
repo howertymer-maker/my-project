@@ -5,7 +5,7 @@ import { useEffect } from "react";
 /** Registers the service worker for PWA + push notifications. */
 export function ServiceWorkerRegister() {
   useEffect(() => {
-    if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
+    if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch(() => {});
     }
   }, []);

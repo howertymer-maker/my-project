@@ -33,7 +33,6 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Nevergiveup" }],
   manifest: "/manifest.json",
-  themeColor: "#00f2ff",
   openGraph: {
     title: "Nevergiveup — Система развития",
     description: "Геймифицированная система саморазвития",
@@ -43,6 +42,10 @@ export const metadata: Metadata = {
     icon: "/icon-192.png",
     apple: "/icon-192.png",
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#00f2ff",
 };
 
 export default function RootLayout({

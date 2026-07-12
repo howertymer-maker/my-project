@@ -209,14 +209,7 @@ function SettingsTab(props: {
 
       {/* Notifications */}
       <Section title="Уведомления" icon="notifications" accent="#e9b3ff">
-        <Row
-          icon="notifications_active"
-          label="Push-уведомления"
-          description="Напоминания в браузере"
-          control={
-            <Switch checked={props.pushNotify} onCheckedChange={props.setPushNotify} />
-          }
-        />
+        <PushRow />
         <Row
           icon="mail"
           label="Email-уведомления"
@@ -395,4 +388,150 @@ function AvatarSection({ onChanged }: { onChanged: () => void }) {
       </div>
     </Section>
   );
+}
+
+/** Real push notification subscription — requests permission + registers push. */
+function PushRow() {
+  const { toast } = useToast();
+  const [status, setStatus] = useState<"unsupported" | "default" | "granted" | "denied" | "subscribed">("default");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) {
+      setStatus("unsupported");
+      return;
+    }
+    setStatus(Notification.permission === "granted" ? "granted" : "default");
+    // check if already subscribed
+    navigator.serviceWorker.ready.then(async (reg) => {
+      const sub = await reg.pushManager.getSubscription();
+      if (sub) setStatus("subscribed");
+    }).catch(() => {});
+  }, []);
+
+  const subscribe = async () => {
+    setBusy(true);
+    try {
+      // 1. Request notification permission
+      const permission = await Notification.requestPermission();
+      if (permission !== "granted") {
+        setStatus("denied");
+        toast({ title: "Уведомления заблокированы", variant: "destructive" });
+        return;
+      }
+
+      // 2. Get VAPID public key from server
+      const vapidRes = await fetch("/api/push/vapid-public");
+      if (!vapidRes.ok) throw new Error("Push не настроен");
+      const { publicKey } = await vapidRes.json();
+
+      // 3. Subscribe via service worker
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey),
+      });
+
+      // 4. Send subscription to server
+      const subJson = sub.toJSON();
+      await fetch("/api/push/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          endpoint: subJson.endpoint,
+          keys: subJson.keys,
+        }),
+      });
+
+      setStatus("subscribed");
+      toast({ title: "Push-уведомления включены!" });
+    } catch (e) {
+      toast({
+        title: "Ошибка",
+        description: e instanceof Error ? e.message : "Не удалось",
+        variant: "destructive",
+      });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const unsubscribe = async () => {
+    setBusy(true);
+    try {
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      if (sub) {
+        const subJson = sub.toJSON();
+        await sub.unsubscribe();
+        await fetch("/api/push/subscribe", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ endpoint: subJson.endpoint }),
+        });
+      }
+      setStatus("granted");
+      toast({ title: "Push-уведомления отключены" });
+    } catch {
+      /* ignore */
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (status === "unsupported") {
+    return (
+      <Row
+        icon="notifications_off"
+        label="Push-уведомления"
+        description="Не поддерживается в этом браузере"
+        control={<span className="font-mono text-[9px] text-on-surface-variant uppercase">N/A</span>}
+      />
+    );
+  }
+
+  return (
+    <Row
+      icon="notifications_active"
+      label="Push-уведомления"
+      description={
+        status === "subscribed"
+          ? "Включены — приходят в браузер"
+          : status === "denied"
+            ? "Заблокированы настройками браузера"
+            : "Напоминания в браузере"
+      }
+      control={
+        status === "subscribed" ? (
+          <button
+            onClick={unsubscribe}
+            disabled={busy}
+            className="font-display text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-md border border-error/40 text-error bg-error/10 active:scale-95 transition-transform disabled:opacity-50"
+          >
+            {busy ? "..." : "Откл"}
+          </button>
+        ) : (
+          <button
+            onClick={subscribe}
+            disabled={busy || status === "denied"}
+            className="font-display text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-md bg-primary-container text-on-primary neon-glow-primary active:scale-95 transition-transform disabled:opacity-50"
+          >
+            {busy ? "..." : "Включить"}
+          </button>
+        )
+      }
+    />
+  );
+}
+
+// Convert base64 VAPID key to Uint8Array for PushManager.subscribe
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const rawData = atob(base64);
+  const output = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    output[i] = rawData.charCodeAt(i);
+  }
+  return output;
 }
