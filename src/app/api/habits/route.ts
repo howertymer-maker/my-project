@@ -66,7 +66,7 @@ export async function GET() {
   });
 }
 
-// Toggling a habit awards/withdraws points to the 7th skill ("Постоянство")
+// Toggling a habit awards/withdraws points to the 7th skill ("Дисциплинированность")
 // Reward = base × streak multiplier (Proposal 2). If all habits are now done and
 // the daily bonus hasn't been claimed yet, award +300 (Proposal 3).
 export async function PATCH(req: NextRequest) {
@@ -140,7 +140,7 @@ export async function PATCH(req: NextRequest) {
             icon: "bolt",
             color: "#b6f700",
             title: "Бонус за все привычки!",
-            body: `Ты выполнил все ${allHabits.length} привычек за день. +${ALL_HABITS_BONUS} очк к Постоянству.`,
+            body: `Ты выполнил все ${allHabits.length} привычек за день. +${ALL_HABITS_BONUS} очк к Дисциплинированности.`,
           });
 
           // level-up notification for consistency
@@ -154,8 +154,8 @@ export async function PATCH(req: NextRequest) {
               type: "reward",
               icon: "trending_up",
               color: "#fbbf24",
-              title: "Постоянство повышено!",
-              body: `Навык «Постоянство» достиг ${lvlAfter}-го уровня.`,
+              title: "Дисциплинированность повышено!",
+              body: `Навык «Дисциплинированность» достиг ${lvlAfter}-го уровня.`,
             });
           }
         }

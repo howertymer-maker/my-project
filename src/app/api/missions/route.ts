@@ -28,7 +28,7 @@ type MissionState = {
   cooldownActive: boolean;
   // Premium missions are locked for non-premium users (can be viewed but not started)
   premiumLocked: boolean;
-  // Proposal 5: can the user do a daily check-in (+20 pts) while on cooldown?
+  // Proposal 5: can the user do a daily check-in (+500 pts) while on cooldown?
   canCheckinToday: boolean;
 };
 
@@ -444,7 +444,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Proposal 5: daily check-in while a category is on 7-day cooldown (+20 pts)
+  // Proposal 5: daily check-in while a category is on 7-day cooldown (+500 pts)
   if (action === "cooldown-checkin") {
     const cat = body.category;
     if (!cat) {
@@ -466,7 +466,7 @@ export async function POST(req: NextRequest) {
     if (!latestDone || !latestDone.nextAvailableAt || new Date(latestDone.nextAvailableAt).getTime() <= Date.now()) {
       return NextResponse.json({ error: "Категория не на кулдауне" }, { status: 400 });
     }
-    const pts = 20;
+    const pts = 500;
     await db.attribute.updateMany({
       where: { userId: user.id, key: cat },
       data: { points: { increment: pts } },

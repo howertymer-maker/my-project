@@ -100,7 +100,7 @@ export function ProfileScreen() {
         </div>
       </section>
 
-      {/* 7th skill — Постоянство (leveled EXCLUSIVELY by habits) */}
+      {/* 7th skill — Дисциплинированность (leveled EXCLUSIVELY by habits) */}
       {consistency && (
         <ConsistencyCard skill={consistency} />
       )}
@@ -172,7 +172,7 @@ export function ProfileScreen() {
   );
 }
 
-/** Prominent card for the 7th skill (Постоянство) — leveled only by habits. */
+/** Prominent card for the 7th skill (Дисциплинированность) — leveled only by habits. */
 function ConsistencyCard({ skill }: { skill: Skill }) {
   return (
     <section

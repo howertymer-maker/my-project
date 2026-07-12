@@ -1,5 +1,5 @@
 // 20 default habits distributed across the 6 mission-driven categories.
-// Each habit awards points to the 7th skill ("Постоянство") on completion,
+// Each habit awards points to the 7th skill ("Дисциплинированность") on completion,
 // with a streak multiplier applied at runtime (base × (1 + min(streak,14)/14)).
 // Base rewards are tuned to the rebalanced economy (Proposal 4: −40% vs v1).
 

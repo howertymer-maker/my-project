@@ -72,7 +72,7 @@ async function main() {
     { key: "physical", label: "Физика", icon: "directions_run", color: "#3b82f6", source: "missions", points: 4600, sortOrder: 3 },
     { key: "financial", label: "Финансы", icon: "payments", color: "#a855f7", source: "missions", points: 7200, sortOrder: 4 },
     { key: "appearance", label: "Внешность", icon: "face", color: "#ec4899", source: "missions", points: 5800, sortOrder: 5 },
-    { key: "consistency", label: "Постоянство", icon: "autorenew", color: "#fbbf24", source: "habits", points: 4200, sortOrder: 6 },
+    { key: "consistency", label: "Дисциплинированность", icon: "autorenew", color: "#fbbf24", source: "habits", points: 4200, sortOrder: 6 },
   ];
   for (const s of SKILLS) {
     await db.attribute.create({ data: { ...s, userId: adrian.id } });
@@ -148,7 +148,7 @@ async function main() {
     { type: "challenge", icon: "today", color: "#00f2ff", title: "Ежедневный челлендж доступен", body: "Напиши старому другу сегодня и получи +50 очк к Социальности.", read: true, minsAgo: 480 },
     { type: "social", icon: "chat_bubble", color: "#e9b3ff", title: "Новый комментарий", body: "Lena Kowalski: «Отличный совет, попробую сегодня!» под вашим постом.", read: true, minsAgo: 720 },
     { type: "system", icon: "diamond", color: "#fbbf24", title: "Премиум-предложение", body: "Оформи премиум и получи мгновенный доступ ко всем 48 миссиям.", read: true, minsAgo: 1440 },
-    { type: "reward", icon: "bolt", color: "#b6f700", title: "Бонус за все привычки!", body: "Ты выполнил все 20 привычек за день. +300 очк к Постоянству.", read: true, minsAgo: 1440 },
+    { type: "reward", icon: "bolt", color: "#b6f700", title: "Бонус за все привычки!", body: "Ты выполнил все 20 привычек за день. +300 очк к Дисциплинированности.", read: true, minsAgo: 1440 },
   ];
   for (const n of notifs) {
     await db.notification.create({

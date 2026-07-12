@@ -396,7 +396,7 @@ function PremiumLockBanner({ onActivate }: { onActivate: () => void }) {
 }
 
 /** Shows a live 7-day countdown while the next mission is on cooldown (non-premium).
- *  Includes a daily check-in button (Proposal 5): +20 pts to the category skill. */
+ *  Includes a daily check-in button (Proposal 5): +500 pts to the category skill. */
 function CooldownBanner({
   until,
   color,
@@ -437,7 +437,7 @@ function CooldownBanner({
           className="w-full py-2 rounded-lg font-display text-[11px] font-bold uppercase tracking-wider bg-surface-container/60 border border-outline-variant/40 hover:border-primary-container/50 text-primary-fixed transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50"
         >
           <MaterialIcon name="check_circle_outline" size={14} fill />
-          Ежедневный чек-ин · +20 очк к навыку
+          Ежедневный чек-ин · +500 очк к навыку
         </button>
       ) : (
         <div className="w-full py-2 rounded-lg font-display text-[11px] font-bold uppercase tracking-wider bg-surface-container/30 border border-outline-variant/20 text-on-surface-variant flex items-center justify-center gap-1.5">

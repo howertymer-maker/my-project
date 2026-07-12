@@ -71,7 +71,7 @@ export function HabitsScreen() {
         </div>
       </section>
 
-      {/* 7th skill live tracker — Постоянство */}
+      {/* 7th skill live tracker — Дисциплинированность */}
       <section
         className="rounded-xl p-4 flex items-center gap-4 relative overflow-hidden"
         style={{
@@ -100,7 +100,7 @@ export function HabitsScreen() {
           <div className="flex items-center justify-between gap-2">
             <div className="flex flex-col min-w-0">
               <span className="font-display text-base font-bold text-on-surface leading-none">
-                Постоянство
+                Дисциплинированность
               </span>
               <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest mt-1">
                 навык · ур. {skillLevel}
@@ -355,7 +355,7 @@ function HabitCard({
         </button>
       </div>
 
-      {/* reward → points to Постоянство (7th skill), with streak multiplier */}
+      {/* reward → points to Дисциплинированность (7th skill), with streak multiplier */}
       <div className="flex items-center gap-2 flex-wrap">
         <span
           className="flex items-center gap-1 font-mono text-[11px] font-medium px-1.5 py-0.5 rounded"
@@ -374,7 +374,7 @@ function HabitCard({
           </span>
         )}
         <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider">
-          → Постоянство
+          → Дисциплинированность
         </span>
       </div>
 
@@ -470,7 +470,7 @@ function AllHabitsBonusBanner({
       >
         <MaterialIcon name="celebration" size={20} className="text-secondary-fixed" fill />
         <p className="font-mono text-[11px] text-secondary-fixed leading-relaxed flex-1">
-          Все {total} привычек выполнены! Бонус +{bonus} очк → Постоянство.
+          Все {total} привычек выполнены! Бонус +{bonus} очк → Дисциплинированность.
         </p>
       </div>
     );
@@ -479,7 +479,7 @@ function AllHabitsBonusBanner({
     <div className="rounded-xl p-3 flex items-center gap-2.5 border border-outline-variant/30 bg-surface-container/40">
       <MaterialIcon name="emoji_events" size={20} className="text-on-surface-variant" fill />
       <p className="font-mono text-[11px] text-on-surface-variant leading-relaxed flex-1">
-        Выполни все {total} привычек — бонус +{bonus} очк к Постоянству.
+        Выполни все {total} привычек — бонус +{bonus} очк к Дисциплинированности.
       </p>
       <span className="font-mono text-[10px] text-on-surface-variant uppercase tracking-wider shrink-0">
         {completedCount}/{total}

@@ -13,7 +13,7 @@ const DEFAULT_SKILLS = [
   { key: "physical", label: "Физика", icon: "directions_run", color: "#3b82f6", source: "missions", points: 0, sortOrder: 3 },
   { key: "financial", label: "Финансы", icon: "payments", color: "#a855f7", source: "missions", points: 0, sortOrder: 4 },
   { key: "appearance", label: "Внешность", icon: "face", color: "#ec4899", source: "missions", points: 0, sortOrder: 5 },
-  { key: "consistency", label: "Постоянство", icon: "autorenew", color: "#fbbf24", source: "habits", points: 0, sortOrder: 6 },
+  { key: "consistency", label: "Дисциплинированность", icon: "autorenew", color: "#fbbf24", source: "habits", points: 0, sortOrder: 6 },
 ];
 
 // 20 default habits are imported at the top of this file (DEFAULT_HABITS).
