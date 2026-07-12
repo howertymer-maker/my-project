@@ -34,6 +34,7 @@ const DEMO_USERS = [
 
 async function main() {
   // Clean
+  await db.skillHistory.deleteMany();
   await db.notification.deleteMany();
   await db.postLike.deleteMany();
   await db.comment.deleteMany();
@@ -138,6 +139,21 @@ async function main() {
       stageStartedAt: ago25h,
     },
   });
+
+  // ===== demo skill history for adrian (6 months of daily snapshots) =====
+  // Generates realistic-looking growth from 0 to 43700 over ~180 days
+  const finalPoints = 43700;
+  const days = 180;
+  for (let d = days; d >= 0; d--) {
+    const date = new Date(Date.now() - d * 24 * 60 * 60 * 1000);
+    const dateStr = date.toISOString().slice(0, 10);
+    // exponential growth: start near 0, end at finalPoints
+    const progress = (days - d) / days; // 0 → 1
+    const points = Math.round(finalPoints * Math.pow(progress, 1.5));
+    await db.skillHistory.create({
+      data: { userId: adrian.id, date: dateStr, totalPoints: points },
+    }).catch(() => {}); // ignore duplicates
+  }
 
   // ===== demo notifications for adrian so the notifications tab isn't empty =====
   const notifs = [

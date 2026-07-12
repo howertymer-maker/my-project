@@ -37,6 +37,7 @@ model User {
   notifications    Notification[]
   pushSubscriptions PushSubscription[]
   bugReports       BugReport[]
+  skillHistory     SkillHistory[]
 }
 
 // ===== Skills (6 mission-driven + 1 habit-driven "Постоянство") =====
@@ -195,6 +196,20 @@ model BugReport {
 
   @@index([userId, createdAt])
   @@index([status])
+}
+
+// ===== Skill History (daily snapshot of total points for the progress chart) =====
+model SkillHistory {
+  id        String @id @default(cuid())
+  userId    String
+  date      String   // "YYYY-MM-DD"
+  totalPoints Int
+  createdAt DateTime @default(now())
+
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
 }
 
 // ===== Community =====

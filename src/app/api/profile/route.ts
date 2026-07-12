@@ -77,12 +77,35 @@ export async function GET() {
   const consistency = skills.find((s) => s.key === "consistency") ?? null;
   const missionSkills = skills.filter((s) => s.source === "missions");
 
-  // Build 6-month progress chart data
-  const months = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн"];
-  const chartData = months.map((m, i) => ({
-    month: m,
-    points: Math.round(totalPoints * (0.4 + i * 0.12)),
-  }));
+  // Build progress chart from REAL SkillHistory data (daily snapshots).
+  // If there's no history yet (new user), fall back to a flat line at totalPoints.
+  const history = await db.skillHistory.findMany({
+    where: { userId: user.id },
+    orderBy: { date: "asc" },
+    take: 180, // up to 6 months of daily snapshots
+  });
+
+  let chartData: { month: string; points: number }[];
+  if (history.length >= 2) {
+    // Group snapshots by month and take the last snapshot of each month
+    const byMonth = new Map<string, number>();
+    for (const h of history) {
+      const monthKey = h.date.slice(0, 7); // "YYYY-MM"
+      byMonth.set(monthKey, h.totalPoints);
+    }
+    const monthNames = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"];
+    chartData = Array.from(byMonth.entries())
+      .slice(-6) // last 6 months
+      .map(([ym, pts]) => {
+        const m = parseInt(ym.slice(5, 7), 10) - 1;
+        return { month: monthNames[m] ?? ym, points: pts };
+      });
+  } else {
+    // Fallback: show current points as a flat line (new user, no history yet)
+    chartData = [
+      { month: "Сейчас", points: totalPoints },
+    ];
+  }
 
   return NextResponse.json({
     user: {
