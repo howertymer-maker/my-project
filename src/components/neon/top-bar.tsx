@@ -101,8 +101,8 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
 function AvatarMark() {
   return (
     <div className="w-full h-full bg-gradient-to-br from-[#0e3a3d] via-[#0A0A0B] to-[#1a0a2e] grid place-items-center">
-      <span className="font-display text-[11px] font-extrabold text-primary-fixed text-glow-primary tracking-tighter">
-        NGU
+      <span className="font-display text-base font-extrabold text-primary-fixed text-glow-primary">
+        N
       </span>
     </div>
   );

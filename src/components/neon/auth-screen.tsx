@@ -78,8 +78,8 @@ export function AuthScreen({ mode }: { mode: Mode }) {
         {/* Brand */}
         <div className="flex flex-col items-center gap-3 mb-8">
           <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary-container/50 neon-glow-primary grid place-items-center bg-gradient-to-br from-[#0e3a3d] via-[#0A0A0B] to-[#1a0a2e]">
-            <span className="font-display text-xl font-extrabold text-primary-fixed text-glow-primary tracking-tighter">
-              NGU
+            <span className="font-display text-3xl font-extrabold text-primary-fixed text-glow-primary">
+              N
             </span>
           </div>
           <h1 className="font-display text-2xl font-extrabold tracking-tight text-on-surface text-center">
