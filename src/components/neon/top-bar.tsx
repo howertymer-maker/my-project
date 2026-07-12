@@ -3,10 +3,23 @@
 import { useEffect, useState } from "react";
 import { MaterialIcon } from "@/components/material-icon";
 import { SettingsSheet } from "@/components/neon/settings-sheet";
+import { NotificationsSheet } from "@/components/neon/notifications-sheet";
 
 export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }) {
   const [level, setLevel] = useState<number>(42);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+
+  // fetch level + unread notifications count
+  const refreshBadge = () => {
+    fetch("/api/notifications?unread=1", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (typeof d?.unreadCount === "number") setUnreadCount(d.unreadCount);
+      })
+      .catch(() => {});
+  };
 
   useEffect(() => {
     let active = true;
@@ -16,12 +29,25 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
         if (active && typeof d?.user?.level === "number") setLevel(d.user.level);
       })
       .catch(() => {});
+    refreshBadge();
     return () => {
       active = false;
     };
   }, []);
 
-  // Allow other components (e.g. premium-lock banner) to open the settings sheet
+  // refresh badge when notifications sheet closes (user may have read them)
+  useEffect(() => {
+    if (!notifOpen) refreshBadge();
+  }, [notifOpen]);
+
+  // refresh badge on global refresh events
+  useEffect(() => {
+    const handler = () => refreshBadge();
+    window.addEventListener("neon-refresh", handler);
+    return () => window.removeEventListener("neon-refresh", handler);
+  }, []);
+
+  // Allow other components to open the settings sheet
   useEffect(() => {
     const handler = () => setSettingsOpen(true);
     window.addEventListener("neon-open-settings", handler);
@@ -47,16 +73,28 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
             </div>
           </div>
 
-          {/* Actions — only settings (notifications + logout removed for the test build) */}
+          {/* Actions — notifications (bell) + settings (gear) */}
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setSettingsOpen(true)}
+              onClick={() => setNotifOpen(true)}
               className="relative w-9 h-9 grid place-items-center rounded-md text-primary-container hover:text-secondary-fixed-dim hover:bg-surface-container/60 transition-colors"
+              aria-label="Уведомления"
+            >
+              <MaterialIcon name="notifications" size={20} />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-secondary-fixed text-on-secondary font-display text-[9px] font-extrabold grid place-items-center shadow-[0_0_8px_#b6f700]">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => setSettingsOpen(true)}
+              className="w-9 h-9 grid place-items-center rounded-md text-primary-container hover:text-secondary-fixed-dim hover:bg-surface-container/60 transition-colors"
               aria-label="Настройки"
             >
               <MaterialIcon name="settings" size={20} />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-secondary-fixed shadow-[0_0_6px_#b6f700]" />
             </button>
           </div>
         </div>
@@ -67,7 +105,6 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
         onOpenChange={setSettingsOpen}
         onChanged={() => {
           onMissionsChanged?.();
-          // refresh level after potential point changes
           fetch("/api/profile", { cache: "no-store" })
             .then((r) => r.json())
             .then((d) => {
@@ -76,6 +113,8 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
             .catch(() => {});
         }}
       />
+
+      <NotificationsSheet open={notifOpen} onOpenChange={setNotifOpen} />
     </>
   );
 }
