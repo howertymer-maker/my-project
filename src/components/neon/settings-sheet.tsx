@@ -250,6 +250,9 @@ function SettingsTab(props: {
         />
       </Section>
 
+      {/* Bug reports */}
+      <BugReportsSection />
+
       {/* About */}
       <Section title="О приложении" icon="info" accent="#b9cacb">
         <Row
@@ -534,4 +537,232 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
     output[i] = rawData.charCodeAt(i);
   }
   return output;
+}
+
+/** Bug reports section — lets users submit and view their bug reports. */
+function BugReportsSection() {
+  const { toast } = useToast();
+  const [reports, setReports] = useState<
+    Array<{ id: string; title: string; body: string; category: string; status: string; createdAt: string }>
+  >([]);
+  const [loading, setLoading] = useState(true);
+  const [composing, setComposing] = useState(false);
+
+  const fetchReports = () => {
+    fetch("/api/bug-reports", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => setReports(d.reports || []))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
+  const statusMeta: Record<string, { label: string; color: string; bg: string }> = {
+    open: { label: "Открыт", color: "#00f2ff", bg: "rgba(0,242,255,0.12)" },
+    in_progress: { label: "В работе", color: "#fbbf24", bg: "rgba(251,191,36,0.12)" },
+    resolved: { label: "Решён", color: "#b6f700", bg: "rgba(182,247,0,0.12)" },
+    closed: { label: "Закрыт", color: "#b9cacb", bg: "rgba(185,202,203,0.12)" },
+  };
+
+  return (
+    <Section title="Репорты" icon="bug_report" accent="#ff6b6b">
+      <div className="p-3 flex flex-col gap-3">
+        <p className="font-mono text-[10px] text-on-surface-variant leading-relaxed">
+          Нашли баг или есть идея? Отправьте репорт — мы рассмотрим.
+        </p>
+
+        <button
+          onClick={() => setComposing(true)}
+          className="w-full py-2 rounded-lg bg-primary-container/15 text-primary-fixed border border-primary-container/40 font-display text-[11px] font-bold uppercase tracking-wider hover:bg-primary-container/25 transition-colors flex items-center justify-center gap-1.5"
+        >
+          <MaterialIcon name="add" size={16} fill />
+          Новый репорт
+        </button>
+
+        {/* Reports list */}
+        {loading ? (
+          <div className="font-mono text-[10px] text-on-surface-variant text-center py-2">
+            Загрузка...
+          </div>
+        ) : reports.length === 0 ? (
+          <div className="font-mono text-[10px] text-on-surface-variant text-center py-2">
+            Пока нет репортов
+          </div>
+        ) : (
+          <div className="flex flex-col gap-2 max-h-48 overflow-y-auto scrollbar-thin">
+            {reports.map((r) => {
+              const sm = statusMeta[r.status] || statusMeta.open;
+              return (
+                <div
+                  key={r.id}
+                  className="rounded-lg p-2.5 border border-outline-variant/30 bg-surface-container/40 flex flex-col gap-1"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="font-display text-[12px] font-bold text-on-surface leading-tight">
+                      {r.title}
+                    </span>
+                    <span
+                      className="font-mono text-[9px] px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0"
+                      style={{ color: sm.color, background: sm.bg }}
+                    >
+                      {sm.label}
+                    </span>
+                  </div>
+                  <p className="font-mono text-[10px] text-on-surface-variant leading-relaxed line-clamp-2">
+                    {r.body}
+                  </p>
+                  <span className="font-mono text-[8px] text-on-surface-variant/60 uppercase tracking-wider">
+                    {new Date(r.createdAt).toLocaleDateString("ru-RU", { day: "numeric", month: "short" })}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Compose modal */}
+      {composing && (
+        <BugReportModal
+          onClose={() => setComposing(false)}
+          onCreated={() => {
+            setComposing(false);
+            fetchReports();
+          }}
+        />
+      )}
+    </Section>
+  );
+}
+
+function BugReportModal({
+  onClose,
+  onCreated,
+}: {
+  onClose: () => void;
+  onCreated: () => void;
+}) {
+  const { toast } = useToast();
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [category, setCategory] = useState("bug");
+  const [busy, setBusy] = useState(false);
+
+  const submit = async () => {
+    if (!title.trim() || !body.trim()) {
+      toast({ title: "Заполните заголовок и описание", variant: "destructive" });
+      return;
+    }
+    setBusy(true);
+    try {
+      const res = await fetch("/api/bug-reports", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, body, category }),
+      });
+      if (!res.ok) throw new Error("Не удалось отправить");
+      toast({ title: "Репорт отправлен!" });
+      onCreated();
+    } catch {
+      toast({ title: "Ошибка", variant: "destructive" });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const categories = [
+    { key: "bug", label: "Баг", icon: "bug_report" },
+    { key: "suggestion", label: "Идея", icon: "lightbulb" },
+    { key: "question", label: "Вопрос", icon: "help" },
+    { key: "other", label: "Другое", icon: "more_horiz" },
+  ];
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="w-full max-w-[560px] glass-panel rounded-xl p-5 flex flex-col gap-3 max-h-[90vh] overflow-y-auto scrollbar-thin">
+        <div className="flex items-center justify-between">
+          <h3 className="font-display text-lg font-bold text-on-surface flex items-center gap-2">
+            <MaterialIcon name="bug_report" size={20} className="text-error" fill />
+            Новый репорт
+          </h3>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 grid place-items-center rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+            aria-label="Закрыть"
+          >
+            <MaterialIcon name="close" size={20} />
+          </button>
+        </div>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest">
+            Тип
+          </span>
+          <div className="flex flex-wrap gap-1.5">
+            {categories.map((c) => {
+              const active = category === c.key;
+              return (
+                <button
+                  key={c.key}
+                  onClick={() => setCategory(c.key)}
+                  className="flex items-center gap-1 px-2 py-1 rounded-md border font-mono text-[10px] uppercase tracking-wider transition-all"
+                  style={{
+                    color: active ? "#ff6b6b" : "#b9cacb",
+                    borderColor: active ? "rgba(255,107,107,0.5)" : "rgba(255,255,255,0.08)",
+                    background: active ? "rgba(255,107,107,0.1)" : "transparent",
+                  }}
+                >
+                  <MaterialIcon name={c.icon} size={12} fill={active} />
+                  {c.label}
+                </button>
+              );
+            })}
+          </div>
+        </label>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest">
+            Заголовок
+          </span>
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Кратко опишите проблему"
+            className="bg-surface-container/60 border border-outline-variant/40 rounded-lg px-3 py-2.5 font-mono text-[13px] text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-primary-container/60 transition-colors"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest">
+            Описание
+          </span>
+          <textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="Подробно опишите что произошло, на каком экране, какие действия привели к проблеме..."
+            rows={5}
+            className="bg-surface-container/60 border border-outline-variant/40 rounded-lg px-3 py-2.5 font-mono text-[13px] text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-primary-container/60 transition-colors resize-none"
+          />
+        </label>
+
+        <div className="flex gap-2 mt-1">
+          <button
+            onClick={onClose}
+            className="flex-1 py-2.5 rounded-lg bg-surface-container/60 text-on-surface-variant border border-outline-variant/40 font-display text-[12px] font-bold uppercase tracking-wider transition-colors"
+          >
+            Отмена
+          </button>
+          <button
+            onClick={submit}
+            disabled={busy}
+            className="flex-1 py-2.5 rounded-lg bg-primary-container text-on-primary font-display text-[12px] font-bold uppercase tracking-wider neon-glow-primary active:scale-[0.98] transition-transform disabled:opacity-50"
+          >
+            {busy ? "Отправка..." : "Отправить"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }

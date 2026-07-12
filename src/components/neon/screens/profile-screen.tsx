@@ -202,23 +202,23 @@ function ConsistencyCard({ skill }: { skill: Skill }) {
           >
             <MaterialIcon name={skill.icon} size={22} fill />
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col min-w-0">
             <span className="font-display text-lg font-bold text-on-surface leading-none">
               {skill.label}
             </span>
-            <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest mt-1">
+            <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider mt-1 truncate">
               прокачивается привычками
             </span>
           </div>
         </div>
-        <div className="flex flex-col items-end">
+        <div className="flex flex-col items-end shrink-0">
           <span
-            className="font-display text-2xl font-extrabold leading-none"
+            className="font-display text-xl font-extrabold leading-none"
             style={{ color: skill.color }}
           >
             {(1000 - skill.pointsInLevel).toLocaleString("ru-RU")}
           </span>
-          <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider mt-1">
+          <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider mt-1 whitespace-nowrap">
             очк до ур. {skill.skillLevel + 1}
           </span>
         </div>
@@ -245,7 +245,7 @@ function ConsistencyCard({ skill }: { skill: Skill }) {
           />
         </div>
         <div className="flex justify-end">
-          <span className="font-mono text-[10px] text-on-surface-variant">
+          <span className="font-mono text-[9px] text-on-surface-variant whitespace-nowrap">
             ещё {1000 - skill.pointsInLevel} очк до ур. {skill.skillLevel + 1}
           </span>
         </div>
