@@ -234,3 +234,34 @@ Stage Summary:
 6. Шкала сложности ×1/×2/×4 (легендарная = 9360 очк)
 7. Перевыполнение (+20% бонус)
 8. Daily (+50) и Weekly (+300) челленджи
+
+---
+Task ID: 13
+Agent: main
+Task: Путь B — полноценная многопользовательская система (регистрация, разделение данных, реальное сообщество)
+
+Work Log:
+- Схема: добавлены email @unique, passwordHash, onboarded на User; убраны фейковые level/streakDays/completionRate/topPercent (теперь вычисляются). db push --force-reset.
+- NextAuth.js v4: src/lib/auth.ts — CredentialsProvider, JWT session, callbacks jwt/session (token.id), pages.signIn=/login. NextAuth route handler src/app/api/auth/[...nextauth]/route.ts.
+- src/lib/session.ts: getCurrentUser() — getServerSession + db.user.findUnique по token.id. Замена db.user.findFirst() во всех API.
+- API /api/register POST: bcrypt hash пароля, создание User + 7 дефолтных навыков (0 очков) + 4 стартовые привычки. Onboarding автоматический.
+- Все API переписаны на getCurrentUser(): profile, habits, missions, settings, challenges, community. Без сессии → 401 Unauthorized. Проверка ownership (habit.userId === sessionUser.id и т.д.).
+- Реальная статистика в /api/profile: streakDays = max(habit.streak); completionRate = % выполненных привычек сегодня; topPercent = % юзеров с бОльшим totalPoints (aggregate по всем юзерам).
+- API /api/community переписан: GET — глобальная лента всех постов (filter: all/trending/mine/advice), include likesRel для likedByMe. POST — action: create-post (привязка к session user) / like / unlike (toggle через PostLike unique) / comment.
+- UI AuthScreen: единый компонент для login/register, поля Имя/Email/Пароль, кнопка, демо-подсказка. Страницы /login и /register.
+- UI page.tsx: useSession проверка статуса; loading → спиннер; unauthenticated → LoginPrompt с кнопками Войти/Регистрация; authenticated → основной UI.
+- UI TopBar: добавлена кнопка logout (signOut → /login).
+- UI CommunityScreen: ComposeModal с категорией/заголовком/текстом → POST create-post. Лайки с toggle (like/unlike через likedByMe). Фильтр "Мои посты" (authorId === user.id).
+- Providers (SessionProvider) обернут в layout.tsx.
+- Seed: 4 демо-юзера (adrian/max/samir/lena @demo.app / demo1234) с постами для ленты. Без привычек/миссий (каждый реальный юзер получает свои при регистрации).
+- ESLint: 0 ошибок.
+- Agent Browser E2E: регистрация Test User → автологин → профиль "Test User" ур.0, серия 0, выполнено 0%, рейтинг Top 0% ✓; создание поста "Тест пост" → виден в ленте ✓; лайк toggle (0→1→0) ✓; logout → /login ✓; вход как adrian@demo.app → профиль "Adrián Gavalyan" ✓; пост Test User виден в ленте Adrián (глобальная лента) ✓; API без сессии → 401 ✓.
+
+Stage Summary:
+- Полноценная многопользовательская система с регистрацией/входом (NextAuth.js)
+- Данные изолированы по пользователям (каждый видит только свои навыки/привычки/миссии)
+- Реальная статистика: streak, completion, рейтинг вычисляются из реальных данных
+- Глобальная лента сообщества: посты всех юзеров, создание постов, лайки (toggle), комментарии
+- Onboarding: при регистрации создаются 7 навыков + 4 стартовые привычки
+- Демо-аккаунты для тестирования: adrian@demo.app / demo1234 (и ещё 3)
+- Приложение готово к запуску с реальными пользователями на хостинге

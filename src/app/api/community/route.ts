@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getCurrentUser } from "@/lib/session";
+import { CATEGORY_META } from "@/lib/mission-templates";
 
 export const dynamic = "force-dynamic";
 
+// GET community feed — returns posts from ALL users (global feed).
+// Optional filter: all | trending | mine | advice
 export async function GET(req: NextRequest) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
   const filter = searchParams.get("filter") || "all";
 
@@ -11,18 +20,25 @@ export async function GET(req: NextRequest) {
   if (filter === "advice") {
     where = { isAdvice: true };
   } else if (filter === "trending") {
-    where = { likes: { gte: 100 } };
+    where = { likes: { gte: 50 } };
+  } else if (filter === "mine") {
+    where = { authorId: user.id };
   }
 
   const posts = await db.post.findMany({
     where,
     orderBy: { createdAt: "desc" },
-    include: { comments: true },
+    include: {
+      comments: true,
+      likesRel: { where: { userId: user.id } },
+    },
+    take: 50,
   });
 
   return NextResponse.json({
     posts: posts.map((p) => ({
       id: p.id,
+      authorId: p.authorId,
       authorName: p.authorName,
       authorBadge: p.authorBadge,
       category: p.category,
@@ -31,23 +47,70 @@ export async function GET(req: NextRequest) {
       title: p.title,
       body: p.body,
       likes: p.likes,
+      likedByMe: p.likesRel.length > 0,
       commentsCount: p.comments.length,
       isAdvice: p.isAdvice,
-      createdAt: p.createdAt,
+      createdAt: p.createdAt.toISOString(),
     })),
   });
 }
 
+// POST — create a new post or like/comment
 export async function POST(req: NextRequest) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const body = await req.json();
   const { action } = body as {
-    action: "like" | "comment";
-    postId: string;
+    action: "create-post" | "like" | "unlike" | "comment";
+    postId?: string;
+    title?: string;
+    body?: string;
+    category?: string;
     text?: string;
-    authorName?: string;
   };
 
+  if (action === "create-post") {
+    const title = (body.title || "").trim();
+    const postBody = (body.body || "").trim();
+    const category = body.category || "mental";
+    if (!title || !postBody) {
+      return NextResponse.json({ error: "Заголовок и текст обязательны" }, { status: 400 });
+    }
+    const cat = CATEGORY_META[category as keyof typeof CATEGORY_META];
+    if (!cat) {
+      return NextResponse.json({ error: "Неизвестная категория" }, { status: 400 });
+    }
+    const post = await db.post.create({
+      data: {
+        authorId: user.id,
+        authorName: user.displayName,
+        authorBadge: user.rankTitle,
+        category,
+        categoryLabel: cat.label.toUpperCase(),
+        xpReward: 0,
+        title,
+        body: postBody,
+        likes: 0,
+        commentsCount: 0,
+        isAdvice: false,
+      },
+    });
+    return NextResponse.json({ post: { id: post.id } });
+  }
+
   if (action === "like") {
+    const existing = await db.postLike.findUnique({
+      where: { postId_userId: { postId: body.postId!, userId: user.id } },
+    });
+    if (existing) {
+      return NextResponse.json({ likes: 0, already: true });
+    }
+    await db.postLike.create({
+      data: { postId: body.postId!, userId: user.id },
+    });
     const post = await db.post.update({
       where: { id: body.postId },
       data: { likes: { increment: 1 } },
@@ -55,15 +118,37 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ id: post.id, likes: post.likes });
   }
 
+  if (action === "unlike") {
+    await db.postLike.deleteMany({
+      where: { postId: body.postId!, userId: user.id },
+    });
+    const post = await db.post.update({
+      where: { id: body.postId },
+      data: { likes: { decrement: 1 } },
+    });
+    return NextResponse.json({ id: post.id, likes: post.likes });
+  }
+
   if (action === "comment") {
+    const text = (body.text || "").trim();
+    if (!text) {
+      return NextResponse.json({ error: "Пустой комментарий" }, { status: 400 });
+    }
     const comment = await db.comment.create({
       data: {
-        postId: body.postId,
-        authorName: body.authorName || "Вы",
-        body: body.text || "",
+        postId: body.postId!,
+        authorId: user.id,
+        authorName: user.displayName,
+        body: text,
       },
     });
-    return NextResponse.json({ comment });
+    await db.post.update({
+      where: { id: body.postId },
+      data: { commentsCount: { increment: 1 } },
+    });
+    return NextResponse.json({
+      comment: { id: comment.id, authorName: comment.authorName, body: comment.body },
+    });
   }
 
   return NextResponse.json({ error: "Unknown action" }, { status: 400 });

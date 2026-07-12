@@ -13,14 +13,13 @@ datasource db {
 // ===== User & Profile =====
 model User {
   id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
   displayName  String
   rankTitle    String   @default("Endeavorer")
-  level        Int      @default(42) // derived from total skill points (floor(total/1000))
   avatarUrl    String?
   premium      Boolean  @default(false) // premium subscription toggle
-  streakDays   Int      @default(42)
-  completionRate Int    @default(84)
-  topPercent   Int      @default(5)
+  onboarded    Boolean  @default(false) // has the user completed onboarding (default skills/habits created)
   // timestamp of the last "all habits done today" bonus (Proposal 3)
   lastAllHabitsBonusAt DateTime?
   createdAt    DateTime @default(now())

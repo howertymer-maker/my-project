@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getCurrentUser } from "@/lib/session";
 import {
   MISSION_TEMPLATES,
   CATEGORY_ORDER,
@@ -98,9 +99,9 @@ function buildState(
 }
 
 export async function GET() {
-  const user = await db.user.findFirst();
+  const user = await getCurrentUser();
   if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const userMissions = await db.userMission.findMany({
@@ -237,9 +238,9 @@ export async function POST(req: NextRequest) {
     category?: string;
   };
 
-  const user = await db.user.findFirst();
+  const user = await getCurrentUser();
   if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   if (action === "skip-12h") {

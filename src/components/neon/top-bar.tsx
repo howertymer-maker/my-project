@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { signOut } from "next-auth/react";
 import { MaterialIcon } from "@/components/material-icon";
 import { SettingsSheet } from "@/components/neon/settings-sheet";
 
@@ -64,6 +65,15 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
               aria-label="Настройки"
             >
               <MaterialIcon name="settings" size={20} />
+            </button>
+            <button
+              type="button"
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              className="w-9 h-9 grid place-items-center rounded-md text-on-surface-variant hover:text-error hover:bg-surface-container/60 transition-colors"
+              aria-label="Выйти"
+              title="Выйти из аккаунта"
+            >
+              <MaterialIcon name="logout" size={20} />
             </button>
           </div>
         </div>

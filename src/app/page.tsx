@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useSession, signOut } from "next-auth/react";
 import { TopBar } from "@/components/neon/top-bar";
 import { BottomNav, type TabKey } from "@/components/neon/bottom-nav";
 import { ProfileScreen } from "@/components/neon/screens/profile-screen";
 import { HabitsScreen } from "@/components/neon/screens/habits-screen";
 import { MissionsScreen } from "@/components/neon/screens/missions-screen";
 import { CommunityScreen } from "@/components/neon/screens/community-screen";
+import { MaterialIcon } from "@/components/material-icon";
 
 /** Broadcast a refresh request to all data-driven screens (after skip-12h / premium toggle). */
 export function refreshAll() {
@@ -16,7 +18,25 @@ export function refreshAll() {
 }
 
 export default function Home() {
+  const { data: session, status } = useSession();
   const [tab, setTab] = useState<TabKey>("profile");
+
+  // Loading state while session is being checked
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-[#0A0A0B] gap-4">
+        <div className="w-12 h-12 rounded-full border-2 border-primary-container/30 border-t-primary-container animate-spin-med" />
+        <span className="font-mono text-[11px] text-on-surface-variant uppercase tracking-widest">
+          Загрузка системы...
+        </span>
+      </div>
+    );
+  }
+
+  // Not authenticated → show login prompt
+  if (status === "unauthenticated" || !session) {
+    return <LoginPrompt />;
+  }
 
   return (
     <div className="relative min-h-screen flex flex-col bg-[#0A0A0B] text-on-surface overflow-x-hidden">
@@ -50,6 +70,51 @@ export default function Home() {
       </main>
 
       <BottomNav tab={tab} onChange={setTab} />
+    </div>
+  );
+}
+
+function LoginPrompt() {
+  return (
+    <div className="relative min-h-screen flex flex-col items-center justify-center bg-[#0A0A0B] px-5 overflow-x-hidden">
+      <div
+        aria-hidden
+        className="pointer-events-none fixed inset-0 z-0"
+        style={{
+          background:
+            "radial-gradient(900px 500px at 50% -5%, rgba(0,242,255,0.14), transparent 60%)",
+        }}
+      />
+      <div className="relative z-10 flex flex-col items-center gap-5 text-center max-w-sm">
+        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary-container/50 neon-glow-primary grid place-items-center bg-gradient-to-br from-[#0e3a3d] via-[#0A0A0B] to-[#1a0a2e]">
+          <span className="font-display text-2xl font-extrabold text-primary-fixed text-glow-primary">
+            NP
+          </span>
+        </div>
+        <h1 className="font-display text-2xl font-extrabold tracking-tight text-on-surface">
+          NEON PROTOCOL
+        </h1>
+        <p className="font-mono text-[12px] text-on-surface-variant leading-relaxed">
+          Геймифицированная система саморазвития. Войди в аккаунт или создай новый,
+          чтобы начать прокачку навыков.
+        </p>
+        <div className="flex flex-col gap-2.5 w-full mt-2">
+          <a
+            href="/login"
+            className="w-full py-3 rounded-lg bg-primary-container text-on-primary font-display text-[13px] font-bold uppercase tracking-wider neon-glow-primary active:scale-[0.98] transition-transform flex items-center justify-center gap-2"
+          >
+            <MaterialIcon name="login" size={18} fill />
+            Войти
+          </a>
+          <a
+            href="/register"
+            className="w-full py-3 rounded-lg bg-surface-container/60 text-on-surface border border-outline-variant/40 hover:border-primary-container/50 font-display text-[13px] font-bold uppercase tracking-wider transition-colors flex items-center justify-center gap-2"
+          >
+            <MaterialIcon name="person_add" size={18} fill />
+            Регистрация
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

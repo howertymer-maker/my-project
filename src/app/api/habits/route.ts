@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getCurrentUser } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
@@ -21,9 +22,9 @@ function todayStr() {
 }
 
 export async function GET() {
-  const user = await db.user.findFirst();
+  const user = await getCurrentUser();
   if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const habits = await db.habit.findMany({
@@ -70,8 +71,13 @@ export async function GET() {
 export async function PATCH(req: NextRequest) {
   const { id, completed } = await req.json();
 
+  const sessionUser = await getCurrentUser();
+  if (!sessionUser) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const habit = await db.habit.findUnique({ where: { id } });
-  if (!habit) {
+  if (!habit || habit.userId !== sessionUser.id) {
     return NextResponse.json({ error: "Habit not found" }, { status: 404 });
   }
 
@@ -99,7 +105,7 @@ export async function PATCH(req: NextRequest) {
   // Proposal 3: bonus for completing ALL habits today (only on the completing toggle)
   let bonusAwarded = false;
   if (completed && !wasCompleted) {
-    const user = await db.user.findFirst({ where: { id: habit.userId } });
+    const user = await db.user.findUnique({ where: { id: habit.userId } });
     if (user) {
       const today = todayStr();
       const alreadyBonus =

@@ -4,9 +4,12 @@ import { useState } from "react";
 import { useApi } from "@/hooks/use-api";
 import { MaterialIcon } from "@/components/material-icon";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import { CATEGORY_META } from "@/lib/mission-templates";
 
 type Post = {
   id: string;
+  authorId: string;
   authorName: string;
   authorBadge: string;
   category: string;
@@ -15,6 +18,7 @@ type Post = {
   title: string;
   body: string;
   likes: number;
+  likedByMe: boolean;
   commentsCount: number;
   isAdvice: boolean;
   createdAt: string;
@@ -29,13 +33,14 @@ const FILTERS: { key: string; label: string }[] = [
   { key: "advice", label: "Советы" },
 ];
 
+const POST_CATEGORIES = ["mental", "physical", "discipline", "social", "financial", "appearance"];
+
 export function CommunityScreen() {
   const [filter, setFilter] = useState<string>("all");
   const url =
-    filter === "all" || filter === "mine"
-      ? "/api/community"
-      : `/api/community?filter=${filter}`;
+    filter === "all" ? "/api/community" : `/api/community?filter=${filter}`;
   const { data, loading } = useApi<CommunityData>(url);
+  const [composing, setComposing] = useState(false);
 
   return (
     <div className="flex flex-col gap-4 pt-4">
@@ -50,6 +55,7 @@ export function CommunityScreen() {
           </h1>
         </div>
         <button
+          onClick={() => setComposing(true)}
           className="flex items-center gap-1.5 bg-primary-container text-on-primary rounded-lg px-3 py-1.5 neon-glow-primary active:scale-95 transition-transform"
           aria-label="Новый пост"
         >
@@ -59,6 +65,11 @@ export function CommunityScreen() {
           </span>
         </button>
       </section>
+
+      {/* Compose modal */}
+      {composing && (
+        <ComposeModal onClose={() => setComposing(false)} onPosted={() => setComposing(false)} />
+      )}
 
       {/* Filter tabs */}
       <section className="-mx-5 px-5 overflow-x-auto scrollbar-none">
@@ -98,7 +109,7 @@ export function CommunityScreen() {
           </>
         ) : data.posts.length === 0 ? (
           <div className="glass-panel rounded-xl p-8 text-center text-on-surface-variant font-mono text-sm">
-            Постов пока нет
+            {filter === "mine" ? "Вы ещё не публиковали посты" : "Постов пока нет"}
           </div>
         ) : (
           data.posts.map((p, i) => (
@@ -110,29 +121,165 @@ export function CommunityScreen() {
   );
 }
 
+function ComposeModal({
+  onClose,
+  onPosted,
+}: {
+  onClose: () => void;
+  onPosted: () => void;
+}) {
+  const { toast } = useToast();
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [category, setCategory] = useState("mental");
+  const [busy, setBusy] = useState(false);
+
+  const submit = async () => {
+    if (!title.trim() || !body.trim()) {
+      toast({ title: "Заполните заголовок и текст", variant: "destructive" });
+      return;
+    }
+    setBusy(true);
+    try {
+      const res = await fetch("/api/community", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "create-post",
+          title,
+          body,
+          category,
+        }),
+      });
+      if (!res.ok) throw new Error("Не удалось создать пост");
+      toast({ title: "Пост опубликован!" });
+      onClose();
+      // trigger global refresh so the feed reloads
+      window.dispatchEvent(new CustomEvent("neon-refresh"));
+    } catch (e) {
+      toast({
+        title: "Ошибка",
+        description: e instanceof Error ? e.message : "Не удалось",
+        variant: "destructive",
+      });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div className="w-full max-w-[560px] glass-panel rounded-xl p-5 flex flex-col gap-3 max-h-[90vh] overflow-y-auto scrollbar-thin">
+        <div className="flex items-center justify-between">
+          <h3 className="font-display text-lg font-bold text-on-surface flex items-center gap-2">
+            <MaterialIcon name="edit_note" size={20} className="text-primary-container" fill />
+            Новый пост
+          </h3>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 grid place-items-center rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+            aria-label="Закрыть"
+          >
+            <MaterialIcon name="close" size={20} />
+          </button>
+        </div>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest">
+            Категория
+          </span>
+          <div className="flex flex-wrap gap-1.5">
+            {POST_CATEGORIES.map((c) => {
+              const meta = CATEGORY_META[c as keyof typeof CATEGORY_META];
+              const active = category === c;
+              return (
+                <button
+                  key={c}
+                  onClick={() => setCategory(c)}
+                  className="flex items-center gap-1 px-2 py-1 rounded-md border font-mono text-[10px] uppercase tracking-wider transition-all"
+                  style={{
+                    color: active ? meta.color : "#b9cacb",
+                    borderColor: active ? `${meta.color}66` : "rgba(255,255,255,0.08)",
+                    background: active ? `${meta.color}14` : "transparent",
+                  }}
+                >
+                  <MaterialIcon name={meta.icon} size={12} fill={active} />
+                  {meta.label}
+                </button>
+              );
+            })}
+          </div>
+        </label>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest">
+            Заголовок
+          </span>
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="О чём пост?"
+            className="bg-surface-container/60 border border-outline-variant/40 rounded-lg px-3 py-2.5 font-mono text-[13px] text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-primary-container/60 transition-colors"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1.5">
+          <span className="font-mono text-[10px] text-on-surface-variant uppercase tracking-widest">
+            Текст
+          </span>
+          <textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value)}
+            placeholder="Поделитесь опытом, спросите совета..."
+            rows={5}
+            className="bg-surface-container/60 border border-outline-variant/40 rounded-lg px-3 py-2.5 font-mono text-[13px] text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none focus:border-primary-container/60 transition-colors resize-none"
+          />
+        </label>
+
+        <div className="flex gap-2 mt-1">
+          <button
+            onClick={onClose}
+            className="flex-1 py-2.5 rounded-lg bg-surface-container/60 text-on-surface-variant border border-outline-variant/40 font-display text-[12px] font-bold uppercase tracking-wider transition-colors"
+          >
+            Отмена
+          </button>
+          <button
+            onClick={submit}
+            disabled={busy}
+            className="flex-1 py-2.5 rounded-lg bg-primary-container text-on-primary font-display text-[12px] font-bold uppercase tracking-wider neon-glow-primary active:scale-[0.98] transition-transform disabled:opacity-50"
+          >
+            {busy ? "Публикация..." : "Опубликовать"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PostCard({ post, index }: { post: Post; index: number }) {
   const [expanded, setExpanded] = useState(false);
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(post.likedByMe);
   const [likeCount, setLikeCount] = useState(post.likes);
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [comments, setComments] = useState<{ authorName: string; body: string }[]>([]);
 
   const toggleLike = async () => {
-    const next = !liked;
-    setLiked(next);
-    setLikeCount((c) => c + (next ? 1 : -1));
-    if (next) {
-      try {
-        await fetch("/api/community", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "like", postId: post.id }),
-        });
-      } catch {
-        setLiked(false);
-        setLikeCount((c) => c - 1);
-      }
+    const wasLiked = liked;
+    setLiked(!wasLiked);
+    setLikeCount((c) => c + (wasLiked ? -1 : 1));
+    try {
+      await fetch("/api/community", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: wasLiked ? "unlike" : "like",
+          postId: post.id,
+        }),
+      });
+    } catch {
+      setLiked(wasLiked);
+      setLikeCount((c) => c + (wasLiked ? 1 : -1));
     }
   };
 
@@ -145,12 +292,7 @@ function PostCard({ post, index }: { post: Post; index: number }) {
       await fetch("/api/community", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "comment",
-          postId: post.id,
-          text,
-          authorName: "Вы",
-        }),
+        body: JSON.stringify({ action: "comment", postId: post.id, text }),
       });
     } catch {
       /* ignore */
@@ -219,7 +361,7 @@ function PostCard({ post, index }: { post: Post; index: number }) {
       {/* engagement bar */}
       <div className="flex items-center justify-between pt-2 border-t border-outline-variant/20">
         <div className="flex items-center gap-2">
-          {post.xpReward > 0 && (
+          {post.xpReward > 0 ? (
             <span className="flex items-center gap-1 bg-surface-container-high/60 rounded px-1.5 py-0.5">
               <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider">
                 {post.categoryLabel}
@@ -228,8 +370,7 @@ function PostCard({ post, index }: { post: Post; index: number }) {
                 +{post.xpReward} очк
               </span>
             </span>
-          )}
-          {post.xpReward === 0 && (
+          ) : (
             <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider">
               {post.categoryLabel}
             </span>
@@ -242,11 +383,7 @@ function PostCard({ post, index }: { post: Post; index: number }) {
             style={liked ? { color: "#b6f700" } : undefined}
             aria-label="Нравится"
           >
-            <MaterialIcon
-              name={liked ? "thumb_up" : "thumb_up"}
-              size={16}
-              fill={liked}
-            />
+            <MaterialIcon name="thumb_up" size={16} fill={liked} />
             <span className="font-mono text-[11px] font-medium">{likeCount}</span>
           </button>
           <button
@@ -317,7 +454,6 @@ function Avatar({ name, small }: { name: string; small?: boolean }) {
     .join("")
     .toUpperCase();
   const size = small ? "w-7 h-7 text-[10px]" : "w-9 h-9 text-[12px]";
-  // deterministic gradient from name
   const hues = [190, 80, 280, 30, 330, 210];
   const hue = hues[name.charCodeAt(0) % hues.length];
   return (

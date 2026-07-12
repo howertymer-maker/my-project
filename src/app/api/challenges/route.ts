@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { getCurrentUser } from "@/lib/session";
 import { CATEGORY_ORDER } from "@/lib/mission-templates";
 
 export const dynamic = "force-dynamic";
@@ -30,9 +31,9 @@ function weekStartStr() {
 }
 
 export async function GET() {
-  const user = await db.user.findFirst();
+  const user = await getCurrentUser();
   if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const today = todayStr();
@@ -92,9 +93,9 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { type, id } = body as { type: "daily" | "weekly"; id?: string };
 
-  const user = await db.user.findFirst();
+  const user = await getCurrentUser();
   if (!user) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   if (type === "daily") {
