@@ -355,103 +355,59 @@ type Notif = {
   color: string;
   title: string;
   body: string;
-  time: string;
-  unread: boolean;
+  createdAt: string;
+  read: boolean;
   type: "reward" | "streak" | "social" | "mission" | "challenge" | "system";
 };
 
-const DEMO_NOTIFS: Notif[] = [
-  {
-    id: "n1",
-    icon: "emoji_events",
-    color: "#fbbf24",
-    title: "Серия под угрозой!",
-    body: "Серия «Медитация» (14 дней) прервётся, если не отметишь привычку сегодня.",
-    time: "5 мин назад",
-    unread: true,
-    type: "streak",
-  },
-  {
-    id: "n2",
-    icon: "rocket_launch",
-    color: "#00f2ff",
-    title: "Этап миссии готов к завершению",
-    body: "«Управление временем» — этап 1 выполнен. Получи +240 очк к Дисциплине.",
-    time: "1 ч назад",
-    unread: true,
-    type: "mission",
-  },
-  {
-    id: "n3",
-    icon: "trending_up",
-    color: "#b6f700",
-    title: "Новый уровень навыка!",
-    body: "Поздравляем! «Ментал» достиг 8-го уровня. Продолжай в том же духе.",
-    time: "3 ч назад",
-    unread: true,
-    type: "reward",
-  },
-  {
-    id: "n4",
-    icon: "thumb_up",
-    color: "#e9b3ff",
-    title: "Новый лайк на пост",
-    body: "Samir Patel оценил ваш пост «Как я закрыла финансовую миссию».",
-    time: "5 ч назад",
-    unread: false,
-    type: "social",
-  },
-  {
-    id: "n5",
-    icon: "today",
-    color: "#00f2ff",
-    title: "Ежедневный челлендж доступен",
-    body: "Напиши старому другу сегодня и получи +50 очк к Социальности.",
-    time: "8 ч назад",
-    unread: false,
-    type: "challenge",
-  },
-  {
-    id: "n6",
-    icon: "chat_bubble",
-    color: "#e9b3ff",
-    title: "Новый комментарий",
-    body: "Lena Kowalski: «Отличный совет, попробую сегодня!» под вашим постом.",
-    time: "12 ч назад",
-    unread: false,
-    type: "social",
-  },
-  {
-    id: "n7",
-    icon: "diamond",
-    color: "#fbbf24",
-    title: "Премиум-предложение",
-    body: "Оформи премиум и получи мгновенный доступ ко всем 48 миссиям.",
-    time: "1 д назад",
-    unread: false,
-    type: "system",
-  },
-  {
-    id: "n8",
-    icon: "bolt",
-    color: "#b6f700",
-    title: "Бонус за все привычки!",
-    body: "Ты выполнил все 20 привычек за день. +300 очк к Постоянству.",
-    time: "1 д назад",
-    unread: false,
-    type: "reward",
-  },
-];
+type NotifsResponse = {
+  notifications: Notif[];
+  unreadCount: number;
+};
+
+function timeAgo(iso: string): string {
+  const d = new Date(iso);
+  const diff = Date.now() - d.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "только что";
+  if (mins < 60) return `${mins} мин назад`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs} ч назад`;
+  const days = Math.floor(hrs / 24);
+  return `${days} д назад`;
+}
 
 function NotificationsTab() {
   const [filter, setFilter] = useState<string>("all");
-  const [notifs, setNotifs] = useState<Notif[]>(DEMO_NOTIFS);
+  const [data, setData] = useState<NotifsResponse | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const filtered = filter === "all" ? notifs : notifs.filter((n) => n.type === filter);
-  const unreadCount = notifs.filter((n) => n.unread).length;
+  const fetchNotifs = (f: string) => {
+    setLoading(true);
+    const url = f === "all" ? "/api/notifications" : `/api/notifications?filter=${f}`;
+    fetch(url, { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => setData(d))
+      .finally(() => setLoading(false));
+  };
 
-  const markAllRead = () => {
-    setNotifs((ns) => ns.map((n) => ({ ...n, unread: false })));
+  useEffect(() => {
+    // defer to microtask to avoid set-state-in-effect cascading render
+    Promise.resolve().then(() => fetchNotifs("all"));
+  }, []);
+
+  const onFilterChange = (f: string) => {
+    setFilter(f);
+    fetchNotifs(f);
+  };
+
+  const markAllRead = async () => {
+    await fetch("/api/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: "all" }),
+    });
+    fetchNotifs(filter);
   };
 
   const filters = [
@@ -462,6 +418,9 @@ function NotificationsTab() {
     { key: "streak", label: "Серии" },
   ];
 
+  const notifs = data?.notifications ?? [];
+  const unreadCount = data?.unreadCount ?? 0;
+
   return (
     <>
       {/* Header with unread count + mark all read */}
@@ -471,7 +430,8 @@ function NotificationsTab() {
         </span>
         <button
           onClick={markAllRead}
-          className="font-mono text-[10px] text-primary-fixed hover:text-primary-container uppercase tracking-widest transition-colors"
+          disabled={unreadCount === 0}
+          className="font-mono text-[10px] text-primary-fixed hover:text-primary-container uppercase tracking-widest transition-colors disabled:opacity-40"
         >
           Прочитать все
         </button>
@@ -482,7 +442,7 @@ function NotificationsTab() {
         {filters.map((f) => (
           <button
             key={f.key}
-            onClick={() => setFilter(f.key)}
+            onClick={() => onFilterChange(f.key)}
             className={cn(
               "px-2.5 py-1 rounded-md border font-mono text-[10px] uppercase tracking-wider transition-all",
               filter === f.key
@@ -497,17 +457,21 @@ function NotificationsTab() {
 
       {/* Notifications list */}
       <div className="flex flex-col gap-2">
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="glass-panel rounded-xl p-8 text-center text-on-surface-variant font-mono text-sm">
+            Загрузка...
+          </div>
+        ) : notifs.length === 0 ? (
           <div className="glass-panel rounded-xl p-8 text-center text-on-surface-variant font-mono text-sm">
             Нет уведомлений
           </div>
         ) : (
-          filtered.map((n) => (
+          notifs.map((n) => (
             <div
               key={n.id}
               className={cn(
                 "rounded-xl p-3 flex items-start gap-2.5 border transition-colors",
-                n.unread
+                !n.read
                   ? "bg-surface-container/70 border-outline-variant/40"
                   : "bg-surface-container/30 border-outline-variant/20 opacity-70"
               )}
@@ -527,7 +491,7 @@ function NotificationsTab() {
                   <span className="font-display text-[13px] font-bold text-on-surface leading-tight">
                     {n.title}
                   </span>
-                  {n.unread && (
+                  {!n.read && (
                     <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-secondary-fixed shadow-[0_0_6px_#b6f700] mt-1.5" />
                   )}
                 </div>
@@ -535,7 +499,7 @@ function NotificationsTab() {
                   {n.body}
                 </p>
                 <span className="font-mono text-[9px] text-on-surface-variant/70 uppercase tracking-wider mt-1.5 block">
-                  {n.time}
+                  {timeAgo(n.createdAt)}
                 </span>
               </div>
             </div>

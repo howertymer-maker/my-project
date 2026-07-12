@@ -34,6 +34,7 @@ const DEMO_USERS = [
 
 async function main() {
   // Clean
+  await db.notification.deleteMany();
   await db.postLike.deleteMany();
   await db.comment.deleteMany();
   await db.post.deleteMany();
@@ -137,6 +138,32 @@ async function main() {
       stageStartedAt: ago25h,
     },
   });
+
+  // ===== demo notifications for adrian so the notifications tab isn't empty =====
+  const notifs = [
+    { type: "streak", icon: "local_fire_department", color: "#f97316", title: "Серия под угрозой!", body: "Серия «Медитация» (14 дней) прервётся, если не отметишь привычку сегодня.", read: false, minsAgo: 5 },
+    { type: "mission", icon: "rocket_launch", color: "#00f2ff", title: "Этап миссии готов к завершению", body: "«Управление временем» — этап 1 выполнен. Получи +240 очк к Дисциплине.", read: false, minsAgo: 60 },
+    { type: "reward", icon: "trending_up", color: "#b6f700", title: "Новый уровень навыка!", body: "Поздравляем! «Ментал» достиг 8-го уровня. Продолжай в том же духе.", read: false, minsAgo: 180 },
+    { type: "social", icon: "thumb_up", color: "#e9b3ff", title: "Новый лайк на пост", body: "Samir Patel оценил ваш пост «Как я закрыла финансовую миссию».", read: false, minsAgo: 300 },
+    { type: "challenge", icon: "today", color: "#00f2ff", title: "Ежедневный челлендж доступен", body: "Напиши старому другу сегодня и получи +50 очк к Социальности.", read: true, minsAgo: 480 },
+    { type: "social", icon: "chat_bubble", color: "#e9b3ff", title: "Новый комментарий", body: "Lena Kowalski: «Отличный совет, попробую сегодня!» под вашим постом.", read: true, minsAgo: 720 },
+    { type: "system", icon: "diamond", color: "#fbbf24", title: "Премиум-предложение", body: "Оформи премиум и получи мгновенный доступ ко всем 48 миссиям.", read: true, minsAgo: 1440 },
+    { type: "reward", icon: "bolt", color: "#b6f700", title: "Бонус за все привычки!", body: "Ты выполнил все 20 привычек за день. +300 очк к Постоянству.", read: true, minsAgo: 1440 },
+  ];
+  for (const n of notifs) {
+    await db.notification.create({
+      data: {
+        userId: adrian.id,
+        type: n.type,
+        icon: n.icon,
+        color: n.color,
+        title: n.title,
+        body: n.body,
+        read: n.read,
+        createdAt: new Date(Date.now() - n.minsAgo * 60 * 1000),
+      },
+    });
+  }
 
   // demo community posts (owned by the demo authors)
   const posts = [

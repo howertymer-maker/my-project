@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
+import { notify } from "@/lib/notify";
 
 export const dynamic = "force-dynamic";
 
@@ -116,6 +117,12 @@ export async function PATCH(req: NextRequest) {
           where: { userId: user.id },
         });
         if (allHabits.length > 0 && allHabits.every((h) => h.completed)) {
+          // capture level before bonus to detect level-up
+          const before = await db.attribute.findFirst({
+            where: { userId: user.id, key: "consistency" },
+          });
+          const lvlBefore = before ? Math.floor(before.points / 1000) : 0;
+
           await db.attribute.updateMany({
             where: { userId: user.id, key: "consistency" },
             data: { points: { increment: ALL_HABITS_BONUS } },
@@ -125,6 +132,32 @@ export async function PATCH(req: NextRequest) {
             data: { lastAllHabitsBonusAt: new Date() },
           });
           bonusAwarded = true;
+
+          // bonus notification
+          await notify({
+            userId: user.id,
+            type: "reward",
+            icon: "bolt",
+            color: "#b6f700",
+            title: "Бонус за все привычки!",
+            body: `Ты выполнил все ${allHabits.length} привычек за день. +${ALL_HABITS_BONUS} очк к Постоянству.`,
+          });
+
+          // level-up notification for consistency
+          const after = await db.attribute.findFirst({
+            where: { userId: user.id, key: "consistency" },
+          });
+          const lvlAfter = after ? Math.floor(after.points / 1000) : 0;
+          if (lvlAfter > lvlBefore) {
+            await notify({
+              userId: user.id,
+              type: "reward",
+              icon: "trending_up",
+              color: "#fbbf24",
+              title: "Постоянство повышено!",
+              body: `Навык «Постоянство» достиг ${lvlAfter}-го уровня.`,
+            });
+          }
         }
       }
     }

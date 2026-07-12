@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
+import { notify } from "@/lib/notify";
 import {
   MISSION_TEMPLATES,
   CATEGORY_ORDER,
+  CATEGORY_META,
   getTemplate,
   stageHours,
   stagePoints,
@@ -346,9 +348,46 @@ export async function POST(req: NextRequest) {
     const basePts = stagePoints(template, um.currentStage);
     const overBonus = body.overachieved ? Math.round(basePts * 0.2) : 0;
     const pts = basePts + overBonus;
+
+    // capture skill level before the award so we can detect a level-up
+    const skillBefore = await db.attribute.findFirst({
+      where: { userId: user.id, key: um.category },
+    });
+    const levelBefore = skillBefore ? Math.floor(skillBefore.points / 1000) : 0;
+
     await db.attribute.updateMany({
       where: { userId: user.id, key: um.category },
       data: { points: { increment: pts } },
+    });
+
+    // level-up notification
+    const skillAfter = await db.attribute.findFirst({
+      where: { userId: user.id, key: um.category },
+    });
+    const levelAfter = skillAfter ? Math.floor(skillAfter.points / 1000) : 0;
+    if (levelAfter > levelBefore) {
+      const catMeta = CATEGORY_META[um.category as CategoryKey];
+      await notify({
+        userId: user.id,
+        type: "reward",
+        icon: "trending_up",
+        color: "#b6f700",
+        title: "Новый уровень навыка!",
+        body: `Поздравляем! «${catMeta?.skill ?? um.category}» достиг ${levelAfter}-го уровня.`,
+      });
+    }
+
+    // stage completed notification
+    const catMeta = CATEGORY_META[um.category as CategoryKey];
+    await notify({
+      userId: user.id,
+      type: "mission",
+      icon: body.overachieved ? "trending_up" : "check_circle",
+      color: catMeta?.color ?? "#00f2ff",
+      title: body.overachieved
+        ? `Этап ${um.currentStage} перевыполнен!`
+        : `Этап ${um.currentStage} завершён`,
+      body: `«${template.title}» — +${pts} очк к навыку «${catMeta?.skill ?? um.category}».`,
     });
 
     if (um.currentStage >= 3) {

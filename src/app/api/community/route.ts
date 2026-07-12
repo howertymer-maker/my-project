@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
+import { notify } from "@/lib/notify";
 import { CATEGORY_META } from "@/lib/mission-templates";
 
 export const dynamic = "force-dynamic";
@@ -115,6 +116,17 @@ export async function POST(req: NextRequest) {
       where: { id: body.postId },
       data: { likes: { increment: 1 } },
     });
+    // notify the post author (skip self-likes)
+    if (post.authorId !== user.id) {
+      await notify({
+        userId: post.authorId,
+        type: "social",
+        icon: "thumb_up",
+        color: "#e9b3ff",
+        title: "Новый лайк на пост",
+        body: `${user.displayName} оценил(а) ваш пост «${post.title}».`,
+      });
+    }
     return NextResponse.json({ id: post.id, likes: post.likes });
   }
 
@@ -142,10 +154,21 @@ export async function POST(req: NextRequest) {
         body: text,
       },
     });
-    await db.post.update({
+    const post = await db.post.update({
       where: { id: body.postId },
       data: { commentsCount: { increment: 1 } },
     });
+    // notify the post author (skip self-comments)
+    if (post.authorId !== user.id) {
+      await notify({
+        userId: post.authorId,
+        type: "social",
+        icon: "chat_bubble",
+        color: "#e9b3ff",
+        title: "Новый комментарий",
+        body: `${user.displayName}: «${text.length > 60 ? text.slice(0, 60) + "…" : text}» под вашим постом.`,
+      });
+    }
     return NextResponse.json({
       comment: { id: comment.id, authorName: comment.authorName, body: comment.body },
     });
