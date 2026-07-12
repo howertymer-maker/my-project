@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { signOut } from "next-auth/react";
 import { MaterialIcon } from "@/components/material-icon";
 import { SettingsSheet } from "@/components/neon/settings-sheet";
 
@@ -48,32 +47,16 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
             </div>
           </div>
 
-          {/* Actions */}
+          {/* Actions — only settings (notifications + logout removed for the test build) */}
           <div className="flex items-center gap-2">
             <button
               type="button"
-              className="relative w-9 h-9 grid place-items-center rounded-md text-primary-container hover:text-secondary-fixed-dim hover:bg-surface-container/60 transition-colors"
-              aria-label="Уведомления"
-            >
-              <MaterialIcon name="notifications" size={20} />
-              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-secondary-fixed shadow-[0_0_6px_#b6f700]" />
-            </button>
-            <button
-              type="button"
               onClick={() => setSettingsOpen(true)}
-              className="w-9 h-9 grid place-items-center rounded-md text-primary-container hover:text-secondary-fixed-dim hover:bg-surface-container/60 transition-colors"
+              className="relative w-9 h-9 grid place-items-center rounded-md text-primary-container hover:text-secondary-fixed-dim hover:bg-surface-container/60 transition-colors"
               aria-label="Настройки"
             >
               <MaterialIcon name="settings" size={20} />
-            </button>
-            <button
-              type="button"
-              onClick={() => signOut({ callbackUrl: "/login" })}
-              className="w-9 h-9 grid place-items-center rounded-md text-on-surface-variant hover:text-error hover:bg-surface-container/60 transition-colors"
-              aria-label="Выйти"
-              title="Выйти из аккаунта"
-            >
-              <MaterialIcon name="logout" size={20} />
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-secondary-fixed shadow-[0_0_6px_#b6f700]" />
             </button>
           </div>
         </div>
