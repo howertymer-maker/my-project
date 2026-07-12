@@ -317,3 +317,29 @@ Stage Summary:
 - Проблема устранена: после регистрации/входа пользователь надёжно попадает в аккаунт
 - getSession() polling гарантирует, что cookie сессии установлены до навигации на главную
 - Проверено 3+ входами подряд и регистрацией — все успешны
+
+---
+Task ID: 17
+Agent: main
+Task: Фикс — вход по-прежнему выкидывал на страницу авторизации (анализ логов)
+
+Анализ логов:
+- POST /api/auth/callback/credentials 200 — вход успешен
+- GET /api/auth/session 200 — НО возвращал {} (пустой объект, truthy!)
+- Куча повторяющихся GET /api/auth/session 200 — useSession постоянно опрашивал, но сессия пустая
+- Cross origin request detected from *.space-z.ai — пользователь заходит через preview-прокси, а NEXTAUTH_URL=localhost:3000 → cookie сессии не ставятся для домена space-z.ai
+
+Две причины:
+1. Баг в polling: getSession() возвращает {} (пустой объект) когда сессии нет, а {} — truthy в JS. Проверка `if (session)` всегда проходила, navigation срабатывала до реальной установки cookie.
+2. Cookie не ставились для preview-домена: sameSite=lax + secure=false + NEXTAUTH_URL=localhost:3000 → браузер reject'ил cookie на space-z.ai.
+
+Work Log:
+- auth-screen.tsx: polling теперь проверяет `session.user` (не просто truthy), 30 попыток. Fallback — signIn с redirect:true.
+- auth.ts: cookies с sameSite:"none", secure:true для cross-origin preview. trustHost:true. url через getBaseUrl().
+- next.config.ts: allowedDevOrigins ["*.space-z.ai", "*.chatglm.cn"] — убирает cross-origin warning.
+- Agent Browser E2E: вход adrian@demo.app → / с интро ✓; перезагрузка → сессия держится (LVL 0, notifications) ✓; в логах чисто, нет лишних /login ✓.
+
+Stage Summary:
+- Проблема устранена: после входа пользователь остаётся в аккаунте даже через preview-прокси
+- Cookie настроены для cross-origin (sameSite:none, secure:true)
+- getSession() проверяется корректно (на session.user, а не truthy)

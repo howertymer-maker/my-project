@@ -43,12 +43,12 @@ export function AuthScreen({ mode }: { mode: Mode }) {
       toast({ title: mode === "register" ? "Аккаунт создан" : "Вход выполнен" });
 
       // Wait for the session cookie to be fully established before navigating.
-      // Polling getSession() guarantees the cookie is readable by the browser,
-      // otherwise the homepage may briefly render the unauthenticated state.
+      // getSession() returns {} (empty object, truthy!) when there is no session,
+      // so we must check for session.user instead.
       let sessionOk = false;
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 30; i++) {
         const session = await getSession();
-        if (session) {
+        if (session && session.user) {
           sessionOk = true;
           break;
         }
@@ -56,8 +56,9 @@ export function AuthScreen({ mode }: { mode: Mode }) {
       }
 
       if (!sessionOk) {
-        // fallback: still navigate, the homepage will re-check
-        window.location.href = "/";
+        // Session cookie not established — force a server-side redirect via
+        // NextAuth's signIn with redirect:true as a reliable fallback.
+        await signIn("credentials", { email, password, redirect: true, callbackUrl: "/" });
         return;
       }
 
