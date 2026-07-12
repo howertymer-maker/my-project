@@ -40,7 +40,7 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
             </div>
             <div className="hidden sm:flex flex-col leading-none">
               <span className="font-display text-[13px] font-extrabold tracking-[0.12em] text-on-surface">
-                NEON PROTOCOL
+                Nevergiveup
               </span>
               <span className="font-mono text-[10px] text-primary-fixed-dim tracking-widest mt-0.5">
                 {"LVL "}{level}{" // ENDEAVORER"}
@@ -101,8 +101,8 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
 function AvatarMark() {
   return (
     <div className="w-full h-full bg-gradient-to-br from-[#0e3a3d] via-[#0A0A0B] to-[#1a0a2e] grid place-items-center">
-      <span className="font-display text-[15px] font-extrabold text-primary-fixed text-glow-primary">
-        EE
+      <span className="font-display text-[11px] font-extrabold text-primary-fixed text-glow-primary tracking-tighter">
+        NGU
       </span>
     </div>
   );

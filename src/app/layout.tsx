@@ -19,17 +19,17 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NEON PROTOCOL // Система развития",
+  title: "Nevergiveup // Система развития",
   description:
     "Геймифицированная система саморазвития. Прокачивай атрибуты, выполняй миссии, удерживай привычки.",
   keywords: [
-    "Neon Protocol",
+    "Nevergiveup",
     "саморазвитие",
     "привычки",
     "миссии",
     "геймификация",
   ],
-  authors: [{ name: "Neon Protocol" }],
+  authors: [{ name: "Nevergiveup" }],
   icons: {
     icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
   },

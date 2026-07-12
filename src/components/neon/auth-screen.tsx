@@ -38,8 +38,10 @@ export function AuthScreen({ mode }: { mode: Mode }) {
         throw new Error("Неверный email или пароль");
       }
       toast({ title: mode === "register" ? "Аккаунт создан" : "Вход выполнен" });
-      router.push("/");
-      router.refresh();
+      // Wait for the session to be fully established before navigating,
+      // otherwise the homepage may briefly show the unauthenticated state.
+      await new Promise((r) => setTimeout(r, 300));
+      window.location.href = "/";
     } catch (err) {
       toast({
         title: "Ошибка",
@@ -76,12 +78,12 @@ export function AuthScreen({ mode }: { mode: Mode }) {
         {/* Brand */}
         <div className="flex flex-col items-center gap-3 mb-8">
           <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary-container/50 neon-glow-primary grid place-items-center bg-gradient-to-br from-[#0e3a3d] via-[#0A0A0B] to-[#1a0a2e]">
-            <span className="font-display text-2xl font-extrabold text-primary-fixed text-glow-primary">
-              NP
+            <span className="font-display text-xl font-extrabold text-primary-fixed text-glow-primary tracking-tighter">
+              NGU
             </span>
           </div>
           <h1 className="font-display text-2xl font-extrabold tracking-tight text-on-surface text-center">
-            NEON PROTOCOL
+            Nevergiveup
           </h1>
           <p className="font-mono text-[11px] text-on-surface-variant uppercase tracking-widest text-center">
             {mode === "register" ? "Создай аккаунт развития" : "Вход в систему"}

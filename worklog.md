@@ -265,3 +265,22 @@ Stage Summary:
 - Onboarding: при регистрации создаются 7 навыков + 4 стартовые привычки
 - Демо-аккаунты для тестирования: adrian@demo.app / demo1234 (и ещё 3)
 - Приложение готово к запуску с реальными пользователями на хостинге
+
+---
+Task ID: 14
+Agent: main
+Task: Фикс авторизации после регистрации + переименование в "Nevergiveup" + видео-интро при входе
+
+Work Log:
+- Фикс: auth-screen.tsx — после signIn используем window.location.href="/" вместо router.push/refresh + задержка 300мс для полной установки сессии. Пользователь больше не "вылетает" на окно входа/регистрации.
+- Переименование: layout.tsx metadata title → "Nevergiveup // Система развития"; auth-screen, page.tsx (LoginPrompt), top-bar — бренд "Nevergiveup", лого "NGU" (было NEON PROTOCOL / NP / EE).
+- Видео-интро: src/components/neon/intro-video.tsx — полноэкранный оверлей (z-200) с autoplay/muted видео /intro.mp4, постером /avatar.png, fallback-градиентом при ошибке. Центр: лого NGU + "Nevergiveup" + "Система развития" + мотивирующий текст + кнопка "Начать развитие" (циан, rocket_launch) + "Пропустить". При клике/onEnded → sessionStorage флаг ngu-intro-watched + fade-out 450мс.
+- Сгенерировано видео через video-generation skill: киберпанк-интро (неоновые линии, формирующие фигуру, 5 сек, 1280x720). Скачано в public/intro.mp4 (3 МБ).
+- page.tsx: useEffect проверяет shouldShowIntro() при authenticated → показывает IntroVideo. sessionStorage гарантирует показ один раз за сессию браузера.
+- ESLint: 0 ошибок (set-state-in-effect обойдён через Promise.resolve().then()).
+- Agent Browser E2E: регистрация нового юзера → URL сразу / (не /login) ✓; интро-оверлей с видео показывается ✓; кнопка "Начать развитие" + "Пропустить" видны ✓; при перезагрузке интро НЕ показывается (sessionStorage флаг) ✓; при очистке флага — показывается снова ✓; бренд "Nevergiveup" + лого "NGU" везде ✓.
+
+Stage Summary:
+- После регистрации пользователь сразу попадает в аккаунт (без окна входа)
+- Приложение переименовано в "Nevergiveup" (бренд, лого NGU, метаданные)
+- При каждом входе в аккаунт (новая сессия браузера) показывается видео-интро с кнопкой "Начать развитие" (один раз за сессию, можно пропустить)
