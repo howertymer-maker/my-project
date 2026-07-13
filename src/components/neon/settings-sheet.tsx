@@ -23,7 +23,6 @@ export function SettingsSheet({ open, onOpenChange, onChanged }: Props) {
   const { toast } = useToast();
   const [premium, setPremium] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [skipping, setSkipping] = useState(false);
   const [toggling, setToggling] = useState(false);
 
   // local-only toggles (no backend yet)
@@ -74,28 +73,6 @@ export function SettingsSheet({ open, onOpenChange, onChanged }: Props) {
     }
   };
 
-  const skip12h = async () => {
-    setSkipping(true);
-    try {
-      const res = await fetch("/api/missions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "skip-12h" }),
-      });
-      if (!res.ok) throw new Error("Ошибка");
-      const data = await res.json();
-      onChanged();
-      toast({
-        title: "−12 часов",
-        description: `Таймеры ускорены на 12ч. Затронуто миссий: ${data.affected}.`,
-      });
-    } catch {
-      toast({ title: "Ошибка", description: "Не удалось пропустить время" });
-    } finally {
-      setSkipping(false);
-    }
-  };
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
@@ -120,8 +97,6 @@ export function SettingsSheet({ open, onOpenChange, onChanged }: Props) {
             loading={loading}
             toggling={toggling}
             onTogglePremium={togglePremium}
-            skipping={skipping}
-            onSkip12h={skip12h}
             sound={sound}
             setSound={setSound}
             pushNotify={pushNotify}
@@ -146,8 +121,6 @@ function SettingsTab(props: {
   loading: boolean;
   toggling: boolean;
   onTogglePremium: (v: boolean) => void;
-  skipping: boolean;
-  onSkip12h: () => void;
   sound: boolean;
   setSound: (v: boolean) => void;
   pushNotify: boolean;
@@ -183,20 +156,6 @@ function SettingsTab(props: {
 
       {/* Game controls */}
       <Section title="Игровые функции" icon="sports_esports" accent="#00f2ff">
-        <Row
-          icon="fast_forward"
-          label="Пропустить 12 часов"
-          description="Ускорить все таймеры этапов на 12ч"
-          control={
-            <button
-              onClick={props.onSkip12h}
-              disabled={props.skipping}
-              className="font-display text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-md bg-primary-container text-on-primary neon-glow-primary active:scale-95 transition-transform disabled:opacity-50"
-            >
-              {props.skipping ? "..." : "Пропустить"}
-            </button>
-          }
-        />
         <Row
           icon="volume_up"
           label="Звуковые эффекты"

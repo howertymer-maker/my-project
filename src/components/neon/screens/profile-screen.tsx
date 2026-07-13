@@ -302,15 +302,29 @@ function ProgressChart({ points }: { points: ChartPoint[] }) {
   const max = Math.max(...points.map((p) => p.points), 1);
   const w = 100;
   const h = 100;
-  const step = w / (points.length - 1);
+  const step = points.length > 1 ? w / (points.length - 1) : 0;
   const coords = points.map((p, i) => {
     const x = i * step;
     const y = h - (p.points / max) * (h - 8) - 4;
     return { x, y };
   });
-  const linePath = coords
-    .map((c, i) => (i === 0 ? `M${c.x},${c.y}` : `L${c.x},${c.y}`))
-    .join(" ");
+
+  // Build a smooth path using quadratic Bézier curves between points.
+  // This guarantees the line is always smooth regardless of data fluctuations.
+  let linePath = "";
+  if (coords.length === 1) {
+    linePath = `M${coords[0].x},${coords[0].y}`;
+  } else {
+    linePath = `M${coords[0].x},${coords[0].y}`;
+    for (let i = 1; i < coords.length; i++) {
+      const prev = coords[i - 1];
+      const curr = coords[i];
+      const midX = (prev.x + curr.x) / 2;
+      // quadratic curve through the midpoint → smooth regardless of data
+      linePath += ` Q${prev.x},${prev.y} ${midX},${(prev.y + curr.y) / 2}`;
+      linePath += ` T${curr.x},${curr.y}`;
+    }
+  }
   const areaPath = `${linePath} L${w},${h} L0,${h} Z`;
 
   return (
@@ -349,18 +363,6 @@ function ProgressChart({ points }: { points: ChartPoint[] }) {
             strokeLinejoin="round"
             vectorEffect="non-scaling-stroke"
           />
-          {coords.map((c, i) => (
-            <circle
-              key={i}
-              cx={c.x}
-              cy={c.y}
-              r="1.4"
-              fill="#0A0A0B"
-              stroke="#00f2ff"
-              strokeWidth="0.8"
-              vectorEffect="non-scaling-stroke"
-            />
-          ))}
         </svg>
       </div>
       <div className="absolute left-9 right-0 bottom-[-18px] flex justify-between font-mono text-[9px] text-on-surface-variant">
