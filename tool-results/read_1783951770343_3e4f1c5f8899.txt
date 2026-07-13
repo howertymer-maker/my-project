@@ -1,0 +1,441 @@
+     1→<!DOCTYPE html>
+     2→
+     3→<html class="dark" lang="ru"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"/><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">try{
+     4→        tailwind.config = {
+     5→          darkMode: "class",
+     6→          theme: {
+     7→            extend: {
+     8→              "colors": {
+     9→                      "surface-variant": "#353436",
+    10→                      "secondary-container": "#b6f700",
+    11→                      "background": "#131314",
+    12→                      "primary-fixed": "#74f5ff",
+    13→                      "on-surface-variant": "#b9cacb",
+    14→                      "on-background": "#e5e2e3",
+    15→                      "tertiary-fixed-dim": "#e9b3ff",
+    16→                      "on-secondary-container": "#4f6e00",
+    17→                      "primary-container": "#00f2ff",
+    18→                      "tertiary-fixed": "#f6d9ff",
+    19→                      "surface-tint": "#00dbe7",
+    20→                      "on-error": "#690005",
+    21→                      "outline-variant": "#3a494b",
+    22→                      "on-tertiary-fixed": "#310048",
+    23→                      "on-secondary-fixed-variant": "#374e00",
+    24→                      "secondary-fixed": "#b6f700",
+    25→                      "on-tertiary-fixed-variant": "#7200a3",
+    26→                      "error": "#ffb4ab",
+    27→                      "tertiary": "#fff5fd",
+    28→                      "on-primary-container": "#006a71",
+    29→                      "error-container": "#93000a",
+    30→                      "primary-fixed-dim": "#00dbe7",
+    31→                      "on-surface": "#e5e2e3",
+    32→                      "on-secondary": "#253600",
+    33→                      "on-secondary-fixed": "#141f00",
+    34→                      "surface-container-lowest": "#0e0e0f",
+    35→                      "surface-container-low": "#1c1b1c",
+    36→                      "on-error-container": "#ffdad6",
+    37→                      "surface-container-highest": "#353436",
+    38→                      "surface-container": "#201f20",
+    39→                      "primary": "#e1fdff",
+    40→                      "inverse-surface": "#e5e2e3",
+    41→                      "surface-dim": "#131314",
+    42→                      "surface": "#131314",
+    43→                      "inverse-on-surface": "#313031",
+    44→                      "on-primary": "#00363a",
+    45→                      "surface-bright": "#3a393a",
+    46→                      "on-tertiary-container": "#9128c5",
+    47→                      "outline": "#849495",
+    48→                      "inverse-primary": "#00696f",
+    49→                      "tertiary-container": "#f3cfff",
+    50→                      "on-primary-fixed-variant": "#004f54",
+    51→                      "secondary-fixed-dim": "#9fd800",
+    52→                      "secondary": "#ffffff",
+    53→                      "on-tertiary": "#510074",
+    54→                      "on-primary-fixed": "#002022",
+    55→                      "surface-container-high": "#2a2a2b"
+    56→              },
+    57→              "borderRadius": {
+    58→                      "DEFAULT": "0.25rem",
+    59→                      "lg": "0.5rem",
+    60→                      "xl": "0.75rem",
+    61→                      "full": "9999px"
+    62→              },
+    63→              "spacing": {
+    64→                      "section-spacing": "32px",
+    65→                      "inline-gap": "12px",
+    66→                      "stack-gap": "16px",
+    67→                      "card-padding": "16px",
+    68→                      "container-margin": "20px"
+    69→              },
+    70→              "fontFamily": {
+    71→                      "display-lg": ["Sora"],
+    72→                      "display-lg-mobile": ["Sora"],
+    73→                      "headline-lg": ["Sora"],
+    74→                      "label-md": ["JetBrains Mono"],
+    75→                      "body-lg": ["JetBrains Mono"],
+    76→                      "headline-lg-mobile": ["Sora"],
+    77→                      "headline-md": ["Sora"],
+    78→                      "body-md": ["JetBrains Mono"],
+    79→                      "label-lg": ["Sora"]
+    80→              },
+    81→              "fontSize": {
+    82→                      "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+    83→                      "display-lg-mobile": ["32px", {"lineHeight": "38px", "fontWeight": "800"}],
+    84→                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+    85→                      "label-md": ["10px", {"lineHeight": "14px", "fontWeight": "500"}],
+    86→                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+    87→                      "headline-lg-mobile": ["24px", {"lineHeight": "30px", "fontWeight": "700"}],
+    88→                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+    89→                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+    90→                      "label-lg": ["12px", {"lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "700"}]
+    91→              }
+    92→            }
+    93→          }
+    94→        }
+    95→    }catch(_e){}</script></head><body class="antialiased min-h-screen flex flex-col pb-24 md:pb-0 overflow-x-hidden">
+    96→<!-- TopAppBar -->
+    97→<header class="bg-background/80 dark:bg-background/80 backdrop-blur-md flex justify-between items-center px-container-margin py-4 w-full fixed top-0 z-40 bg-surface-container-low dark:bg-surface-container-low border-b border-primary-container/20 shadow-[0_0_15px_rgba(0,242,255,0.1)]">
+    98→<div class="flex items-center gap-4">
+    99→<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container neon-glow">
+   100→<img class="w-full h-full object-cover" data-alt="A futuristic, neon-lit avatar portrait of a sci-fi pilot wearing a sleek helmet with glowing blue visors, set against a dark, cyberpunk city backdrop. The lighting is high-contrast, emphasizing deep blacks and intense cyan accents. The mood is determined and tactical." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4Q3fynJF72SXZIKLcjhJVfcdq0kifpoFzR_30jLlNY__36BADLQ-6NHI-Fx4eDTw_g_c2dy19eVQj6Ym8t1TIluF53xjqvp62MJNzebJo-f7QexbeRuegup_OeSJoY1mx1eRNBynsNub7Ori2qRYR8ryw-ARaxuxKc2Tp_dYliTurlUxuu6Ood0WqxeLc-tGyjLCuPo_VNb6ZqEdP7y90eAe8F7_nWVi7oTWkjfOPya3hy_AZZ7GAZFMFkTkQs-OLe0vo7QgPmkI"/>
+   101→</div>
+   102→</div>
+   103→<div class="flex items-center font-label-md text-label-md text-primary-container dark:text-primary-fixed gap-4"><button class="text-primary-container hover:text-primary-fixed transition-colors p-1">
+   104→<span class="material-symbols-outlined text-[24px]">notifications</span>
+   105→</button>
+   106→<button class="text-primary-container hover:text-primary-fixed transition-colors p-1">
+   107→<span class="material-symbols-outlined text-[24px]">settings</span>
+   108→</button></div>
+   109→</header>
+   110→<!-- Main Content Canvas -->
+   111→<main class="flex-1 mt-24 mb-16 px-container-margin w-full max-w-2xl mx-auto md:max-w-4xl grid grid-cols-1 md:grid-cols-12 gap-6 relative">
+   112→<!-- Left Sidebar / Filters (Hidden on Mobile, visible on Desktop) -->
+   113→<aside class="hidden md:block md:col-span-3 sticky top-28 h-fit space-y-6">
+   114→<div class="glass-panel p-card-padding rounded-xl">
+   115→<h2 class="font-headline-md text-headline-md text-on-surface mb-4">Фильтры ленты</h2>
+   116→<div class="flex flex-col gap-2">
+   117→<button class="flex items-center gap-3 p-2 rounded-lg bg-surface-variant text-primary-container font-label-lg text-label-lg neon-glow">
+   118→<span class="material-symbols-outlined">public</span>
+   119→                        Вся активность
+   120→                    </button>
+   121→<button class="flex items-center gap-3 p-2 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors font-label-lg text-label-lg">
+   122→<span class="material-symbols-outlined">recommend</span>
+   123→                        Актуальное
+   124→                    </button>
+   125→<button class="flex items-center gap-3 p-2 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors font-label-lg text-label-lg">
+   126→<span class="material-symbols-outlined">history</span>
+   127→                        Мои посты
+   128→                    </button>
+   129→<button class="flex items-center gap-3 p-2 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors font-label-lg text-label-lg">
+   130→<span class="material-symbols-outlined">lightbulb</span>
+   131→                        Советы
+   132→                    </button>
+   133→</div>
+   134→</div>
+   135→<div class="glass-panel p-card-padding rounded-xl">
+   136→<h3 class="font-label-lg text-label-lg text-on-surface-variant mb-3 uppercase tracking-wider">Топ участников</h3>
+   137→<div class="space-y-3">
+   138→<div class="flex items-center gap-3">
+   139→<div class="w-8 h-8 rounded-full bg-surface-variant border border-secondary-container"></div>
+   140→<div class="flex-1">
+   141→<p class="font-body-md text-body-md text-on-surface leading-none">Elena R.</p>
+   142→<p class="font-label-md text-label-md text-secondary-container mt-1">Мастер V</p>
+   143→</div>
+   144→</div>
+   145→</div>
+   146→</div>
+   147→</aside>
+   148→<!-- Feed Center Column -->
+   149→<div class="col-span-1 md:col-span-9 space-y-stack-gap">
+   150→<!-- Mobile Filters Horizontal Scroll -->
+   151→<div class="md:hidden flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-container-margin px-container-margin">
+   152→<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface-variant text-primary-container font-label-md text-label-md border border-primary-container/30 neon-glow">Всё</button>
+   153→<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface text-on-surface-variant font-label-md text-label-md border border-outline-variant/30">Актуальное</button>
+   154→<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface text-on-surface-variant font-label-md text-label-md border border-outline-variant/30">Мои посты</button>
+   155→<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface text-on-surface-variant font-label-md text-label-md border border-outline-variant/30">Советы</button>
+   156→</div>
+   157→<!-- Post Card 1 -->
+   158→<article class="glass-panel rounded-xl p-card-padding relative overflow-hidden group" id="post-1">
+   159→<!-- Top Header -->
+   160→<div class="flex justify-between items-start mb-4">
+   161→<div class="flex items-center gap-3">
+   162→<div class="w-10 h-10 rounded-full overflow-hidden border border-tertiary-fixed">
+   163→<img class="w-full h-full object-cover" data-alt="A cinematic, low-light portrait of a user named Adrian Gavalyan. He looks determined, wearing dark futuristic activewear. The lighting features sharp magenta rim light and deep shadows, fitting a sci-fi cyberpunk aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLnxHt6XXtS48kJB2dWlrzt8IX9ojOEX2V4ufzyGV7y0bo9RWG76tbf-VjoifY5cIvI-VSbCo2L2sOT1Y3buRpuUsvUXg1V5Wx2ZT82BpO_nGMSoz1jkubHSyE59duUNZz8s5ZWWS9HhLMxoAqZTb8PGEUuIEN-6jCr095Lc69KOsQcmEM4W2l71RxzHIRiLjmGxq_HSY_OxS7xVuLgFUPbpKYeFa2GcCiWnMh6Cx7lIxsSlFr8g1yyPO1DDgcVocZDnn0XpkM1pA"/>
+   164→</div>
+   165→<div>
+   166→<h3 class="font-headline-md text-headline-md-mobile text-on-surface post-author">Adrián Gavalyan</h3>
+   167→<div class="flex items-center gap-2 mt-1">
+   168→<span class="bg-surface-variant text-tertiary-fixed font-label-md text-label-md px-2 py-0.5 rounded-sm post-badge">Подмастерье II</span>
+   169→<span class="text-on-surface-variant font-label-md text-label-md post-time">4 дня назад</span>
+   170→</div>
+   171→</div>
+   172→</div>
+   173→<button class="text-on-surface-variant hover:text-primary-container transition-colors">
+   174→<span class="material-symbols-outlined">more_horiz</span>
+   175→</button>
+   176→</div>
+   177→<!-- Content -->
+   178→<div class="mb-4">
+   179→<h4 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-2 post-title">Начало всего</h4>
+   180→<p class="font-body-md text-body-md text-on-surface-variant line-clamp-3 post-content">
+   181→                        Я новичок в этом приложении, и оно мне очень нравится. Обычно такие приложения кажутся слишком корпоративными, но относиться к своей жизни как к RPG действительно работает. Сейчас сосредоточен на физическом развитии.
+   182→                    </p>
+   183→<button class="text-primary-container font-label-md text-label-md mt-2 uppercase tracking-wide hover:text-primary-fixed transition-colors">Читать далее</button>
+   184→</div>
+   185→<!-- Attached Metric/Mission Snippet -->
+   186→<div class="bg-surface-container-low border border-tertiary-fixed/20 rounded-lg p-3 mb-4 flex items-center justify-between post-snippet hidden">
+   187→<div class="flex items-center gap-2 text-tertiary-fixed">
+   188→<span class="material-symbols-outlined text-[18px]">fitness_center</span>
+   189→<span class="font-label-md text-label-md uppercase">Физическое развитие</span>
+   190→</div>
+   191→<span class="font-body-md text-body-md text-on-surface">+120 XP</span>
+   192→</div>
+   193→<!-- Action Bar -->
+   194→<div class="flex items-center justify-between border-t border-outline-variant/30 pt-3">
+   195→<div class="flex gap-6">
+   196→<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary-container transition-colors font-label-md text-label-md group/btn">
+   197→<span class="material-symbols-outlined group-hover/btn:scale-110 transition-transform">thumb_up</span>
+   198→                            74
+   199→                        </button>
+   200→<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary-container transition-colors font-label-md text-label-md group/btn comment-btn" data-post-id="post-1">
+   201→<span class="material-symbols-outlined group-hover/btn:scale-110 transition-transform">chat_bubble</span>
+   202→                            19
+   203→                        </button>
+   204→</div>
+   205→<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary-container transition-colors font-label-md text-label-md">
+   206→<span class="material-symbols-outlined text-[16px]">translate</span>
+   207→                        Перевести
+   208→                    </button>
+   209→</div>
+   210→</article>
+   211→<!-- Post Card 2 -->
+   212→<article class="glass-panel rounded-xl p-card-padding relative overflow-hidden group border-secondary-container/20" id="post-2">
+   213→<div class="flex justify-between items-start mb-4">
+   214→<div class="flex items-center gap-3">
+   215→<div class="w-10 h-10 rounded-full overflow-hidden border border-secondary-container">
+   216→<img class="w-full h-full object-cover" data-alt="A neon-lit portrait of a user named Max Thompson. He looks focused and slightly weary, set against a dark background with subtle glowing green UI elements floating around him, evoking a cyberpunk hacker vibe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfq-_5r_zqklOYM8Sk5zyjTl_fG4kSzkyTNu3etMNPrXk92NdVnhdj_lBFermE4ounYcwoDWeVfP_exwM5Bl9oPwcaVD434yKEqeZ4JKwxGfJy7lgE1sfV-uCBTV41LYmjyH9Pw3SGaQWSFUSB1yW1z1qSQB91VuIBOWpzGcHIz2JxB7UoBQAICUueE2h0nPc8Y33lXCttGape-6OT60sXkJI4q4xCeYSAla8dLFn0jr5QglGg8qNVH_SLK7EOzAb2JaSv7ByM-tM"/>
+   217→</div>
+   218→<div>
+   219→<h3 class="font-headline-md text-headline-md-mobile text-on-surface post-author">Max Thompson</h3>
+   220→<div class="flex items-center gap-2 mt-1">
+   221→<span class="bg-surface-variant text-secondary-container font-label-md text-label-md px-2 py-0.5 rounded-sm post-badge">Новичок I</span>
+   222→<span class="bg-surface-variant text-on-surface-variant font-label-md text-label-md px-2 py-0.5 rounded-sm border border-outline-variant">Советы</span>
+   223→<span class="text-on-surface-variant font-label-md text-label-md post-time">3 дня назад</span>
+   224→</div>
+   225→</div>
+   226→</div>
+   227→<button class="text-on-surface-variant hover:text-secondary-container transition-colors">
+   228→<span class="material-symbols-outlined">more_horiz</span>
+   229→</button>
+   230→</div>
+   231→<div class="mb-4">
+   232→<h4 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-2 post-title">Нужен узкоспециализированный совет</h4>
+   233→<p class="font-body-md text-body-md text-on-surface-variant post-content">
+   234→                        Привет, ребята, давайте расти вместе. Мне нужна помощь. Нужен друг, который научит меня оптимизировать график сна. Я усердно тренируюсь в зале, но восстановление хромает. Есть элитные советы?
+   235→                    </p>
+   236→</div>
+   237→<div class="flex items-center justify-between border-t border-outline-variant/30 pt-3">
+   238→<div class="flex gap-6">
+   239→<button class="flex items-center gap-1 text-on-surface-variant hover:text-secondary-container transition-colors font-label-md text-label-md group/btn">
+   240→<span class="material-symbols-outlined group-hover/btn:scale-110 transition-transform">thumb_up</span>
+   241→                            91
+   242→                        </button>
+   243→<button class="flex items-center gap-1 text-on-surface-variant hover:text-secondary-container transition-colors font-label-md text-label-md group/btn comment-btn" data-post-id="post-2">
+   244→<span class="material-symbols-outlined group-hover/btn:scale-110 transition-transform">chat_bubble</span>
+   245→                            24
+   246→                        </button>
+   247→</div>
+   248→<button class="flex items-center gap-1 text-on-surface-variant hover:text-secondary-container transition-colors font-label-md text-label-md">
+   249→<span class="material-symbols-outlined text-[16px]">translate</span>
+   250→                        Перевести
+   251→                    </button>
+   252→</div>
+   253→</article>
+   254→<!-- Post Card 3 -->
+   255→<article class="glass-panel rounded-xl p-card-padding relative overflow-hidden group" id="post-3">
+   256→<div class="flex justify-between items-start mb-4">
+   257→<div class="flex items-center gap-3">
+   258→<div class="w-10 h-10 rounded-full overflow-hidden border border-primary-container">
+   259→<img class="w-full h-full object-cover" data-alt="A portrait of a user named Samir Patel. Confident expression, warm but high-contrast neon blue lighting illuminating one side of his face, set against a dark tech-noir background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6d0A0xjKi0eTblKQxj6l4BvS9gFzQR3KPUqAiQZoH_5OAL8TqLPtET7-uDSyTl2IBn6DbLpAoxKgaugRN0dPA6KEuKBMTc88jvgUeMJzAoXEWFbivGuMDuyk1TiGUomCTNBbWBgHDdFvG0TAhCDK_nPQytvplmtRMsa8BLo8OIwNdYZXIMYlNgHJBy_nUJ5auSHeJ9yv5RBL3Qgujdi73AHhaf7QjSnXq9D6nTM0svZ7Mm4WmDFPlFtGNlPevkURya39vOR8p05s"/>
+   260→</div>
+   261→<div>
+   262→<h3 class="font-headline-md text-headline-md-mobile text-on-surface post-author">Samir Patel</h3>
+   263→<div class="flex items-center gap-2 mt-1">
+   264→<span class="bg-surface-variant text-primary-container font-label-md text-label-md px-2 py-0.5 rounded-sm post-badge">Новичок I</span>
+   265→<span class="bg-surface-variant text-on-surface-variant font-label-md text-label-md px-2 py-0.5 rounded-sm border border-outline-variant">Советы</span>
+   266→<span class="text-on-surface-variant font-label-md text-label-md post-time">7 дней назад</span>
+   267→</div>
+   268→</div>
+   269→</div>
+   270→</div>
+   271→<div class="mb-4">
+   272→<p class="font-body-md text-body-md text-on-surface-variant post-content">
+   273→                        Испытываю трудности с миссией "Глубокая работа". Отвлекающие факторы повсюду.
+   274→                    </p>
+   275→</div>
+   276→<div class="flex items-center justify-between border-t border-outline-variant/30 pt-3">
+   277→<div class="flex gap-6">
+   278→<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary-container transition-colors font-label-md text-label-md">
+   279→<span class="material-symbols-outlined">thumb_up</span>
+   280→                            12
+   281→                        </button>
+   282→<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary-container transition-colors font-label-md text-label-md comment-btn" data-post-id="post-3">
+   283→<span class="material-symbols-outlined">chat_bubble</span>
+   284→                            3
+   285→                        </button>
+   286→</div>
+   287→</div>
+   288→</article>
+   289→</div>
+   290→</main>
+   291→<!-- Floating Action Button (Create Post) -->
+   292→<button class="fixed bottom-24 md:bottom-12 right-6 w-14 h-14 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center neon-glow hover:scale-105 active:scale-95 transition-all z-30 shadow-[0_0_20px_rgba(0,242,255,0.4)]">
+   293→<span class="material-symbols-outlined text-[28px]">add</span>
+   294→</button>
+   295→<!-- BottomNavBar -->
+   296→<nav class="md:hidden bg-surface-container-lowest/90 dark:bg-surface-container-lowest/90 backdrop-blur-xl border-t border-outline-variant/30 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] fixed bottom-0 left-0 w-full z-40 flex justify-around items-center px-4 pb-6 pt-3 rounded-t-xl">
+   297→<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant opacity-60 hover:text-secondary-fixed-dim transition-all group">
+   298→<span class="material-symbols-outlined text-[24px] mb-1 group-active:scale-90 duration-150">person</span>
+   299→<span class="font-label-lg text-label-lg">Профиль</span>
+   300→</button>
+   301→<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant opacity-60 hover:text-secondary-fixed-dim transition-all group">
+   302→<span class="material-symbols-outlined text-[24px] mb-1 group-active:scale-90 duration-150">check_circle</span>
+   303→<span class="font-label-lg text-label-lg">Привычки</span>
+   304→</button>
+   305→<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant opacity-60 hover:text-secondary-fixed-dim transition-all group">
+   306→<span class="material-symbols-outlined text-[24px] mb-1 group-active:scale-90 duration-150">rocket_launch</span>
+   307→<span class="font-label-lg text-label-lg">Миссии</span>
+   308→</button>
+   309→<!-- Active Tab: Community -->
+   310→<button class="flex flex-col items-center justify-center text-secondary-fixed dark:text-secondary-fixed scale-110 drop-shadow-[0_0_8px_rgba(182,247,0,0.5)] active:scale-90 duration-150">
+   311→<span class="material-symbols-outlined text-[24px] mb-1" style="font-variation-settings: 'FILL' 1;">group</span>
+   312→<span class="font-label-lg text-label-lg">Сообщество</span>
+   313→</button>
+   314→</nav>
+   315→<!-- Comments Sidebar Overlay -->
+   316→<div class="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 comments-overlay" id="comments-overlay"></div>
+   317→<!-- Comments Sidebar -->
+   318→<div class="fixed top-0 right-0 h-full w-full sm:w-96 bg-surface-container-low border-l border-primary-container/20 shadow-[-10px_0_30px_rgba(0,0,0,0.5)] z-50 flex flex-col comments-sidebar" id="comments-sidebar">
+   319→<!-- Sidebar Header -->
+   320→<div class="flex items-center justify-between p-4 border-b border-outline-variant/30">
+   321→<h2 class="font-headline-md text-headline-md text-on-surface">Комментарии</h2>
+   322→<button class="text-on-surface-variant hover:text-primary-container transition-colors p-1" id="close-comments-btn">
+   323→<span class="material-symbols-outlined">close</span>
+   324→</button>
+   325→</div>
+   326→<!-- Scrollable Content Area -->
+   327→<div class="flex-1 overflow-y-auto p-4 space-y-6"><div class="glass-panel p-4 rounded-xl border border-primary-container/30 mb-6 bg-surface-container-high" id="sidebar-original-post-context">
+   328→<div class="flex items-center gap-2 mb-3">
+   329→<span class="material-symbols-outlined text-primary-container text-[18px]">keep</span>
+   330→<span class="font-label-lg text-label-lg text-primary-container uppercase tracking-wider">Контекст поста</span>
+   331→</div>
+   332→<div id="sidebar-original-post"></div>
+   333→</div>
+   334→<!-- Original Post Context -->
+   335→<!-- Comments List -->
+   336→<div class="space-y-4">
+   337→<!-- Comment 1 -->
+   338→<div class="flex gap-3">
+   339→<div class="w-8 h-8 rounded-full bg-surface-variant border border-tertiary-fixed flex-shrink-0"></div>
+   340→<div>
+   341→<div class="bg-surface-variant rounded-xl p-3 rounded-tl-none">
+   342→<div class="flex items-center justify-between mb-1">
+   343→<span class="font-label-lg text-label-lg text-on-surface">Elena R.</span>
+   344→<span class="font-label-md text-label-md text-on-surface-variant">2ч назад</span>
+   345→</div>
+   346→<p class="font-body-md text-body-md text-on-surface-variant">Отличный старт! Главное - постоянство.</p>
+   347→</div>
+   348→<div class="flex items-center gap-4 mt-1 ml-2">
+   349→<button class="text-on-surface-variant hover:text-primary-container font-label-md text-label-md">Ответить</button>
+   350→<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary-container font-label-md text-label-md">
+   351→<span class="material-symbols-outlined text-[14px]">thumb_up</span> 5
+   352→                        </button>
+   353→</div>
+   354→</div>
+   355→</div>
+   356→<!-- Comment 2 -->
+   357→<div class="flex gap-3">
+   358→<div class="w-8 h-8 rounded-full bg-surface-variant border border-secondary-container flex-shrink-0"></div>
+   359→<div>
+   360→<div class="bg-surface-variant rounded-xl p-3 rounded-tl-none">
+   361→<div class="flex items-center justify-between mb-1">
+   362→<span class="font-label-lg text-label-lg text-on-surface">Alex M.</span>
+   363→<span class="font-label-md text-label-md text-on-surface-variant">5ч назад</span>
+   364→</div>
+   365→<p class="font-body-md text-body-md text-on-surface-variant">Согласен, RPG подход очень мотивирует.</p>
+   366→</div>
+   367→<div class="flex items-center gap-4 mt-1 ml-2">
+   368→<button class="text-on-surface-variant hover:text-primary-container font-label-md text-label-md">Ответить</button>
+   369→<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary-container font-label-md text-label-md">
+   370→<span class="material-symbols-outlined text-[14px]">thumb_up</span> 2
+   371→                        </button>
+   372→</div>
+   373→</div>
+   374→</div>
+   375→</div>
+   376→</div>
+   377→<!-- Comment Input Area -->
+   378→<div class="p-4 border-t border-outline-variant/30 bg-surface-container-low">
+   379→<div class="flex items-center gap-3 bg-surface-variant rounded-full p-2 border border-outline-variant focus-within:border-primary-container focus-within:neon-glow transition-all">
+   380→<div class="w-8 h-8 rounded-full overflow-hidden border border-primary-container flex-shrink-0">
+   381→<img alt="Your avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4Q3fynJF72SXZIKLcjhJVfcdq0kifpoFzR_30jLlNY__36BADLQ-6NHI-Fx4eDTw_g_c2dy19eVQj6Ym8t1TIluF53xjqvp62MJNzebJo-f7QexbeRuegup_OeSJoY1mx1eRNBynsNub7Ori2qRYR8ryw-ARaxuxKc2Tp_dYliTurlUxuu6Ood0WqxeLc-tGyjLCuPo_VNb6ZqEdP7y90eAe8F7_nWVi7oTWkjfOPya3hy_AZZ7GAZFMFkTkQs-OLe0vo7QgPmkI"/>
+   382→</div>
+   383→<input class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface font-body-md text-body-md placeholder-on-surface-variant/50 outline-none" placeholder="Написать комментарий..." type="text"/>
+   384→<button class="w-8 h-8 flex items-center justify-center text-primary-container hover:text-primary-fixed hover:bg-primary-container/10 rounded-full transition-colors flex-shrink-0">
+   385→<span class="material-symbols-outlined text-[20px]">send</span>
+   386→</button>
+   387→</div>
+   388→</div>
+   389→</div>
+   390→<script>
+   391→    document.addEventListener('DOMContentLoaded', () => {
+   392→        const sidebar = document.getElementById('comments-sidebar');
+   393→        const overlay = document.getElementById('comments-overlay');
+   394→        const closeBtn = document.getElementById('close-comments-btn');
+   395→        const commentBtns = document.querySelectorAll('.comment-btn');
+   396→        const originalPostContainer = document.getElementById('sidebar-original-post');
+   397→
+   398→        function openSidebar(postId) {
+   399→            // Find the clicked post
+   400→            const post = document.getElementById(postId);
+   401→            if (!post) return;
+   402→
+   403→            // Extract context (author, title, content)
+   404→            const author = post.querySelector('.post-author')?.innerText || '';
+   405→            const time = post.querySelector('.post-time')?.innerText || '';
+   406→            const title = post.querySelector('.post-title')?.innerText || '';
+   407→            const content = post.querySelector('.post-content')?.innerText || '';
+   408→            
+   409→            // Build the context HTML
+   410→            let contextHtml = `
+   411→                <div class="flex justify-between items-center mb-2">
+   412→                    <span class="font-label-lg text-label-lg text-on-surface">${author}</span>
+   413→                    <span class="font-label-md text-label-md text-on-surface-variant">${time}</span>
+   414→                </div>
+   415→            `;
+   416→            if (title) {
+   417→                 contextHtml += `<h4 class="font-headline-lg-mobile text-[16px] leading-[20px] text-on-surface mb-2">${title}</h4>`;
+   418→            }
+   419→            contextHtml += `<p class="font-body-md text-body-md text-on-surface-variant text-sm">${content}</p>`;
+   420→
+   421→            originalPostContainer.innerHTML = contextHtml;
+   422→
+   423→            sidebar.classList.add('open');
+   424→            overlay.classList.add('open');
+   425→            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+   426→        }
+   427→
+   428→        function closeSidebar() {
+   429→            sidebar.classList.remove('open');
+   430→            overlay.classList.remove('open');
+   431→            document.body.style.overflow = '';
+   432→        }
+   433→
+   434→        commentBtns.forEach(btn => {
+   435→            btn.addEventListener('click', (e) => {
+   436→                const postId = btn.getAttribute('data-post-id');
+   437→                openSidebar(postId);
+   438→            });
+   439→        });
+   440→
+   441→        closeBtn.addEventListener</script></body></html>

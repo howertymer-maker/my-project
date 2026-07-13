@@ -6,6 +6,7 @@ import { MaterialIcon } from "@/components/material-icon";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { CATEGORY_META } from "@/lib/mission-templates";
+import { CommentsSidebar } from "@/components/neon/comments-sidebar";
 
 type Post = {
   id: string;
@@ -260,9 +261,7 @@ function PostCard({ post, index }: { post: Post; index: number }) {
   const [expanded, setExpanded] = useState(false);
   const [liked, setLiked] = useState(post.likedByMe);
   const [likeCount, setLikeCount] = useState(post.likes);
-  const [showComments, setShowComments] = useState(false);
-  const [commentText, setCommentText] = useState("");
-  const [comments, setComments] = useState<{ authorName: string; body: string }[]>([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleLike = async () => {
     const wasLiked = liked;
@@ -283,29 +282,14 @@ function PostCard({ post, index }: { post: Post; index: number }) {
     }
   };
 
-  const submitComment = async () => {
-    if (!commentText.trim()) return;
-    const text = commentText.trim();
-    setComments((c) => [...c, { authorName: "Вы", body: text }]);
-    setCommentText("");
-    try {
-      await fetch("/api/community", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "comment", postId: post.id, text }),
-      });
-    } catch {
-      /* ignore */
-    }
-  };
-
   const isLong = post.body.length > 160;
   const body = expanded || !isLong ? post.body : post.body.slice(0, 160);
 
   return (
-    <article
-      className="glass-panel rounded-xl p-4 flex flex-col gap-3 animate-fade-in-up"
-      style={{ animationDelay: `${index * 0.06}s`, opacity: 0 }}
+    <>
+      <article
+        className="glass-panel rounded-xl p-4 flex flex-col gap-3 animate-fade-in-up"
+        style={{ animationDelay: `${index * 0.06}s`, opacity: 0 }}
     >
       {/* author header */}
       <div className="flex items-center justify-between gap-2">
@@ -387,13 +371,13 @@ function PostCard({ post, index }: { post: Post; index: number }) {
             <span className="font-mono text-[11px] font-medium">{likeCount}</span>
           </button>
           <button
-            onClick={() => setShowComments((s) => !s)}
+            onClick={() => setSidebarOpen(true)}
             className="flex items-center gap-1 text-on-surface-variant hover:text-primary-fixed transition-colors active:scale-90"
             aria-label="Комментарии"
           >
             <MaterialIcon name="chat_bubble_outline" size={16} />
             <span className="font-mono text-[11px] font-medium">
-              {post.commentsCount + comments.length}
+              {post.commentsCount}
             </span>
           </button>
           <button
@@ -407,42 +391,15 @@ function PostCard({ post, index }: { post: Post; index: number }) {
           </button>
         </div>
       </div>
-
-      {/* comments */}
-      {showComments && (
-        <div className="flex flex-col gap-2 pt-2 border-t border-outline-variant/20">
-          {comments.map((c, i) => (
-            <div key={i} className="flex gap-2">
-              <Avatar name={c.authorName} small />
-              <div className="flex flex-col bg-surface-container/60 rounded-lg px-2.5 py-1.5 max-w-[80%]">
-                <span className="font-display text-[11px] font-bold text-on-surface">
-                  {c.authorName}
-                </span>
-                <span className="font-mono text-[12px] text-on-surface-variant">
-                  {c.body}
-                </span>
-              </div>
-            </div>
-          ))}
-          <div className="flex gap-2 mt-1">
-            <Avatar name="Вы" small />
-            <input
-              value={commentText}
-              onChange={(e) => setCommentText(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && submitComment()}
-              placeholder="Добавить комментарий..."
-              className="flex-1 bg-surface-container/60 border border-outline-variant/30 rounded-lg px-3 py-1.5 font-mono text-[12px] text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-primary-container/60 focus:ring-1 focus:ring-primary-container/30 transition-colors"
-            />
-            <button
-              onClick={submitComment}
-              className="px-3 rounded-lg bg-primary-container text-on-primary font-display text-[11px] font-bold uppercase tracking-wider active:scale-95 transition-transform"
-            >
-              ОК
-            </button>
-          </div>
-        </div>
-      )}
     </article>
+
+    {/* Comments sidebar */}
+    <CommentsSidebar
+      open={sidebarOpen}
+      onOpenChange={setSidebarOpen}
+      post={post}
+    />
+    </>
   );
 }
 

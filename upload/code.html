@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="ru"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"/><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">try{
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-variant": "#353436",
+                      "secondary-container": "#b6f700",
+                      "background": "#131314",
+                      "primary-fixed": "#74f5ff",
+                      "on-surface-variant": "#b9cacb",
+                      "on-background": "#e5e2e3",
+                      "tertiary-fixed-dim": "#e9b3ff",
+                      "on-secondary-container": "#4f6e00",
+                      "primary-container": "#00f2ff",
+                      "tertiary-fixed": "#f6d9ff",
+                      "surface-tint": "#00dbe7",
+                      "on-error": "#690005",
+                      "outline-variant": "#3a494b",
+                      "on-tertiary-fixed": "#310048",
+                      "on-secondary-fixed-variant": "#374e00",
+                      "secondary-fixed": "#b6f700",
+                      "on-tertiary-fixed-variant": "#7200a3",
+                      "error": "#ffb4ab",
+                      "tertiary": "#fff5fd",
+                      "on-primary-container": "#006a71",
+                      "error-container": "#93000a",
+                      "primary-fixed-dim": "#00dbe7",
+                      "on-surface": "#e5e2e3",
+                      "on-secondary": "#253600",
+                      "on-secondary-fixed": "#141f00",
+                      "surface-container-lowest": "#0e0e0f",
+                      "surface-container-low": "#1c1b1c",
+                      "on-error-container": "#ffdad6",
+                      "surface-container-highest": "#353436",
+                      "surface-container": "#201f20",
+                      "primary": "#e1fdff",
+                      "inverse-surface": "#e5e2e3",
+                      "surface-dim": "#131314",
+                      "surface": "#131314",
+                      "inverse-on-surface": "#313031",
+                      "on-primary": "#00363a",
+                      "surface-bright": "#3a393a",
+                      "on-tertiary-container": "#9128c5",
+                      "outline": "#849495",
+                      "inverse-primary": "#00696f",
+                      "tertiary-container": "#f3cfff",
+                      "on-primary-fixed-variant": "#004f54",
+                      "secondary-fixed-dim": "#9fd800",
+                      "secondary": "#ffffff",
+                      "on-tertiary": "#510074",
+                      "on-primary-fixed": "#002022",
+                      "surface-container-high": "#2a2a2b"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "section-spacing": "32px",
+                      "inline-gap": "12px",
+                      "stack-gap": "16px",
+                      "card-padding": "16px",
+                      "container-margin": "20px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Sora"],
+                      "display-lg-mobile": ["Sora"],
+                      "headline-lg": ["Sora"],
+                      "label-md": ["JetBrains Mono"],
+                      "body-lg": ["JetBrains Mono"],
+                      "headline-lg-mobile": ["Sora"],
+                      "headline-md": ["Sora"],
+                      "body-md": ["JetBrains Mono"],
+                      "label-lg": ["Sora"]
+              },
+              "fontSize": {
+                      "display-lg": ["40px", {"lineHeight": "48px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                      "display-lg-mobile": ["32px", {"lineHeight": "38px", "fontWeight": "800"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "label-md": ["10px", {"lineHeight": "14px", "fontWeight": "500"}],
+                      "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "30px", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                      "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "label-lg": ["12px", {"lineHeight": "16px", "letterSpacing": "0.08em", "fontWeight": "700"}]
+              }
+            }
+          }
+        }
+    }catch(_e){}</script></head><body class="antialiased min-h-screen flex flex-col pb-24 md:pb-0 overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="bg-background/80 dark:bg-background/80 backdrop-blur-md flex justify-between items-center px-container-margin py-4 w-full fixed top-0 z-40 bg-surface-container-low dark:bg-surface-container-low border-b border-primary-container/20 shadow-[0_0_15px_rgba(0,242,255,0.1)]">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container neon-glow">
+<img class="w-full h-full object-cover" data-alt="A futuristic, neon-lit avatar portrait of a sci-fi pilot wearing a sleek helmet with glowing blue visors, set against a dark, cyberpunk city backdrop. The lighting is high-contrast, emphasizing deep blacks and intense cyan accents. The mood is determined and tactical." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4Q3fynJF72SXZIKLcjhJVfcdq0kifpoFzR_30jLlNY__36BADLQ-6NHI-Fx4eDTw_g_c2dy19eVQj6Ym8t1TIluF53xjqvp62MJNzebJo-f7QexbeRuegup_OeSJoY1mx1eRNBynsNub7Ori2qRYR8ryw-ARaxuxKc2Tp_dYliTurlUxuu6Ood0WqxeLc-tGyjLCuPo_VNb6ZqEdP7y90eAe8F7_nWVi7oTWkjfOPya3hy_AZZ7GAZFMFkTkQs-OLe0vo7QgPmkI"/>
+</div>
+</div>
+<div class="flex items-center font-label-md text-label-md text-primary-container dark:text-primary-fixed gap-4"><button class="text-primary-container hover:text-primary-fixed transition-colors p-1">
+<span class="material-symbols-outlined text-[24px]">notifications</span>
+</button>
+<button class="text-primary-container hover:text-primary-fixed transition-colors p-1">
+<span class="material-symbols-outlined text-[24px]">settings</span>
+</button></div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 mt-24 mb-16 px-container-margin w-full max-w-2xl mx-auto md:max-w-4xl grid grid-cols-1 md:grid-cols-12 gap-6 relative">
+<!-- Left Sidebar / Filters (Hidden on Mobile, visible on Desktop) -->
+<aside class="hidden md:block md:col-span-3 sticky top-28 h-fit space-y-6">
+<div class="glass-panel p-card-padding rounded-xl">
+<h2 class="font-headline-md text-headline-md text-on-surface mb-4">Фильтры ленты</h2>
+<div class="flex flex-col gap-2">
+<button class="flex items-center gap-3 p-2 rounded-lg bg-surface-variant text-primary-container font-label-lg text-label-lg neon-glow">
+<span class="material-symbols-outlined">public</span>
+                        Вся активность
+                    </button>
+<button class="flex items-center gap-3 p-2 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors font-label-lg text-label-lg">
+<span class="material-symbols-outlined">recommend</span>
+                        Актуальное
+                    </button>
+<button class="flex items-center gap-3 p-2 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors font-label-lg text-label-lg">
+<span class="material-symbols-outlined">history</span>
+                        Мои посты
+                    </button>
+<button class="flex items-center gap-3 p-2 rounded-lg text-on-surface-variant hover:bg-surface-variant hover:text-on-surface transition-colors font-label-lg text-label-lg">
+<span class="material-symbols-outlined">lightbulb</span>
+                        Советы
+                    </button>
+</div>
+</div>
+<div class="glass-panel p-card-padding rounded-xl">
+<h3 class="font-label-lg text-label-lg text-on-surface-variant mb-3 uppercase tracking-wider">Топ участников</h3>
+<div class="space-y-3">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-variant border border-secondary-container"></div>
+<div class="flex-1">
+<p class="font-body-md text-body-md text-on-surface leading-none">Elena R.</p>
+<p class="font-label-md text-label-md text-secondary-container mt-1">Мастер V</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<!-- Feed Center Column -->
+<div class="col-span-1 md:col-span-9 space-y-stack-gap">
+<!-- Mobile Filters Horizontal Scroll -->
+<div class="md:hidden flex gap-2 overflow-x-auto pb-2 scrollbar-hide -mx-container-margin px-container-margin">
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface-variant text-primary-container font-label-md text-label-md border border-primary-container/30 neon-glow">Всё</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface text-on-surface-variant font-label-md text-label-md border border-outline-variant/30">Актуальное</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface text-on-surface-variant font-label-md text-label-md border border-outline-variant/30">Мои посты</button>
+<button class="whitespace-nowrap px-4 py-2 rounded-full bg-surface text-on-surface-variant font-label-md text-label-md border border-outline-variant/30">Советы</button>
+</div>
+<!-- Post Card 1 -->
+<article class="glass-panel rounded-xl p-card-padding relative overflow-hidden group" id="post-1">
+<!-- Top Header -->
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-tertiary-fixed">
+<img class="w-full h-full object-cover" data-alt="A cinematic, low-light portrait of a user named Adrian Gavalyan. He looks determined, wearing dark futuristic activewear. The lighting features sharp magenta rim light and deep shadows, fitting a sci-fi cyberpunk aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLnxHt6XXtS48kJB2dWlrzt8IX9ojOEX2V4ufzyGV7y0bo9RWG76tbf-VjoifY5cIvI-VSbCo2L2sOT1Y3buRpuUsvUXg1V5Wx2ZT82BpO_nGMSoz1jkubHSyE59duUNZz8s5ZWWS9HhLMxoAqZTb8PGEUuIEN-6jCr095Lc69KOsQcmEM4W2l71RxzHIRiLjmGxq_HSY_OxS7xVuLgFUPbpKYeFa2GcCiWnMh6Cx7lIxsSlFr8g1yyPO1DDgcVocZDnn0XpkM1pA"/>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md-mobile text-on-surface post-author">Adrián Gavalyan</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="bg-surface-variant text-tertiary-fixed font-label-md text-label-md px-2 py-0.5 rounded-sm post-badge">Подмастерье II</span>
+<span class="text-on-surface-variant font-label-md text-label-md post-time">4 дня назад</span>
+</div>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary-container transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<!-- Content -->
+<div class="mb-4">
+<h4 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-2 post-title">Начало всего</h4>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-3 post-content">
+                        Я новичок в этом приложении, и оно мне очень нравится. Обычно такие приложения кажутся слишком корпоративными, но относиться к своей жизни как к RPG действительно работает. Сейчас сосредоточен на физическом развитии.
+                    </p>
+<button class="text-primary-container font-label-md text-label-md mt-2 uppercase tracking-wide hover:text-primary-fixed transition-colors">Читать далее</button>
+</div>
+<!-- Attached Metric/Mission Snippet -->
+<div class="bg-surface-container-low border border-tertiary-fixed/20 rounded-lg p-3 mb-4 flex items-center justify-between post-snippet hidden">
+<div class="flex items-center gap-2 text-tertiary-fixed">
+<span class="material-symbols-outlined text-[18px]">fitness_center</span>
+<span class="font-label-md text-label-md uppercase">Физическое развитие</span>
+</div>
+<span class="font-body-md text-body-md text-on-surface">+120 XP</span>
+</div>
+<!-- Action Bar -->
+<div class="flex items-center justify-between border-t border-outline-variant/30 pt-3">
+<div class="flex gap-6">
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary-container transition-colors font-label-md text-label-md group/btn">
+<span class="material-symbols-outlined group-hover/btn:scale-110 transition-transform">thumb_up</span>
+                            74
+                        </button>
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary-container transition-colors font-label-md text-label-md group/btn comment-btn" data-post-id="post-1">
+<span class="material-symbols-outlined group-hover/btn:scale-110 transition-transform">chat_bubble</span>
+                            19
+                        </button>
+</div>
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary-container transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]">translate</span>
+                        Перевести
+                    </button>
+</div>
+</article>
+<!-- Post Card 2 -->
+<article class="glass-panel rounded-xl p-card-padding relative overflow-hidden group border-secondary-container/20" id="post-2">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-secondary-container">
+<img class="w-full h-full object-cover" data-alt="A neon-lit portrait of a user named Max Thompson. He looks focused and slightly weary, set against a dark background with subtle glowing green UI elements floating around him, evoking a cyberpunk hacker vibe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfq-_5r_zqklOYM8Sk5zyjTl_fG4kSzkyTNu3etMNPrXk92NdVnhdj_lBFermE4ounYcwoDWeVfP_exwM5Bl9oPwcaVD434yKEqeZ4JKwxGfJy7lgE1sfV-uCBTV41LYmjyH9Pw3SGaQWSFUSB1yW1z1qSQB91VuIBOWpzGcHIz2JxB7UoBQAICUueE2h0nPc8Y33lXCttGape-6OT60sXkJI4q4xCeYSAla8dLFn0jr5QglGg8qNVH_SLK7EOzAb2JaSv7ByM-tM"/>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md-mobile text-on-surface post-author">Max Thompson</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="bg-surface-variant text-secondary-container font-label-md text-label-md px-2 py-0.5 rounded-sm post-badge">Новичок I</span>
+<span class="bg-surface-variant text-on-surface-variant font-label-md text-label-md px-2 py-0.5 rounded-sm border border-outline-variant">Советы</span>
+<span class="text-on-surface-variant font-label-md text-label-md post-time">3 дня назад</span>
+</div>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-secondary-container transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</button>
+</div>
+<div class="mb-4">
+<h4 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface mb-2 post-title">Нужен узкоспециализированный совет</h4>
+<p class="font-body-md text-body-md text-on-surface-variant post-content">
+                        Привет, ребята, давайте расти вместе. Мне нужна помощь. Нужен друг, который научит меня оптимизировать график сна. Я усердно тренируюсь в зале, но восстановление хромает. Есть элитные советы?
+                    </p>
+</div>
+<div class="flex items-center justify-between border-t border-outline-variant/30 pt-3">
+<div class="flex gap-6">
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-secondary-container transition-colors font-label-md text-label-md group/btn">
+<span class="material-symbols-outlined group-hover/btn:scale-110 transition-transform">thumb_up</span>
+                            91
+                        </button>
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-secondary-container transition-colors font-label-md text-label-md group/btn comment-btn" data-post-id="post-2">
+<span class="material-symbols-outlined group-hover/btn:scale-110 transition-transform">chat_bubble</span>
+                            24
+                        </button>
+</div>
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-secondary-container transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]">translate</span>
+                        Перевести
+                    </button>
+</div>
+</article>
+<!-- Post Card 3 -->
+<article class="glass-panel rounded-xl p-card-padding relative overflow-hidden group" id="post-3">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-primary-container">
+<img class="w-full h-full object-cover" data-alt="A portrait of a user named Samir Patel. Confident expression, warm but high-contrast neon blue lighting illuminating one side of his face, set against a dark tech-noir background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6d0A0xjKi0eTblKQxj6l4BvS9gFzQR3KPUqAiQZoH_5OAL8TqLPtET7-uDSyTl2IBn6DbLpAoxKgaugRN0dPA6KEuKBMTc88jvgUeMJzAoXEWFbivGuMDuyk1TiGUomCTNBbWBgHDdFvG0TAhCDK_nPQytvplmtRMsa8BLo8OIwNdYZXIMYlNgHJBy_nUJ5auSHeJ9yv5RBL3Qgujdi73AHhaf7QjSnXq9D6nTM0svZ7Mm4WmDFPlFtGNlPevkURya39vOR8p05s"/>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md-mobile text-on-surface post-author">Samir Patel</h3>
+<div class="flex items-center gap-2 mt-1">
+<span class="bg-surface-variant text-primary-container font-label-md text-label-md px-2 py-0.5 rounded-sm post-badge">Новичок I</span>
+<span class="bg-surface-variant text-on-surface-variant font-label-md text-label-md px-2 py-0.5 rounded-sm border border-outline-variant">Советы</span>
+<span class="text-on-surface-variant font-label-md text-label-md post-time">7 дней назад</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mb-4">
+<p class="font-body-md text-body-md text-on-surface-variant post-content">
+                        Испытываю трудности с миссией "Глубокая работа". Отвлекающие факторы повсюду.
+                    </p>
+</div>
+<div class="flex items-center justify-between border-t border-outline-variant/30 pt-3">
+<div class="flex gap-6">
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary-container transition-colors font-label-md text-label-md">
+<span class="material-symbols-outlined">thumb_up</span>
+                            12
+                        </button>
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary-container transition-colors font-label-md text-label-md comment-btn" data-post-id="post-3">
+<span class="material-symbols-outlined">chat_bubble</span>
+                            3
+                        </button>
+</div>
+</div>
+</article>
+</div>
+</main>
+<!-- Floating Action Button (Create Post) -->
+<button class="fixed bottom-24 md:bottom-12 right-6 w-14 h-14 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center neon-glow hover:scale-105 active:scale-95 transition-all z-30 shadow-[0_0_20px_rgba(0,242,255,0.4)]">
+<span class="material-symbols-outlined text-[28px]">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="md:hidden bg-surface-container-lowest/90 dark:bg-surface-container-lowest/90 backdrop-blur-xl border-t border-outline-variant/30 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] fixed bottom-0 left-0 w-full z-40 flex justify-around items-center px-4 pb-6 pt-3 rounded-t-xl">
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant opacity-60 hover:text-secondary-fixed-dim transition-all group">
+<span class="material-symbols-outlined text-[24px] mb-1 group-active:scale-90 duration-150">person</span>
+<span class="font-label-lg text-label-lg">Профиль</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant opacity-60 hover:text-secondary-fixed-dim transition-all group">
+<span class="material-symbols-outlined text-[24px] mb-1 group-active:scale-90 duration-150">check_circle</span>
+<span class="font-label-lg text-label-lg">Привычки</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant dark:text-on-surface-variant opacity-60 hover:text-secondary-fixed-dim transition-all group">
+<span class="material-symbols-outlined text-[24px] mb-1 group-active:scale-90 duration-150">rocket_launch</span>
+<span class="font-label-lg text-label-lg">Миссии</span>
+</button>
+<!-- Active Tab: Community -->
+<button class="flex flex-col items-center justify-center text-secondary-fixed dark:text-secondary-fixed scale-110 drop-shadow-[0_0_8px_rgba(182,247,0,0.5)] active:scale-90 duration-150">
+<span class="material-symbols-outlined text-[24px] mb-1" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-label-lg text-label-lg">Сообщество</span>
+</button>
+</nav>
+<!-- Comments Sidebar Overlay -->
+<div class="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 comments-overlay" id="comments-overlay"></div>
+<!-- Comments Sidebar -->
+<div class="fixed top-0 right-0 h-full w-full sm:w-96 bg-surface-container-low border-l border-primary-container/20 shadow-[-10px_0_30px_rgba(0,0,0,0.5)] z-50 flex flex-col comments-sidebar" id="comments-sidebar">
+<!-- Sidebar Header -->
+<div class="flex items-center justify-between p-4 border-b border-outline-variant/30">
+<h2 class="font-headline-md text-headline-md text-on-surface">Комментарии</h2>
+<button class="text-on-surface-variant hover:text-primary-container transition-colors p-1" id="close-comments-btn">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Scrollable Content Area -->
+<div class="flex-1 overflow-y-auto p-4 space-y-6"><div class="glass-panel p-4 rounded-xl border border-primary-container/30 mb-6 bg-surface-container-high" id="sidebar-original-post-context">
+<div class="flex items-center gap-2 mb-3">
+<span class="material-symbols-outlined text-primary-container text-[18px]">keep</span>
+<span class="font-label-lg text-label-lg text-primary-container uppercase tracking-wider">Контекст поста</span>
+</div>
+<div id="sidebar-original-post"></div>
+</div>
+<!-- Original Post Context -->
+<!-- Comments List -->
+<div class="space-y-4">
+<!-- Comment 1 -->
+<div class="flex gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-variant border border-tertiary-fixed flex-shrink-0"></div>
+<div>
+<div class="bg-surface-variant rounded-xl p-3 rounded-tl-none">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-lg text-label-lg text-on-surface">Elena R.</span>
+<span class="font-label-md text-label-md text-on-surface-variant">2ч назад</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Отличный старт! Главное - постоянство.</p>
+</div>
+<div class="flex items-center gap-4 mt-1 ml-2">
+<button class="text-on-surface-variant hover:text-primary-container font-label-md text-label-md">Ответить</button>
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary-container font-label-md text-label-md">
+<span class="material-symbols-outlined text-[14px]">thumb_up</span> 5
+                        </button>
+</div>
+</div>
+</div>
+<!-- Comment 2 -->
+<div class="flex gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-variant border border-secondary-container flex-shrink-0"></div>
+<div>
+<div class="bg-surface-variant rounded-xl p-3 rounded-tl-none">
+<div class="flex items-center justify-between mb-1">
+<span class="font-label-lg text-label-lg text-on-surface">Alex M.</span>
+<span class="font-label-md text-label-md text-on-surface-variant">5ч назад</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Согласен, RPG подход очень мотивирует.</p>
+</div>
+<div class="flex items-center gap-4 mt-1 ml-2">
+<button class="text-on-surface-variant hover:text-primary-container font-label-md text-label-md">Ответить</button>
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary-container font-label-md text-label-md">
+<span class="material-symbols-outlined text-[14px]">thumb_up</span> 2
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Comment Input Area -->
+<div class="p-4 border-t border-outline-variant/30 bg-surface-container-low">
+<div class="flex items-center gap-3 bg-surface-variant rounded-full p-2 border border-outline-variant focus-within:border-primary-container focus-within:neon-glow transition-all">
+<div class="w-8 h-8 rounded-full overflow-hidden border border-primary-container flex-shrink-0">
+<img alt="Your avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4Q3fynJF72SXZIKLcjhJVfcdq0kifpoFzR_30jLlNY__36BADLQ-6NHI-Fx4eDTw_g_c2dy19eVQj6Ym8t1TIluF53xjqvp62MJNzebJo-f7QexbeRuegup_OeSJoY1mx1eRNBynsNub7Ori2qRYR8ryw-ARaxuxKc2Tp_dYliTurlUxuu6Ood0WqxeLc-tGyjLCuPo_VNb6ZqEdP7y90eAe8F7_nWVi7oTWkjfOPya3hy_AZZ7GAZFMFkTkQs-OLe0vo7QgPmkI"/>
+</div>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface font-body-md text-body-md placeholder-on-surface-variant/50 outline-none" placeholder="Написать комментарий..." type="text"/>
+<button class="w-8 h-8 flex items-center justify-center text-primary-container hover:text-primary-fixed hover:bg-primary-container/10 rounded-full transition-colors flex-shrink-0">
+<span class="material-symbols-outlined text-[20px]">send</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const sidebar = document.getElementById('comments-sidebar');
+        const overlay = document.getElementById('comments-overlay');
+        const closeBtn = document.getElementById('close-comments-btn');
+        const commentBtns = document.querySelectorAll('.comment-btn');
+        const originalPostContainer = document.getElementById('sidebar-original-post');
+
+        function openSidebar(postId) {
+            // Find the clicked post
+            const post = document.getElementById(postId);
+            if (!post) return;
+
+            // Extract context (author, title, content)
+            const author = post.querySelector('.post-author')?.innerText || '';
+            const time = post.querySelector('.post-time')?.innerText || '';
+            const title = post.querySelector('.post-title')?.innerText || '';
+            const content = post.querySelector('.post-content')?.innerText || '';
+            
+            // Build the context HTML
+            let contextHtml = `
+                <div class="flex justify-between items-center mb-2">
+                    <span class="font-label-lg text-label-lg text-on-surface">${author}</span>
+                    <span class="font-label-md text-label-md text-on-surface-variant">${time}</span>
+                </div>
+            `;
+            if (title) {
+                 contextHtml += `<h4 class="font-headline-lg-mobile text-[16px] leading-[20px] text-on-surface mb-2">${title}</h4>`;
+            }
+            contextHtml += `<p class="font-body-md text-body-md text-on-surface-variant text-sm">${content}</p>`;
+
+            originalPostContainer.innerHTML = contextHtml;
+
+            sidebar.classList.add('open');
+            overlay.classList.add('open');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        commentBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const postId = btn.getAttribute('data-post-id');
+                openSidebar(postId);
+            });
+        });
+
+        closeBtn.addEventListener</script></body></html>
