@@ -431,8 +431,11 @@ function Avatar({ name, small }: { name: string; small?: boolean }) {
 function timeAgo(iso: string): string {
   const d = new Date(iso);
   const diff = Date.now() - d.getTime();
-  const hrs = Math.floor(diff / (1000 * 60 * 60));
-  if (hrs < 1) return "только что";
+  if (diff < 0) return "только что";
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "меньше минуты назад";
+  if (mins < 60) return `${mins} мин назад`;
+  const hrs = Math.floor(mins / 60);
   if (hrs < 24) return `${hrs} ч назад`;
   const days = Math.floor(hrs / 24);
   if (days === 1) return "вчера";

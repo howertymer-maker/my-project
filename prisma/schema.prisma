@@ -15,7 +15,6 @@ model User {
   id           String   @id @default(cuid())
   email        String?  @unique
   phone        String?  @unique
-  yandexId     String?  @unique
   passwordHash String?
   displayName  String
   rankTitle    String   @default("Endeavorer")

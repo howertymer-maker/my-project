@@ -40,12 +40,13 @@ const HUES = [190, 80, 280, 30, 330, 210];
 
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
+  if (diff < 0) return "только что"; // future timestamp (clock skew)
   const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "только что";
-  if (mins < 60) return `${mins}м назад`;
+  if (mins < 1) return "меньше минуты назад";
+  if (mins < 60) return `${mins} мин назад`;
   const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}ч назад`;
-  return `${Math.floor(hrs / 24)}д назад`;
+  if (hrs < 24) return `${hrs} ч назад`;
+  return `${Math.floor(hrs / 24)} д назад`;
 }
 
 function CommentAvatar({ name }: { name: string }) {
