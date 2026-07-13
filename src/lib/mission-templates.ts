@@ -34,10 +34,10 @@ export const CATEGORY_META: Record<
   CategoryKey,
   { label: string; color: string; icon: string; skill: string }
 > = {
-  mental: { label: "Ментал", color: "#22c55e", icon: "psychology", skill: "Ментал" },
+  mental: { label: "Менталитет", color: "#22c55e", icon: "psychology", skill: "Менталитет" },
   physical: { label: "Физика", color: "#3b82f6", icon: "directions_run", skill: "Физика" },
   discipline: { label: "Дисциплина", color: "#f97316", icon: "fitness_center", skill: "Дисциплина" },
-  social: { label: "Социальность", color: "#eab308", icon: "forum", skill: "Социальность" },
+  social: { label: "Соц. ответственность", color: "#eab308", icon: "forum", skill: "Соц. ответственность" },
   financial: { label: "Финансы", color: "#a855f7", icon: "payments", skill: "Финансы" },
   appearance: { label: "Внешность", color: "#ec4899", icon: "face", skill: "Внешность" },
 };

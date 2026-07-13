@@ -68,8 +68,8 @@ async function main() {
   // a completed mission so the app looks alive when browsed without auth (bypass).
   const SKILLS = [
     { key: "discipline", label: "Дисциплина", icon: "fitness_center", color: "#f97316", source: "missions", points: 6800, sortOrder: 0 },
-    { key: "social", label: "Социальность", icon: "forum", color: "#eab308", source: "missions", points: 7400, sortOrder: 1 },
-    { key: "mental", label: "Ментал", icon: "psychology", color: "#22c55e", source: "missions", points: 7700, sortOrder: 2 },
+    { key: "social", label: "Соц. ответственность", icon: "forum", color: "#eab308", source: "missions", points: 7400, sortOrder: 1 },
+    { key: "mental", label: "Менталитет", icon: "psychology", color: "#22c55e", source: "missions", points: 7700, sortOrder: 2 },
     { key: "physical", label: "Физика", icon: "directions_run", color: "#3b82f6", source: "missions", points: 4600, sortOrder: 3 },
     { key: "financial", label: "Финансы", icon: "payments", color: "#a855f7", source: "missions", points: 7200, sortOrder: 4 },
     { key: "appearance", label: "Внешность", icon: "face", color: "#ec4899", source: "missions", points: 5800, sortOrder: 5 },
@@ -159,7 +159,7 @@ async function main() {
   const notifs = [
     { type: "streak", icon: "local_fire_department", color: "#f97316", title: "Серия под угрозой!", body: "Серия «Медитация» (14 дней) прервётся, если не отметишь привычку сегодня.", read: false, minsAgo: 5 },
     { type: "mission", icon: "rocket_launch", color: "#00f2ff", title: "Этап миссии готов к завершению", body: "«Управление временем» — этап 1 выполнен. Получи +240 очк к Дисциплине.", read: false, minsAgo: 60 },
-    { type: "reward", icon: "trending_up", color: "#b6f700", title: "Новый уровень навыка!", body: "Поздравляем! «Ментал» достиг 8-го уровня. Продолжай в том же духе.", read: false, minsAgo: 180 },
+    { type: "reward", icon: "trending_up", color: "#b6f700", title: "Новый уровень навыка!", body: "Поздравляем! «Менталитет» достиг 8-го уровня. Продолжай в том же духе.", read: false, minsAgo: 180 },
     { type: "social", icon: "thumb_up", color: "#e9b3ff", title: "Новый лайк на пост", body: "Samir Patel оценил ваш пост «Как я закрыла финансовую миссию».", read: false, minsAgo: 300 },
     { type: "challenge", icon: "today", color: "#00f2ff", title: "Ежедневный челлендж доступен", body: "Напиши старому другу сегодня и получи +50 очк к Социальности.", read: true, minsAgo: 480 },
     { type: "social", icon: "chat_bubble", color: "#e9b3ff", title: "Новый комментарий", body: "Lena Kowalski: «Отличный совет, попробую сегодня!» под вашим постом.", read: true, minsAgo: 720 },
@@ -217,7 +217,7 @@ async function main() {
       categoryLabel: "МЕНТАЛЬНОЕ РАЗВИТИЕ",
       xpReward: 240,
       title: "Достиг легендарной серии 90 дней медитации",
-      body: "Сегодня закрыл 90-дневный челлендж медитации. Главный инсайт: дисциплина важнее мотивации. Поначалу было тяжело, но система удержания привычек в Neon Protocol держала меня в тонусе. Ментал подскочил с 5.1 до 8.3. Всем, кто сомневается — просто начните.",
+      body: "Сегодня закрыл 90-дневный челлендж медитации. Главный инсайт: дисциплина важнее мотивации. Поначалу было тяжело, но система удержания привычек в Neon Protocol держала меня в тонусе. Менталитет подскочил с 5.1 до 8.3. Всем, кто сомневается — просто начните.",
       likes: 312,
       isAdvice: false,
       createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
