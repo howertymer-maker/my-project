@@ -111,6 +111,7 @@ export async function GET() {
     user: {
       id: user.id,
       displayName: user.displayName,
+      avatarUrl: user.avatarUrl,
       rankTitle: user.rankTitle,
       level: totalLevel,
       totalPoints,

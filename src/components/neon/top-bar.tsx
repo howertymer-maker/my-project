@@ -7,11 +7,13 @@ import { NotificationsSheet } from "@/components/neon/notifications-sheet";
 
 export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }) {
   const [level, setLevel] = useState<number>(42);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string>("");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState<number>(0);
 
-  // fetch level + unread notifications count
+  // fetch level + avatar + unread notifications count
   const refreshBadge = () => {
     fetch("/api/notifications?unread=1", { cache: "no-store" })
       .then((r) => r.json())
@@ -26,7 +28,10 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
     fetch("/api/profile", { cache: "no-store" })
       .then((r) => r.json())
       .then((d) => {
-        if (active && typeof d?.user?.level === "number") setLevel(d.user.level);
+        if (!active) return;
+        if (typeof d?.user?.level === "number") setLevel(d.user.level);
+        if (d?.user?.avatarUrl) setAvatarUrl(d.user.avatarUrl);
+        if (d?.user?.displayName) setDisplayName(d.user.displayName);
       })
       .catch(() => {});
     refreshBadge();
@@ -61,7 +66,7 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
           {/* Avatar / brand */}
           <div className="flex items-center gap-3">
             <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container/40 neon-glow-primary">
-              <AvatarMark />
+              <AvatarMark avatarUrl={avatarUrl} displayName={displayName} />
             </div>
             <div className="hidden sm:flex flex-col leading-none">
               <span className="font-display text-[13px] font-extrabold tracking-[0.12em] text-on-surface">
@@ -109,6 +114,8 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
             .then((r) => r.json())
             .then((d) => {
               if (typeof d?.user?.level === "number") setLevel(d.user.level);
+              if (d?.user?.avatarUrl) setAvatarUrl(d.user.avatarUrl);
+              if (d?.user?.displayName) setDisplayName(d.user.displayName);
             })
             .catch(() => {});
         }}
@@ -119,12 +126,17 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
   );
 }
 
-/** A stylised avatar mark using initials + neon ring (no external image dependency). */
-function AvatarMark() {
+/** A stylised avatar mark — shows uploaded avatar or fallback initial. */
+function AvatarMark({ avatarUrl, displayName }: { avatarUrl: string | null; displayName: string }) {
+  if (avatarUrl) {
+    return (
+      <img src={avatarUrl} alt="Аватар" className="w-full h-full object-cover" />
+    );
+  }
   return (
     <div className="w-full h-full bg-gradient-to-br from-[#0e3a3d] via-[#0A0A0B] to-[#1a0a2e] grid place-items-center">
       <span className="font-display text-base font-extrabold text-primary-fixed text-glow-primary">
-        N
+        {displayName ? displayName.charAt(0).toUpperCase() : "N"}
       </span>
     </div>
   );

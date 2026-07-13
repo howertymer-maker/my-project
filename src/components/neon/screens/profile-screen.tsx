@@ -25,6 +25,7 @@ type ChartPoint = { month: string; points: number };
 type ProfileData = {
   user: {
     displayName: string;
+    avatarUrl: string | null;
     rankTitle: string;
     level: number;
     totalPoints: number;
@@ -59,14 +60,19 @@ export function ProfileScreen() {
             style={{ borderColor: "#00f2ff transparent transparent transparent" }}
           />
           <div className="absolute inset-[6px] rounded-full overflow-hidden bg-surface-container border-2 border-outline-variant">
-            <img
-              src="/avatar.png"
-              alt="Аватар игрока"
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                (e.currentTarget as HTMLImageElement).style.display = "none";
-              }}
-            />
+            {user.avatarUrl ? (
+              <img
+                src={user.avatarUrl}
+                alt="Аватар игрока"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full grid place-items-center bg-gradient-to-br from-[#0e3a3d] via-[#0A0A0B] to-[#1a0a2e]">
+                <span className="font-display text-4xl font-extrabold text-primary-fixed text-glow-primary">
+                  {user.displayName.charAt(0).toUpperCase()}
+                </span>
+              </div>
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B] via-transparent to-transparent" />
           </div>
           <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-surface-container-highest px-3 py-1 rounded-full border border-primary-container/50 neon-glow-primary z-10 flex items-center gap-1.5 whitespace-nowrap">

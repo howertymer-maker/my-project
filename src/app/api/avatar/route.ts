@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
 
 export const dynamic = "force-dynamic";
 
-// POST: upload avatar (multipart/form-data with "file" field)
-// Saves to public/avatars/<userId>.png and updates user.avatarUrl.
-// For production, replace with S3/UploadThing/Cloudinary upload.
+// POST: upload avatar as base64 (stored in DB, no filesystem needed)
+// Works on Vercel/serverless — no persistent filesystem required.
 export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user) {
@@ -21,34 +18,29 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Файл не загружен" }, { status: 400 });
   }
 
-  // Validate type and size (max 2MB)
+  // Validate type and size (max 500KB — base64 in DB, keep it small)
   if (!file.type.startsWith("image/")) {
     return NextResponse.json({ error: "Только изображения" }, { status: 400 });
   }
-  if (file.size > 2 * 1024 * 1024) {
-    return NextResponse.json({ error: "Максимум 2 МБ" }, { status: 400 });
+  if (file.size > 500 * 1024) {
+    return NextResponse.json({ error: "Максимум 500 КБ" }, { status: 400 });
   }
 
-  const ext = file.name.split(".").pop() || "png";
-  const filename = `${user.id}.${ext}`;
-  const uploadDir = path.join(process.cwd(), "public", "avatars");
-  const filepath = path.join(uploadDir, filename);
-
   try {
-    await mkdir(uploadDir, { recursive: true });
     const bytes = await file.arrayBuffer();
-    await writeFile(filepath, Buffer.from(bytes));
+    const buffer = Buffer.from(bytes);
+    // store as data URI: "data:image/png;base64,...."
+    const dataUri = `data:${file.type};base64,${buffer.toString("base64")}`;
 
-    const avatarUrl = `/avatars/${filename}`;
     await db.user.update({
       where: { id: user.id },
-      data: { avatarUrl },
+      data: { avatarUrl: dataUri },
     });
 
-    return NextResponse.json({ ok: true, avatarUrl });
-  } catch (e) {
+    return NextResponse.json({ ok: true, avatarUrl: dataUri });
+  } catch {
     return NextResponse.json(
-      { error: "Не удалось сохранить файл" },
+      { error: "Не удалось сохранить" },
       { status: 500 }
     );
   }
