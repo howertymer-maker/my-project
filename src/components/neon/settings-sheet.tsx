@@ -301,7 +301,7 @@ function Row({
   );
 }
 
-/** Avatar upload section — lets the user upload a profile picture. */
+/** Avatar upload section — compresses image on client before upload. */
 function AvatarSection({ onChanged }: { onChanged: () => void }) {
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
@@ -311,8 +311,11 @@ function AvatarSection({ onChanged }: { onChanged: () => void }) {
     if (!file) return;
     setUploading(true);
     try {
+      // Compress image on client: resize to 256x256 + convert to JPEG 0.8 quality
+      const compressed = await compressImage(file, 256, 0.8);
+
       const fd = new FormData();
-      fd.append("file", file);
+      fd.append("file", compressed);
       const res = await fetch("/api/avatar", { method: "POST", body: fd });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
@@ -340,7 +343,7 @@ function AvatarSection({ onChanged }: { onChanged: () => void }) {
             Загрузить фото профиля
           </div>
           <div className="font-mono text-[10px] text-on-surface-variant mt-0.5">
-            PNG/JPG, максимум 2 МБ
+            PNG/JPG, авто-сжатие до 256px
           </div>
         </div>
         <label className="shrink-0 cursor-pointer font-display text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-md bg-primary-container text-on-primary neon-glow-primary active:scale-95 transition-transform">
@@ -724,4 +727,58 @@ function BugReportModal({
       </div>
     </div>
   );
+}
+
+/**
+ * Compresses an image file on the client using Canvas API.
+ * - Resizes to maxSize×maxSize (square crop, center)
+ * - Converts to JPEG with given quality (0-1)
+ * - Returns a File object (much smaller than the original)
+ *
+ * Example: 4 MB PNG → ~30 KB JPEG
+ */
+async function compressImage(
+  file: File,
+  maxSize: number = 256,
+  quality: number = 0.8
+): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = maxSize;
+        canvas.height = maxSize;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("Canvas не поддерживается"));
+          return;
+        }
+
+        // Square crop: take the center of the image
+        const minDim = Math.min(img.width, img.height);
+        const sx = (img.width - minDim) / 2;
+        const sy = (img.height - minDim) / 2;
+
+        ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, maxSize, maxSize);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error("Не удалось сжать"));
+              return;
+            }
+            resolve(new File([blob], "avatar.jpg", { type: "image/jpeg" }));
+          },
+          "image/jpeg",
+          quality
+        );
+      };
+      img.onerror = () => reject(new Error("Не удалось загрузить изображение"));
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error("Не удалось прочитать файл"));
+    reader.readAsDataURL(file);
+  });
 }
