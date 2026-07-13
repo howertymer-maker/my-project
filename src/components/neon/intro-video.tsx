@@ -40,7 +40,6 @@ export function IntroVideo({ onDone }: { onDone: () => void }) {
             onError={() => setVideoError(true)}
             onEnded={dismiss}
             className="w-full h-full object-cover"
-            poster="/avatar.png"
           >
             <source src="/intro.mp4" type="video/mp4" />
           </video>
