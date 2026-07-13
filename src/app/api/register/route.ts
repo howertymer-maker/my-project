@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 // Default 7 skills created for every new user (6 mission-driven + 1 habit-driven)
 const DEFAULT_SKILLS = [
   { key: "discipline", label: "Дисциплина", icon: "fitness_center", color: "#f97316", source: "missions", points: 0, sortOrder: 0 },
-  { key: "social", label: "Соц. ответственность", icon: "forum", color: "#eab308", source: "missions", points: 0, sortOrder: 1 },
+  { key: "social", label: "Социальность", icon: "forum", color: "#eab308", source: "missions", points: 0, sortOrder: 1 },
   { key: "mental", label: "Менталитет", icon: "psychology", color: "#22c55e", source: "missions", points: 0, sortOrder: 2 },
   { key: "physical", label: "Физика", icon: "directions_run", color: "#3b82f6", source: "missions", points: 0, sortOrder: 3 },
   { key: "financial", label: "Финансы", icon: "payments", color: "#a855f7", source: "missions", points: 0, sortOrder: 4 },

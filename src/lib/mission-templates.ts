@@ -37,7 +37,7 @@ export const CATEGORY_META: Record<
   mental: { label: "Менталитет", color: "#22c55e", icon: "psychology", skill: "Менталитет" },
   physical: { label: "Физика", color: "#3b82f6", icon: "directions_run", skill: "Физика" },
   discipline: { label: "Дисциплина", color: "#f97316", icon: "fitness_center", skill: "Дисциплина" },
-  social: { label: "Соц. ответственность", color: "#eab308", icon: "forum", skill: "Соц. ответственность" },
+  social: { label: "Социальность", color: "#eab308", icon: "forum", skill: "Социальность" },
   financial: { label: "Финансы", color: "#a855f7", icon: "payments", skill: "Финансы" },
   appearance: { label: "Внешность", color: "#ec4899", icon: "face", skill: "Внешность" },
 };
