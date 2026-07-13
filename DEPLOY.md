@@ -1,82 +1,109 @@
-# Nevergiveup — Руководство по деплою
+# Nevergiveup — Руководство по деплою на Vercel
 
-## Переменные окружения (.env)
+## 1. Подготовка
+
+### Загрузите код на GitHub
+```bash
+git init
+git add .
+git commit -m "Nevergiveup ready for deploy"
+git branch -M main
+git remote add origin https://github.com/YOUR_USERNAME/nevergiveup.git
+git push -u origin main
+```
+
+### Создайте аккаунт Vercel
+1. Зайдите на [vercel.com](https://vercel.com)
+2. Войдите через GitHub
+
+## 2. Деплой
+
+1. Нажмите **"Add New Project"** → выберите репозиторий
+2. Framework Preset: **Next.js** (автоопределение)
+3. Build Command: `next build` (авто)
+4. Output Directory: `.next` (авто)
+
+### Переменные окружения (ОБЯЗАТЕЛЬНО)
+
+Добавьте ВСЕ переменные в Settings → Environment Variables:
 
 ```bash
-# База данных (Neon PostgreSQL)
-DATABASE_URL=postgresql://...
+# База данных (Neon PostgreSQL — уже есть)
+DATABASE_URL=postgresql://neondb_owner:npg_...@ep-noisy-boat...neon.tech/neondb?sslmode=require
 
-# NextAuth (ОБЯЗАТЕЛЬНО заменить на случайную строку)
+# NextAuth (сгенерируйте новый секрет)
 NEXTAUTH_SECRET=<openssl rand -base64 32>
-NEXTAUTH_URL=https://yourdomain.com
+NEXTAUTH_URL=https://your-project.vercel.app
 
-# Авторизация (false = включить вход/регистрацию)
+# Авторизация (ОБЯЗАТЕЛЬНО false для production!)
 NEXT_PUBLIC_AUTH_BYPASS=false
 
-# Cron (защита API /api/cron/streak-check)
+# Cron защита
 CRON_SECRET=<случайная строка>
+
+# Push уведомления (VAPID keys)
+VAPID_PUBLIC_KEY=BMwktvZbvmVM9bWfV...
+VAPID_PRIVATE_KEY=s7BH0T2qwD3y5V...
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=BMwktvZbvmVM9bWfV...
 
 # Google Analytics (опционально)
 NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
-
-# Sentry — ошибка логирования (опционально)
-NEXT_PUBLIC_SENTRY_DSN=https://xxx@sentry.io/xxx
-
-# Push notifications (VAPID keys — сгенерировать: npx web-push generate-vapid-keys)
-VAPID_PUBLIC_KEY=<public key>
-VAPID_PRIVATE_KEY=<private key>
 ```
 
-## CDN
+5. Нажмите **Deploy** → через 2-3 минуты приложение будет live
 
-CDN включается **автоматически** на большинстве хостингов:
-- **Vercel** — глобальный Edge CDN из коробки, статика кэшируется автоматически
-- **Netlify** — аналогично, CDN на всех планах
-- **Cloudflare** — можно поставить перед любым хостингом как reverse proxy
+## 3. После деплоя
 
-Ничего настраивать в коде не нужно — Next.js уже отдаёт статику с правильными
-`Cache-Control` заголовками через `/_next/static/`.
+### Настройте Cron (ежедневные задачи)
 
-## Cron — «серия под угрозой»
-
-API: `GET /api/cron/streak-check?key=YOUR_CRON_SECRET`
-
-Настройте внешний cron на **ежедневный запуск в 20:00**:
-
-### Vercel Cron
-Создайте `vercel.json`:
+Создайте файл `vercel.json` в корне проекта:
 ```json
 {
-  "crons": [{ "path": "/api/cron/streak-check?key=YOUR_KEY", "schedule": "0 20 * * *" }]
+  "crons": [
+    {
+      "path": "/api/cron/snapshot?key=YOUR_CRON_SECRET",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/cron/streak-check?key=YOUR_CRON_SECRET",
+      "schedule": "0 20 * * *"
+    }
+  ]
 }
 ```
 
-### cron-job.org (бесплатно)
-1. Зарегистрируйтесь на cron-job.org
-2. URL: `https://yourdomain.com/api/cron/streak-check?key=YOUR_KEY`
-3. Schedule: каждый день в 20:00
+Или используйте бесплатный [cron-job.org](https://cron-job.org):
+1. Создайте аккаунт
+2. Добавьте два задания:
+   - `https://yourdomain.com/api/cron/snapshot?key=KEY` — каждый день в 00:00
+   - `https://yourdomain.com/api/cron/streak-check?key=KEY` — каждый день в 20:00
 
-## Push-уведомления
+### Загрузка аватаров
 
-1. Сгенерируйте VAPID ключи: `npx web-push generate-vapid-keys`
-2. Добавьте в `.env`: `VAPID_PUBLIC_KEY` и `VAPID_PRIVATE_KEY`
-3. Пользователи подписываются через Settings → Push-уведомления
-4. При создании notification в БД — сервер отправляет push через Web Push API
-
-## Realtime (WebSocket)
-
-Mini-service на порту 3003:
+На Vercel файловая система эфемерная — загруженные аватары пропадут.
+**Решение:** используйте Vercel Blob Storage или UploadThing:
 ```bash
-cd mini-services/realtime && bun install && bun run dev
+bun add @uploadthing/file-upload
 ```
+И замените `/api/avatar` на загрузку в облако.
 
-Frontend подключается через: `io("/?XTransformPort=3003")`
-События: `post:new`, `post:like`, `post:comment`, `notification`
+### Push уведомления
 
-## Sentry
+Push уведомления работают на Vercel (Web Push API не требует WebSocket).
+VAPID ключи уже настроены в переменных окружения.
 
-```bash
-bun add @sentry/nextjs
-npx @sentry/wizard@latest -i nextjs
-# Укажите SENTRY_DSN в .env
-```
+## 4. Подключение домена (опционально)
+
+1. В Vercel: Settings → Domains → Add Domain
+2. Введите ваш домен (например `nevergiveup.com`)
+3. Настройте DNS записи у регистратора домена:
+   - Type: `CNAME`
+   - Name: `@` или `www`
+   - Value: `cname.vercel-dns.com`
+4. Обновите `NEXTAUTH_URL` на ваш домен
+
+## 5. Готово! ✅
+
+Ваше приложение доступно по адресу:
+- `https://your-project.vercel.app` (бесплатный поддомен Vercel)
+- `https://yourdomain.com` (если подключили домен)
