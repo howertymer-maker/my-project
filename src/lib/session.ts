@@ -3,14 +3,12 @@ import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 
 /**
- * TEMPORARY: when AUTH_BYPASS is enabled, unauthenticated requests fall back
- * to a demo user so the app is browsable from the preview without login.
- * Disable by setting AUTH_BYPASS=false (or removing the env var).
+ * When AUTH_BYPASS is enabled, unauthenticated requests fall back to a demo
+ * user so the app is browsable from the preview without login.
+ * Set NEXT_PUBLIC_AUTH_BYPASS=true in .env to enable (dev only).
+ * On Vercel/production: set to false (or don't set) to require login.
  */
-const AUTH_BYPASS =
-  process.env.AUTH_BYPASS === "true" ||
-  process.env.NEXT_PUBLIC_AUTH_BYPASS === "true" ||
-  process.env.AUTH_BYPASS !== "false"; // default: bypass ON unless explicitly false
+const AUTH_BYPASS = process.env.AUTH_BYPASS === "true";
 
 /**
  * Returns the authenticated user's DB record, or null if not signed in.
@@ -25,10 +23,8 @@ export async function getCurrentUser() {
     }
   } catch {
     // getServerSession can throw if NextAuth isn't configured properly
-    // fall through to bypass check
   }
-  // Bypass: return a demo user (the first user in the DB) so the app is usable
-  // in the preview without authentication.
+  // Bypass: return a demo user (only in dev/preview with AUTH_BYPASS=true)
   if (AUTH_BYPASS) {
     try {
       return await db.user.findFirst({ orderBy: { createdAt: "asc" } });

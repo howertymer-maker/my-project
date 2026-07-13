@@ -18,8 +18,9 @@ export function refreshAll() {
   }
 }
 
-// TEMPORARY: bypass auth in the preview so the app is browsable without login.
-const AUTH_BYPASS = process.env.NEXT_PUBLIC_AUTH_BYPASS !== "false";
+// Bypass auth only when explicitly enabled (dev/preview). On Vercel, leave
+// NEXT_PUBLIC_AUTH_BYPASS unset or set to "false" to require login.
+const AUTH_BYPASS = process.env.NEXT_PUBLIC_AUTH_BYPASS === "true";
 
 export default function Home() {
   const { data: session, status } = useSession();
