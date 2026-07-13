@@ -15,7 +15,6 @@ export function IntroVideo({ onDone }: { onDone: () => void }) {
 
   const dismiss = () => {
     setFadeout(true);
-    // mark as watched so it doesn't replay this browser session
     try {
       sessionStorage.setItem(STORAGE_KEY, "1");
     } catch {
@@ -31,20 +30,21 @@ export function IntroVideo({ onDone }: { onDone: () => void }) {
       }`}
     >
       {/* Video background */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden">
+      <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
         {!videoError ? (
           <video
             autoPlay
             muted
             playsInline
+            preload="auto"
             onError={() => setVideoError(true)}
             onEnded={dismiss}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover bg-black"
           >
-            <source src="/intro.mp4" type="video/mp4" />
+            {/* #t=0.1 skips the first black frame, cache-bust query forces fresh load */}
+            <source src="/intro.mp4#t=0.1?v=2" type="video/mp4" />
           </video>
         ) : (
-          // Fallback animated gradient if video is missing
           <div
             className="w-full h-full"
             style={{
