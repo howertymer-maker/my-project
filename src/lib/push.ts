@@ -1,16 +1,26 @@
 import webpush from "web-push";
 import { db } from "@/lib/db";
 
-// Configure web-push with VAPID keys (only if both keys are set)
-const publicKey = process.env.VAPID_PUBLIC_KEY;
-const privateKey = process.env.VAPID_PRIVATE_KEY;
+let pushConfigured = false;
 
-if (publicKey && privateKey) {
-  webpush.setVapidDetails(
-    "mailto:noreply@nevergiveup.app",
-    publicKey,
-    privateKey
-  );
+function configurePush() {
+  if (pushConfigured) return;
+  const publicKey = process.env.VAPID_PUBLIC_KEY;
+  const privateKey = process.env.VAPID_PRIVATE_KEY;
+
+  if (!publicKey || !privateKey) return;
+
+  try {
+    webpush.setVapidDetails(
+      "mailto:noreply@nevergiveup.app",
+      publicKey,
+      privateKey
+    );
+    pushConfigured = true;
+  } catch {
+    // VAPID keys might be invalid format — skip push, don't crash the app
+    console.error("VAPID keys invalid, push notifications disabled");
+  }
 }
 
 /**
@@ -24,14 +34,15 @@ export async function sendPushNotification(params: {
   body: string;
   url?: string;
 }): Promise<void> {
-  if (!publicKey || !privateKey) return; // push not configured
+  configurePush();
+  if (!pushConfigured) return;
 
   try {
     const subs = await db.pushSubscription.findMany({
       where: { userId: params.userId },
     });
 
-    if (subs.length === 0) return; // no subscriptions
+    if (subs.length === 0) return;
 
     const payload = JSON.stringify({
       title: params.title,
@@ -41,9 +52,7 @@ export async function sendPushNotification(params: {
 
     await Promise.allSettled(
       subs.map((sub) => {
-        const keys = sub.keys
-          ? JSON.parse(sub.keys)
-          : null;
+        const keys = sub.keys ? JSON.parse(sub.keys) : null;
         return webpush.sendNotification(
           {
             endpoint: sub.endpoint,
