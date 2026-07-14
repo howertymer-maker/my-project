@@ -286,26 +286,34 @@ function SettingsTab(props: {
           description="Nevergiveup 1.0.0"
           control={<span className="font-mono text-[10px] text-on-surface-variant">1.0.0</span>}
         />
-        <a href="/terms" target="_blank" rel="noopener noreferrer" className="block">
-          <Row
-            icon="description"
-            label="Условия использования"
-            description="Политика и правила"
-            control={
-              <MaterialIcon name="open_in_new" size={16} className="text-on-surface-variant" />
-            }
-          />
-        </a>
-        <a href="/privacy" target="_blank" rel="noopener noreferrer" className="block">
-          <Row
-            icon="privacy_tip"
-            label="Политика конфиденциальности"
-            description="Как мы храним данные"
-            control={
-              <MaterialIcon name="open_in_new" size={16} className="text-on-surface-variant" />
-            }
-          />
-        </a>
+        <Row
+          icon="description"
+          label="Условия использования"
+          description="Политика и правила"
+          control={
+            <button
+              onClick={() => window.open("/terms", "_blank")}
+              className="text-on-surface-variant hover:text-primary-container transition-colors"
+              aria-label="Открыть условия"
+            >
+              <MaterialIcon name="open_in_new" size={16} />
+            </button>
+          }
+        />
+        <Row
+          icon="privacy_tip"
+          label="Политика конфиденциальности"
+          description="Как мы храним данные"
+          control={
+            <button
+              onClick={() => window.open("/privacy", "_blank")}
+              className="text-on-surface-variant hover:text-primary-container transition-colors"
+              aria-label="Открыть политику"
+            >
+              <MaterialIcon name="open_in_new" size={16} />
+            </button>
+          }
+        />
       </Section>
     </>
   );
