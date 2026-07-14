@@ -9,6 +9,7 @@ type Leader = {
   id: string;
   displayName: string;
   rankTitle: string;
+  rankColor: string;
   avatarUrl: string | null;
   premium: boolean;
   totalPoints: number;
@@ -108,7 +109,7 @@ export function LeaderboardWidget() {
                     <MaterialIcon name="diamond" size={12} className="text-amber-400 shrink-0" fill />
                   )}
                 </div>
-                <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-wider">
+                <span className="font-mono text-[9px] uppercase tracking-wider" style={{ color: leader.rankColor }}>
                   {leader.rankTitle}
                 </span>
               </div>

@@ -7,6 +7,7 @@ import { NotificationsSheet } from "@/components/neon/notifications-sheet";
 
 export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }) {
   const [level, setLevel] = useState<number>(42);
+  const [rankTitle, setRankTitle] = useState<string>("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string>("");
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -32,6 +33,7 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
         if (typeof d?.user?.level === "number") setLevel(d.user.level);
         if (d?.user?.avatarUrl) setAvatarUrl(d.user.avatarUrl);
         if (d?.user?.displayName) setDisplayName(d.user.displayName);
+        if (d?.user?.rankTitle) setRankTitle(d.user.rankTitle);
       })
       .catch(() => {});
     refreshBadge();
@@ -73,7 +75,7 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
                 Nevergiveup
               </span>
               <span className="font-mono text-[10px] text-primary-fixed-dim tracking-widest mt-0.5">
-                {"LVL "}{level}{" // ENDEAVORER"}
+                {"LVL "}{level}{" // "}{rankTitle || "Новичок"}
               </span>
             </div>
           </div>
@@ -116,6 +118,7 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
               if (typeof d?.user?.level === "number") setLevel(d.user.level);
               if (d?.user?.avatarUrl) setAvatarUrl(d.user.avatarUrl);
               if (d?.user?.displayName) setDisplayName(d.user.displayName);
+        if (d?.user?.rankTitle) setRankTitle(d.user.rankTitle);
             })
             .catch(() => {});
         }}

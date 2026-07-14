@@ -27,6 +27,8 @@ type ProfileData = {
     displayName: string;
     avatarUrl: string | null;
     rankTitle: string;
+    rankColor: string;
+    rankIcon: string;
     level: number;
     totalPoints: number;
     streakDays: number;
@@ -75,14 +77,24 @@ export function ProfileScreen() {
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B] via-transparent to-transparent" />
           </div>
-          <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-surface-container-highest px-3 py-1 rounded-full border border-primary-container/50 neon-glow-primary z-10 flex items-center gap-1.5 whitespace-nowrap">
+          <div
+            className="absolute -bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full border z-10 flex items-center gap-1.5 whitespace-nowrap"
+            style={{
+              background: "#353436",
+              borderColor: `${user.rankColor}80`,
+              boxShadow: `0 0 15px ${user.rankColor}33`,
+            }}
+          >
             <MaterialIcon
-              name="workspace_premium"
+              name={user.rankIcon}
               size={14}
-              className="text-primary-container"
               fill
+              className=""
             />
-            <span className="font-mono text-[10px] font-medium text-on-surface uppercase tracking-widest">
+            <span
+              className="font-mono text-[10px] font-medium uppercase tracking-widest"
+              style={{ color: user.rankColor }}
+            >
               {user.rankTitle}
             </span>
           </div>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
+import { getRankByLevel } from "@/lib/ranks";
 
 export const dynamic = "force-dynamic";
 
@@ -112,7 +113,9 @@ export async function GET() {
       id: user.id,
       displayName: user.displayName,
       avatarUrl: user.avatarUrl,
-      rankTitle: user.rankTitle,
+      rankTitle: getRankByLevel(totalLevel).title,
+      rankColor: getRankByLevel(totalLevel).color,
+      rankIcon: getRankByLevel(totalLevel).icon,
       level: totalLevel,
       totalPoints,
       streakDays,
