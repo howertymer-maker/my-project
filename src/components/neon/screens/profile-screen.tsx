@@ -43,7 +43,9 @@ type ProfileData = {
 };
 
 export function ProfileScreen() {
-  const { data, loading } = useApi<ProfileData>("/api/profile");
+  const [chartRange, setChartRange] = useState<string>("6m");
+  const url = `/api/profile?range=${chartRange}`;
+  const { data, loading } = useApi<ProfileData>(url);
 
   if (loading || !data) {
     return <ProfileSkeleton />;
@@ -147,17 +149,22 @@ export function ProfileScreen() {
             Статистика прогресса
           </h3>
           <div className="flex items-center gap-1 bg-surface-container-highest rounded-md p-0.5 border border-outline-variant/40">
-            {["1М", "6М", "1Г"].map((p, i) => (
+            {([
+              { label: "1М", value: "1m" },
+              { label: "6М", value: "6m" },
+              { label: "1Г", value: "1y" },
+            ] as const).map((p) => (
               <button
-                key={p}
+                key={p.value}
+                onClick={() => setChartRange(p.value)}
                 className={cn(
                   "font-mono text-[10px] px-2 py-0.5 rounded transition-colors",
-                  i === 1
+                  chartRange === p.value
                     ? "bg-primary-container/20 text-primary-fixed"
                     : "text-on-surface-variant hover:text-on-surface"
                 )}
               >
-                {p}
+                {p.label}
               </button>
             ))}
           </div>

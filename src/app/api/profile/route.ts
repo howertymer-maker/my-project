@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { getRankByLevel } from "@/lib/ranks";
@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 const POINTS_PER_LEVEL = 1000;
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -79,33 +79,46 @@ export async function GET() {
   const missionSkills = skills.filter((s) => s.source === "missions");
 
   // Build progress chart from REAL SkillHistory data (daily snapshots).
-  // If there's no history yet (new user), fall back to a flat line at totalPoints.
+  // Support ?range=1m|6m|1y
+  const url = new URL(req.url);
+  const range = url.searchParams.get("range") || "6m";
+  const daysToTake = range === "1m" ? 30 : range === "1y" ? 365 : 180;
+  const bucketFormat = range === "1m" ? "day" : "month"; // 1m → daily, 6m/1y → monthly
+
   const history = await db.skillHistory.findMany({
     where: { userId: user.id },
     orderBy: { date: "asc" },
-    take: 180, // up to 6 months of daily snapshots
+    take: daysToTake,
   });
 
   let chartData: { month: string; points: number }[];
   if (history.length >= 2) {
-    // Group snapshots by month and take the last snapshot of each month
-    const byMonth = new Map<string, number>();
-    for (const h of history) {
-      const monthKey = h.date.slice(0, 7); // "YYYY-MM"
-      byMonth.set(monthKey, h.totalPoints);
-    }
     const monthNames = ["Янв", "Фев", "Мар", "Апр", "Май", "Июн", "Июл", "Авг", "Сен", "Окт", "Ноя", "Дек"];
-    chartData = Array.from(byMonth.entries())
-      .slice(-6) // last 6 months
-      .map(([ym, pts]) => {
-        const m = parseInt(ym.slice(5, 7), 10) - 1;
-        return { month: monthNames[m] ?? ym, points: pts };
+
+    if (bucketFormat === "day") {
+      // 1M: show last ~30 daily snapshots, label by day number
+      chartData = history.slice(-30).map((h) => {
+        const day = parseInt(h.date.slice(8, 10), 10);
+        const m = parseInt(h.date.slice(5, 7), 10) - 1;
+        return { month: `${day} ${monthNames[m] ?? ""}`, points: h.totalPoints };
       });
+    } else {
+      // 6M or 1Y: group by month
+      const byMonth = new Map<string, number>();
+      for (const h of history) {
+        const monthKey = h.date.slice(0, 7); // "YYYY-MM"
+        byMonth.set(monthKey, h.totalPoints);
+      }
+      const sliceCount = range === "1y" ? 12 : 6;
+      chartData = Array.from(byMonth.entries())
+        .slice(-sliceCount)
+        .map(([ym, pts]) => {
+          const m = parseInt(ym.slice(5, 7), 10) - 1;
+          return { month: monthNames[m] ?? ym, points: pts };
+        });
+    }
   } else {
-    // Fallback: show current points as a flat line (new user, no history yet)
-    chartData = [
-      { month: "Сейчас", points: totalPoints },
-    ];
+    chartData = [{ month: "Сейчас", points: totalPoints }];
   }
 
   return NextResponse.json({
