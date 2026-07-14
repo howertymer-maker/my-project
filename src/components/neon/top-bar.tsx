@@ -84,20 +84,18 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
 
           {/* Actions — install + notifications (bell) + settings (gear) */}
           <div className="flex items-center gap-2">
-            {pwaInstallable && (
-              <button
-                type="button"
-                onClick={() => triggerInstall()}
-                className="flex items-center gap-1.5 h-9 px-3 rounded-md bg-primary-container/15 text-primary-fixed border border-primary-container/40 hover:bg-primary-container/25 transition-colors"
-                aria-label="Установить приложение"
-                title="Установить приложение на телефон"
-              >
-                <MaterialIcon name="install_mobile" size={18} fill />
-                <span className="font-display text-[11px] font-bold uppercase tracking-wider hidden sm:inline">
-                  Установить
-                </span>
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => triggerInstall()}
+              className="flex items-center gap-1.5 h-9 px-2.5 sm:px-3 rounded-md bg-primary-container/15 text-primary-fixed border border-primary-container/40 hover:bg-primary-container/25 transition-colors shrink-0"
+              aria-label="Установить приложение"
+              title="Установить приложение"
+            >
+              <MaterialIcon name="install_mobile" size={18} fill />
+              <span className="font-display text-[10px] font-bold uppercase tracking-wider hidden sm:inline">
+                Установить
+              </span>
+            </button>
             <button
               type="button"
               onClick={() => setNotifOpen(true)}

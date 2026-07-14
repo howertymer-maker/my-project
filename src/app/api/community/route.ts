@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { notify } from "@/lib/notify";
+import { getRankByPoints } from "@/lib/ranks";
 import { CATEGORY_META } from "@/lib/mission-templates";
 
 export const dynamic = "force-dynamic";
@@ -36,12 +37,26 @@ export async function GET(req: NextRequest) {
     take: 50,
   });
 
+  // Compute rank for each post author based on their total skill points
+  const authorIds = [...new Set(posts.map((p) => p.authorId))];
+  const authorAttrs = await db.attribute.findMany({
+    where: { userId: { in: authorIds } },
+    select: { userId: true, points: true },
+  });
+  const authorPoints = new Map<string, number>();
+  for (const a of authorAttrs) {
+    authorPoints.set(a.userId, (authorPoints.get(a.userId) ?? 0) + a.points);
+  }
+
   return NextResponse.json({
-    posts: posts.map((p) => ({
+    posts: posts.map((p) => {
+      const pts = authorPoints.get(p.authorId) ?? 0;
+      const rank = getRankByPoints(pts);
+      return {
       id: p.id,
       authorId: p.authorId,
       authorName: p.authorName,
-      authorBadge: p.authorBadge,
+      authorBadge: rank.title,
       category: p.category,
       categoryLabel: p.categoryLabel,
       xpReward: p.xpReward,
@@ -52,7 +67,8 @@ export async function GET(req: NextRequest) {
       commentsCount: p.comments.length,
       isAdvice: p.isAdvice,
       createdAt: p.createdAt.toISOString(),
-    })),
+      };
+    }),
   });
 }
 
@@ -84,11 +100,19 @@ export async function POST(req: NextRequest) {
     if (!cat) {
       return NextResponse.json({ error: "Неизвестная категория" }, { status: 400 });
     }
+    // Compute author rank dynamically
+    const authorAttrs = await db.attribute.findMany({
+      where: { userId: user.id },
+      select: { points: true },
+    });
+    const authorTotalPoints = authorAttrs.reduce((s, a) => s + a.points, 0);
+    const authorRank = getRankByPoints(authorTotalPoints).title;
+
     const post = await db.post.create({
       data: {
         authorId: user.id,
         authorName: user.displayName,
-        authorBadge: user.rankTitle,
+        authorBadge: authorRank,
         category,
         categoryLabel: cat.label.toUpperCase(),
         xpReward: 0,
