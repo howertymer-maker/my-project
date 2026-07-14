@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { MaterialIcon } from "@/components/material-icon";
 import { SettingsSheet } from "@/components/neon/settings-sheet";
 import { NotificationsSheet } from "@/components/neon/notifications-sheet";
+import { usePwaInstallable, triggerInstall } from "@/hooks/use-pwa-install";
 
 export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }) {
   const [level, setLevel] = useState<number>(42);
@@ -13,6 +14,7 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState<number>(0);
+  const pwaInstallable = usePwaInstallable();
 
   // fetch level + avatar + unread notifications count
   const refreshBadge = () => {
@@ -80,8 +82,22 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
             </div>
           </div>
 
-          {/* Actions — notifications (bell) + settings (gear) */}
+          {/* Actions — install + notifications (bell) + settings (gear) */}
           <div className="flex items-center gap-2">
+            {pwaInstallable && (
+              <button
+                type="button"
+                onClick={() => triggerInstall()}
+                className="flex items-center gap-1.5 h-9 px-3 rounded-md bg-primary-container/15 text-primary-fixed border border-primary-container/40 hover:bg-primary-container/25 transition-colors"
+                aria-label="Установить приложение"
+                title="Установить приложение на телефон"
+              >
+                <MaterialIcon name="install_mobile" size={18} fill />
+                <span className="font-display text-[11px] font-bold uppercase tracking-wider hidden sm:inline">
+                  Установить
+                </span>
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setNotifOpen(true)}
