@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { triggerInstall } from "@/hooks/use-pwa-install";
 import {
   Sheet,
   SheetContent,
@@ -257,6 +258,19 @@ function SettingsTab(props: {
 
       {/* About */}
       <Section title="О приложении" icon="info" accent="#b9cacb">
+        <Row
+          icon="install_mobile"
+          label="Установить приложение"
+          description="Добавить на главный экран"
+          control={
+            <button
+              onClick={() => triggerInstall()}
+              className="font-display text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-md bg-primary-container text-on-primary neon-glow-primary active:scale-95 transition-transform"
+            >
+              Установить
+            </button>
+          }
+        />
         <Row
           icon="tag"
           label="Версия"
