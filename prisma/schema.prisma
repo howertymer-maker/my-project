@@ -212,6 +212,13 @@ model SkillHistory {
   @@index([userId, date])
 }
 
+// ===== Global Settings (key-value store for beta test, etc.) =====
+model Setting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
 // ===== Community =====
 model Post {
   id          String   @id @default(cuid())

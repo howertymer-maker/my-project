@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { notify } from "@/lib/notify";
+import { isBetaTestActive } from "@/lib/beta";
 import {
   MISSION_TEMPLATES,
   CATEGORY_ORDER,
@@ -106,6 +107,9 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const betaActive = await isBetaTestActive();
+  const userPremium = user.premium || betaActive;
+
   const userMissions = await db.userMission.findMany({
     where: { userId: user.id },
   });
@@ -179,7 +183,7 @@ export async function GET() {
 
     // cooldown: if the latest completed mission in this category has nextAvailableAt in the future,
     // the next free template is locked until that time. Premium users bypass the cooldown entirely.
-    if (!user.premium) {
+    if (!userPremium) {
       const latest = latestCompletedInCategory(cat);
       if (latest && latest.nextAvailableAt) {
         const until = latest.nextAvailableAt.getTime();
@@ -209,7 +213,7 @@ export async function GET() {
     const um = userMissions.find((u) => u.templateId === t.id && !u.completedAt) ?? null;
     const state = buildState(um, t);
     // Lock premium missions for non-premium users (unless already started)
-    if (!user.premium && !state.started) {
+    if (!userPremium && !state.started) {
       state.premiumLocked = true;
     }
     return { template: t, state };
@@ -220,7 +224,7 @@ export async function GET() {
   return NextResponse.json({
     free,
     premium,
-    premiumUser: user.premium,
+    premiumUser: userPremium,
     stats: {
       completed: completedCount,
       total: MISSION_TEMPLATES.length,
@@ -244,6 +248,9 @@ export async function POST(req: NextRequest) {
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const betaActive = await isBetaTestActive();
+  const userPremium = user.premium || betaActive;
 
   if (action === "skip-12h") {
     // Subtract 12h from stageStartedAt of every in-progress mission stage,
@@ -286,7 +293,7 @@ export async function POST(req: NextRequest) {
     const freeTemplateForCategory = catTemplates.find((t) => !doneIds.has(t.id));
     const isPremiumMission = freeTemplateForCategory?.id !== template.id;
 
-    if (isPremiumMission && !user.premium) {
+    if (isPremiumMission && !userPremium) {
       return NextResponse.json(
         { error: "Требуется премиум-подписка", premiumRequired: true },
         { status: 403 }
@@ -394,7 +401,7 @@ export async function POST(req: NextRequest) {
       // mission fully complete
       // nextAvailableAt: premium → instant (now), non-premium → now + 7 days
       const now = new Date();
-      const nextAvailableAt = user.premium
+      const nextAvailableAt = userPremium
         ? now
         : new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
       const completed = await db.userMission.update({
@@ -421,7 +428,7 @@ export async function POST(req: NextRequest) {
         nextTemplateId: next?.id ?? null,
         completedAt: completed.completedAt?.toISOString(),
         nextAvailableAt: nextAvailableAt.toISOString(),
-        premium: user.premium,
+        premium: userPremium,
         overachievedBonus: overBonus,
       });
     } else {

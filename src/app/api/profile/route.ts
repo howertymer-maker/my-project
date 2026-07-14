@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { getCurrentUser } from "@/lib/session";
 import { getRankByLevel } from "@/lib/ranks";
+import { isBetaTestActive } from "@/lib/beta";
 
 export const dynamic = "force-dynamic";
 
@@ -134,7 +135,7 @@ export async function GET(req: NextRequest) {
       streakDays,
       completionRate,
       topPercent,
-      premium: user.premium,
+      premium: user.premium || await isBetaTestActive(),
     },
     consistency,
     missionSkills,
