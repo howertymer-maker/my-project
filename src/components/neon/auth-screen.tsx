@@ -169,16 +169,6 @@ export function AuthScreen({ mode }: { mode: Mode }) {
             {mode === "register" ? "Войти" : "Регистрация"}
           </button>
         </div>
-
-        {/* Demo hint */}
-        {mode === "login" && (
-          <div className="mt-6 w-full rounded-lg border border-outline-variant/30 bg-surface-container/40 p-3">
-            <p className="font-mono text-[10px] text-on-surface-variant leading-relaxed">
-              <span className="text-primary-fixed-dim uppercase tracking-wider font-bold">Демо-вход:</span>{" "}
-              adrian@demo.app / demo1234
-            </p>
-          </div>
-        )}
       </main>
     </div>
   );
