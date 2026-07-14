@@ -74,7 +74,7 @@ export function TopBar({ onMissionsChanged }: { onMissionsChanged?: () => void }
               <span className="font-display text-[13px] font-extrabold tracking-[0.12em] text-on-surface">
                 Nevergiveup
               </span>
-              <span className="font-mono text-[10px] text-primary-fixed-dim tracking-widest mt-0.5">
+              <span className="font-mono text-[10px] text-primary-fixed-dim tracking-wider mt-0.5 whitespace-nowrap">
                 {"LVL "}{level}{" // "}{rankTitle || "Новичок"}
               </span>
             </div>

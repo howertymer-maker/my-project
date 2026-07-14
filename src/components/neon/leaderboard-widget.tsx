@@ -109,7 +109,7 @@ export function LeaderboardWidget() {
                     <MaterialIcon name="diamond" size={12} className="text-amber-400 shrink-0" fill />
                   )}
                 </div>
-                <span className="font-mono text-[9px] uppercase tracking-wider" style={{ color: leader.rankColor }}>
+                <span className="font-mono text-[9px] uppercase tracking-wider whitespace-nowrap" style={{ color: leader.rankColor }}>
                   {leader.rankTitle}
                 </span>
               </div>
