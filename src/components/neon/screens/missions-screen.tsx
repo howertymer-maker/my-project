@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import type { MissionTemplate } from "@/lib/mission-templates";
 import { MissionCard } from "@/components/neon/mission-card";
 import { ChallengesWidget } from "@/components/neon/challenges-widget";
+import { LeaderboardWidget } from "@/components/neon/leaderboard-widget";
 
 type MissionState = {
   userMissionId: string | null;
@@ -190,6 +191,9 @@ export function MissionsScreen() {
           </div>
         )}
       </section>
+
+      {/* Leaderboard — top 3 users by total points (only on active tab) */}
+      {tab === "active" && <LeaderboardWidget />}
     </div>
   );
 }
