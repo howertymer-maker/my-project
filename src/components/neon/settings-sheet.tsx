@@ -108,9 +108,75 @@ export function SettingsSheet({ open, onOpenChange, onChanged }: Props) {
             streakAlerts={streakAlerts}
             setStreakAlerts={setStreakAlerts}
           />
+
+          {/* Logout button */}
+          <LogoutSection onLogout={() => onOpenChange(false)} />
         </div>
       </SheetContent>
     </Sheet>
+  );
+}
+
+/* ====================== LOGOUT ====================== */
+
+function LogoutSection({ onLogout }: { onLogout: () => void }) {
+  const { toast } = useToast();
+  const [confirming, setConfirming] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  const doLogout = async () => {
+    setBusy(true);
+    try {
+      const { signOut } = await import("next-auth/react");
+      await signOut({ callbackUrl: "/login", redirect: true });
+    } catch {
+      // fallback: hard redirect
+      window.location.href = "/login";
+    }
+  };
+
+  if (confirming) {
+    return (
+      <div className="flex flex-col gap-3">
+        <div className="glass-panel rounded-xl p-4 border border-error/30 flex flex-col gap-3">
+          <div className="flex items-center gap-2">
+            <MaterialIcon name="warning" size={20} className="text-error" fill />
+            <span className="font-display text-sm font-bold text-on-surface">
+              Выйти из аккаунта?
+            </span>
+          </div>
+          <p className="font-mono text-[11px] text-on-surface-variant leading-relaxed">
+            Вы будете перенаправлены на страницу входа. Ваши данные сохранятся.
+          </p>
+          <div className="flex gap-2 mt-1">
+            <button
+              onClick={() => setConfirming(false)}
+              disabled={busy}
+              className="flex-1 py-2.5 rounded-lg bg-surface-container/60 text-on-surface-variant border border-outline-variant/40 font-display text-[12px] font-bold uppercase tracking-wider transition-colors disabled:opacity-50"
+            >
+              Отмена
+            </button>
+            <button
+              onClick={doLogout}
+              disabled={busy}
+              className="flex-1 py-2.5 rounded-lg bg-error/20 text-error border border-error/40 font-display text-[12px] font-bold uppercase tracking-wider active:scale-95 transition-transform disabled:opacity-50"
+            >
+              {busy ? "Выход..." : "Выйти"}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => setConfirming(true)}
+      className="w-full py-3 rounded-xl bg-error/10 text-error border border-error/30 font-display text-[12px] font-bold uppercase tracking-wider hover:bg-error/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+    >
+      <MaterialIcon name="logout" size={18} fill />
+      Выйти из аккаунта
+    </button>
   );
 }
 
