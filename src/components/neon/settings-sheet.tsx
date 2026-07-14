@@ -28,7 +28,6 @@ export function SettingsSheet({ open, onOpenChange, onChanged }: Props) {
   // local-only toggles (no backend yet)
   const [sound, setSound] = useState(true);
   const [pushNotify, setPushNotify] = useState(true);
-  const [emailNotify, setEmailNotify] = useState(false);
   const [publicProfile, setPublicProfile] = useState(true);
   const [streakAlerts, setStreakAlerts] = useState(true);
 
@@ -101,8 +100,6 @@ export function SettingsSheet({ open, onOpenChange, onChanged }: Props) {
             setSound={setSound}
             pushNotify={pushNotify}
             setPushNotify={setPushNotify}
-            emailNotify={emailNotify}
-            setEmailNotify={setEmailNotify}
             publicProfile={publicProfile}
             setPublicProfile={setPublicProfile}
             streakAlerts={streakAlerts}
@@ -191,8 +188,6 @@ function SettingsTab(props: {
   setSound: (v: boolean) => void;
   pushNotify: boolean;
   setPushNotify: (v: boolean) => void;
-  emailNotify: boolean;
-  setEmailNotify: (v: boolean) => void;
   publicProfile: boolean;
   setPublicProfile: (v: boolean) => void;
   streakAlerts: boolean;
@@ -236,14 +231,6 @@ function SettingsTab(props: {
       <Section title="Уведомления" icon="notifications" accent="#e9b3ff">
         <PushRow />
         <Row
-          icon="mail"
-          label="Email-уведомления"
-          description="Сводка на почту"
-          control={
-            <Switch checked={props.emailNotify} onCheckedChange={props.setEmailNotify} />
-          }
-        />
-        <Row
           icon="local_fire_department"
           label="Алёрты серии"
           description="Предупреждать о риске прервать серию"
@@ -261,16 +248,6 @@ function SettingsTab(props: {
           description="Виден в сообществе и рейтинге"
           control={
             <Switch checked={props.publicProfile} onCheckedChange={props.setPublicProfile} />
-          }
-        />
-        <Row
-          icon="download"
-          label="Экспорт данных"
-          description="Скачать все свои данные"
-          control={
-            <button className="font-mono text-[10px] uppercase tracking-wider px-2.5 py-1.5 rounded-md border border-outline-variant/40 text-on-surface-variant hover:text-on-surface transition-colors">
-              Экспорт
-            </button>
           }
         />
       </Section>
