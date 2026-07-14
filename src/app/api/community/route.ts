@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   const { action } = body as {
-    action: "create-post" | "like" | "unlike" | "comment";
+    action: "create-post" | "like" | "unlike" | "comment" | "delete-post";
     postId?: string;
     title?: string;
     body?: string;
@@ -172,6 +172,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       comment: { id: comment.id, authorName: comment.authorName, body: comment.body },
     });
+  }
+
+  if (action === "delete-post") {
+    const post = await db.post.findUnique({ where: { id: body.postId } });
+    if (!post) {
+      return NextResponse.json({ error: "Пост не найден" }, { status: 404 });
+    }
+    if (post.authorId !== user.id) {
+      return NextResponse.json({ error: "Нельзя удалить чужой пост" }, { status: 403 });
+    }
+    await db.post.delete({ where: { id: body.postId } });
+    return NextResponse.json({ ok: true, deleted: true });
   }
 
   return NextResponse.json({ error: "Unknown action" }, { status: 400 });

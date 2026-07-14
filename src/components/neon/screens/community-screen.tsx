@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApi } from "@/hooks/use-api";
 import { MaterialIcon } from "@/components/material-icon";
 import { cn } from "@/lib/utils";
@@ -42,6 +42,16 @@ export function CommunityScreen() {
     filter === "all" ? "/api/community" : `/api/community?filter=${filter}`;
   const { data, loading } = useApi<CommunityData>(url);
   const [composing, setComposing] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    fetch("/api/profile", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.user?.id) setCurrentUserId(d.user.id);
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="flex flex-col gap-4 pt-4">
@@ -114,7 +124,7 @@ export function CommunityScreen() {
           </div>
         ) : (
           data.posts.map((p, i) => (
-            <PostCard key={p.id} post={p} index={i} />
+            <PostCard key={p.id} post={p} index={i} currentUserId={currentUserId} />
           ))
         )}
       </section>
@@ -257,11 +267,15 @@ function ComposeModal({
   );
 }
 
-function PostCard({ post, index }: { post: Post; index: number }) {
+function PostCard({ post, index, currentUserId }: { post: Post; index: number; currentUserId?: string }) {
   const [expanded, setExpanded] = useState(false);
   const [liked, setLiked] = useState(post.likedByMe);
   const [likeCount, setLikeCount] = useState(post.likes);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const { toast } = useToast();
+  const isOwnPost = currentUserId && post.authorId === currentUserId;
 
   const toggleLike = async () => {
     const wasLiked = liked;
@@ -316,13 +330,82 @@ function PostCard({ post, index }: { post: Post; index: number }) {
             </div>
           </div>
         </div>
-        <button
-          className="w-7 h-7 grid place-items-center rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
-          aria-label="Опции поста"
-        >
-          <MaterialIcon name="more_horiz" size={18} />
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setShowMenu((s) => !s)}
+            className="w-7 h-7 grid place-items-center rounded-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors"
+            aria-label="Опции поста"
+          >
+            <MaterialIcon name="more_horiz" size={18} />
+          </button>
+          {showMenu && (
+            <>
+              <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
+              <div className="absolute right-0 top-8 z-20 w-44 bg-[#1c1b1c] border border-outline-variant/40 rounded-lg shadow-xl overflow-hidden">
+                {isOwnPost ? (
+                  <button
+                    onClick={() => {
+                      setShowMenu(false);
+                      setConfirmingDelete(true);
+                    }}
+                    className="w-full px-3 py-2.5 flex items-center gap-2 text-error hover:bg-error/10 transition-colors font-mono text-[12px] uppercase tracking-wider"
+                  >
+                    <MaterialIcon name="delete" size={16} fill />
+                    Удалить пост
+                  </button>
+                ) : (
+                  <div className="px-3 py-2.5 font-mono text-[11px] text-on-surface-variant">
+                    Нет действий
+                  </div>
+                )}
+              </div>
+            </>
+          )}
+        </div>
       </div>
+
+      {/* Delete confirmation */}
+      {confirmingDelete && (
+        <div className="flex flex-col gap-3 p-3 rounded-lg border border-error/30 bg-error/5">
+          <div className="flex items-center gap-2">
+            <MaterialIcon name="warning" size={18} className="text-error" fill />
+            <span className="font-display text-[13px] font-bold text-on-surface">
+              Удалить пост?
+            </span>
+          </div>
+          <p className="font-mono text-[11px] text-on-surface-variant leading-relaxed">
+            Пост «{post.title}» будет удалён безвозвратно.
+          </p>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setConfirmingDelete(false)}
+              className="flex-1 py-2 rounded-md bg-surface-container/60 text-on-surface-variant border border-outline-variant/40 font-display text-[11px] font-bold uppercase tracking-wider transition-colors"
+            >
+              Отмена
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  const res = await fetch("/api/community", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "delete-post", postId: post.id }),
+                  });
+                  if (!res.ok) throw new Error("Ошибка");
+                  toast({ title: "Пост удалён" });
+                  window.dispatchEvent(new CustomEvent("neon-refresh"));
+                } catch {
+                  toast({ title: "Ошибка удаления", variant: "destructive" });
+                }
+                setConfirmingDelete(false);
+              }}
+              className="flex-1 py-2 rounded-md bg-error/20 text-error border border-error/40 font-display text-[11px] font-bold uppercase tracking-wider active:scale-95 transition-transform"
+            >
+              Удалить
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* content */}
       <div className="flex flex-col gap-1.5">
