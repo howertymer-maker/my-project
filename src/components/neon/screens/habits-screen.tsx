@@ -97,23 +97,23 @@ export function HabitsScreen() {
           <MaterialIcon name="autorenew" size={26} fill />
         </div>
         <div className="flex-1 flex flex-col gap-1.5 relative min-w-0">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex flex-col min-w-0">
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center justify-between gap-2">
               <span className="font-display text-base font-bold text-on-surface leading-none">
                 Дисциплинированность
               </span>
-              <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest mt-1">
-                навык · ур. {skillLevel}
-              </span>
-            </div>
-            <div className="flex items-baseline gap-1 shrink-0">
               <span
-                className="font-display text-lg font-extrabold leading-none"
+                className="font-display text-lg font-extrabold leading-none shrink-0"
                 style={{ color: CONSISTENCY_COLOR }}
               >
                 {(POINTS_PER_LEVEL - pointsInLevel).toLocaleString("ru-RU")}
               </span>
-              <span className="font-mono text-[9px] text-on-surface-variant">
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-mono text-[9px] text-on-surface-variant uppercase tracking-widest">
+                навык · ур. {skillLevel}
+              </span>
+              <span className="font-mono text-[9px] text-on-surface-variant whitespace-nowrap">
                 очк до ур. {skillLevel + 1}
               </span>
             </div>
