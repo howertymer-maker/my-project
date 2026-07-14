@@ -286,22 +286,26 @@ function SettingsTab(props: {
           description="Nevergiveup 1.0.0"
           control={<span className="font-mono text-[10px] text-on-surface-variant">1.0.0</span>}
         />
-        <Row
-          icon="description"
-          label="Условия использования"
-          description="Политика и правила"
-          control={
-            <MaterialIcon name="chevron_right" size={18} className="text-on-surface-variant" />
-          }
-        />
-        <Row
-          icon="privacy_tip"
-          label="Политика конфиденциальности"
-          description="Как мы храним данные"
-          control={
-            <MaterialIcon name="chevron_right" size={18} className="text-on-surface-variant" />
-          }
-        />
+        <a href="/terms" target="_blank" rel="noopener noreferrer" className="block">
+          <Row
+            icon="description"
+            label="Условия использования"
+            description="Политика и правила"
+            control={
+              <MaterialIcon name="open_in_new" size={16} className="text-on-surface-variant" />
+            }
+          />
+        </a>
+        <a href="/privacy" target="_blank" rel="noopener noreferrer" className="block">
+          <Row
+            icon="privacy_tip"
+            label="Политика конфиденциальности"
+            description="Как мы храним данные"
+            control={
+              <MaterialIcon name="open_in_new" size={16} className="text-on-surface-variant" />
+            }
+          />
+        </a>
       </Section>
     </>
   );
